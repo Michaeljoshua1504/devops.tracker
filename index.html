@@ -1,0 +1,769 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>DevOps Tracker</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet" />
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+  :root {
+    --bg: #0b0e14;
+    --surface: #131820;
+    --surface2: #1b2230;
+    --border: #2a3347;
+    --accent: #00e5ff;
+    --accent2: #7c3aed;
+    --green: #22d3a0;
+    --yellow: #fbbf24;
+    --red: #f87171;
+    --text: #e2e8f0;
+    --muted: #64748b;
+    --font-mono: 'JetBrains Mono', monospace;
+    --font-display: 'Syne', sans-serif;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-display);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ── HEADER ── */
+  header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem 2rem;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface);
+    position: sticky; top: 0; z-index: 100;
+    backdrop-filter: blur(10px);
+  }
+  .logo { font-size: 1.1rem; font-weight: 800; letter-spacing: -0.02em; }
+  .logo span { color: var(--accent); }
+  .status-dot {
+    display: flex; align-items: center; gap: 0.5rem;
+    font-family: var(--font-mono); font-size: 0.75rem; color: var(--muted);
+  }
+  .dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: var(--muted);
+    transition: background 0.3s;
+  }
+  .dot.connected { background: var(--green); box-shadow: 0 0 8px var(--green); animation: pulse 2s infinite; }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.5} }
+
+  /* ── NAV ── */
+  nav {
+    display: flex; gap: 0; overflow-x: auto;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface);
+  }
+  nav button {
+    background: none; border: none; color: var(--muted);
+    font-family: var(--font-mono); font-size: 0.78rem;
+    padding: 0.85rem 1.5rem; cursor: pointer;
+    border-bottom: 2px solid transparent;
+    white-space: nowrap; transition: all 0.2s;
+    letter-spacing: 0.05em;
+  }
+  nav button:hover { color: var(--text); }
+  nav button.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+  /* ── MAIN ── */
+  main { max-width: 1100px; margin: 0 auto; padding: 2rem 1.5rem; }
+  .tab-content { display: none; }
+  .tab-content.active { display: block; }
+
+  /* ── CARDS ── */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin-bottom: 1rem;
+  }
+  .card h3 {
+    font-size: 0.7rem; font-family: var(--font-mono);
+    letter-spacing: 0.15em; text-transform: uppercase;
+    color: var(--muted); margin-bottom: 0.75rem;
+  }
+
+  /* ── GRID ── */
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+  .grid-3 { display: grid; grid-template-columns: repeat(3,1fr); gap: 1rem; }
+  @media(max-width:700px){ .grid-2,.grid-3{ grid-template-columns:1fr; } }
+
+  /* ── STAT ── */
+  .stat-big { font-size: 2.8rem; font-weight: 800; line-height: 1; }
+  .stat-label { font-size: 0.78rem; color: var(--muted); margin-top: 0.25rem; font-family: var(--font-mono); }
+
+  /* ── PROGRESS BAR ── */
+  .progress-wrap { margin: 1rem 0; }
+  .progress-label { display: flex; justify-content: space-between; font-size: 0.78rem; font-family: var(--font-mono); color: var(--muted); margin-bottom: 0.4rem; }
+  .progress-bar { height: 6px; background: var(--border); border-radius: 3px; overflow: hidden; }
+  .progress-fill { height: 100%; border-radius: 3px; background: linear-gradient(90deg, var(--accent2), var(--accent)); transition: width 0.6s ease; }
+
+  /* ── BADGES ── */
+  .badge {
+    display: inline-block; padding: 0.2rem 0.6rem;
+    border-radius: 4px; font-size: 0.7rem; font-family: var(--font-mono);
+    font-weight: 600; letter-spacing: 0.05em;
+  }
+  .badge-done { background: rgba(34,211,160,0.12); color: var(--green); border: 1px solid rgba(34,211,160,0.3); }
+  .badge-next { background: rgba(0,229,255,0.1); color: var(--accent); border: 1px solid rgba(0,229,255,0.3); }
+  .badge-todo { background: rgba(100,116,139,0.1); color: var(--muted); border: 1px solid var(--border); }
+
+  /* ── TOPIC LIST ── */
+  .topic-item {
+    display: flex; align-items: flex-start; gap: 1rem;
+    padding: 0.9rem 1rem; border-radius: 8px;
+    border: 1px solid var(--border); margin-bottom: 0.5rem;
+    background: var(--surface2); cursor: pointer;
+    transition: border-color 0.2s;
+  }
+  .topic-item:hover { border-color: var(--accent); }
+  .topic-id { font-family: var(--font-mono); font-size: 0.75rem; color: var(--accent2); min-width: 2.5rem; padding-top: 0.1rem; }
+  .topic-name { font-size: 0.9rem; flex: 1; }
+  .topic-notes { font-size: 0.8rem; color: var(--muted); margin-top: 0.25rem; font-family: var(--font-mono); }
+  .phase-header {
+    font-size: 0.65rem; font-family: var(--font-mono); letter-spacing: 0.15em;
+    text-transform: uppercase; color: var(--accent2); margin: 1.5rem 0 0.5rem;
+  }
+
+  /* ── MINDSET ── */
+  .mindset-item {
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 8px; padding: 1rem; margin-bottom: 0.5rem;
+  }
+  .mindset-q { font-size: 0.9rem; margin-bottom: 0.5rem; }
+  .mindset-meta { display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap; }
+  .rating-strong { color: var(--green); font-size: 0.75rem; font-family: var(--font-mono); }
+  .rating-good { color: var(--yellow); font-size: 0.75rem; font-family: var(--font-mono); }
+  .concept-tag {
+    font-size: 0.7rem; background: rgba(124,58,237,0.15);
+    color: #a78bfa; border: 1px solid rgba(124,58,237,0.3);
+    padding: 0.1rem 0.5rem; border-radius: 4px; font-family: var(--font-mono);
+  }
+
+  /* ── SESSION LOG ── */
+  .session-item {
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 8px; padding: 1rem; margin-bottom: 0.75rem;
+  }
+  .session-header { display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 0.5rem; }
+  .session-topic { font-weight: 700; font-size: 0.95rem; }
+  .session-date { font-family: var(--font-mono); font-size: 0.72rem; color: var(--muted); }
+  .session-summary { font-size: 0.85rem; color: var(--muted); margin-top: 0.4rem; line-height: 1.5; }
+  .session-concepts { display: flex; gap: 0.4rem; flex-wrap: wrap; margin-top: 0.6rem; }
+  .concept-chip {
+    font-size: 0.68rem; font-family: var(--font-mono);
+    background: var(--surface); border: 1px solid var(--border);
+    padding: 0.15rem 0.5rem; border-radius: 4px; color: var(--muted);
+  }
+
+  /* ── NOTES ── */
+  textarea {
+    width: 100%; background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 8px; color: var(--text); font-family: var(--font-mono);
+    font-size: 0.85rem; padding: 0.75rem; resize: vertical;
+    min-height: 120px; outline: none; transition: border-color 0.2s;
+  }
+  textarea:focus { border-color: var(--accent); }
+  input[type="text"], input[type="date"], input[type="time"] {
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 8px; color: var(--text); font-family: var(--font-mono);
+    font-size: 0.85rem; padding: 0.6rem 0.75rem; outline: none;
+    transition: border-color 0.2s; width: 100%;
+  }
+  input:focus { border-color: var(--accent); }
+
+  /* ── BUTTONS ── */
+  .btn {
+    display: inline-flex; align-items: center; gap: 0.4rem;
+    padding: 0.6rem 1.2rem; border-radius: 8px; border: none;
+    font-family: var(--font-mono); font-size: 0.8rem; font-weight: 600;
+    cursor: pointer; transition: all 0.2s; letter-spacing: 0.05em;
+  }
+  .btn-primary { background: var(--accent); color: #000; }
+  .btn-primary:hover { background: #00c8e0; transform: translateY(-1px); }
+  .btn-ghost { background: transparent; color: var(--muted); border: 1px solid var(--border); }
+  .btn-ghost:hover { color: var(--text); border-color: var(--text); }
+  .btn-save { background: var(--green); color: #000; }
+  .btn-save:hover { background: #1ab88c; }
+
+  /* ── MODAL ── */
+  .modal-overlay {
+    display: none; position: fixed; inset: 0;
+    background: rgba(0,0,0,0.8); backdrop-filter: blur(4px);
+    z-index: 200; align-items: center; justify-content: center;
+    padding: 1rem;
+  }
+  .modal-overlay.open { display: flex; }
+  .modal {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 16px; padding: 2rem; width: 100%; max-width: 560px;
+    max-height: 90vh; overflow-y: auto;
+  }
+  .modal h2 { font-size: 1.1rem; margin-bottom: 1.5rem; }
+  .form-row { margin-bottom: 1rem; }
+  .form-row label { display: block; font-size: 0.72rem; font-family: var(--font-mono); color: var(--muted); margin-bottom: 0.4rem; letter-spacing: 0.08em; text-transform: uppercase; }
+  .form-row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
+  .modal-footer { display: flex; gap: 0.75rem; justify-content: flex-end; margin-top: 1.5rem; }
+
+  /* ── SETUP ── */
+  .setup-field { margin-bottom: 1rem; }
+  .setup-field label { display: block; font-size: 0.72rem; font-family: var(--font-mono); color: var(--muted); margin-bottom: 0.35rem; letter-spacing: 0.08em; text-transform: uppercase; }
+
+  /* ── TOAST ── */
+  #toast {
+    position: fixed; bottom: 2rem; right: 2rem; z-index: 300;
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 8px; padding: 0.75rem 1.25rem;
+    font-family: var(--font-mono); font-size: 0.8rem;
+    transform: translateY(100px); opacity: 0;
+    transition: all 0.3s; pointer-events: none;
+  }
+  #toast.show { transform: translateY(0); opacity: 1; }
+  #toast.success { border-color: var(--green); color: var(--green); }
+  #toast.error { border-color: var(--red); color: var(--red); }
+
+  /* ── TERMINAL BLOCK ── */
+  .terminal {
+    background: #0d1117; border: 1px solid var(--border);
+    border-radius: 8px; padding: 1rem; font-family: var(--font-mono);
+    font-size: 0.82rem; line-height: 1.7;
+  }
+  .terminal .prompt { color: var(--green); }
+  .terminal .cmd { color: var(--text); }
+  .terminal .out { color: var(--muted); }
+  .terminal .comment { color: #4a5568; font-style: italic; }
+
+  /* scrollbar */
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">devops<span>.</span>tracker</div>
+  <div class="status-dot">
+    <div class="dot" id="statusDot"></div>
+    <span id="statusText">connecting…</span>
+  </div>
+</header>
+
+<nav>
+  <button class="active" onclick="showTab('dashboard')">Dashboard</button>
+  <button onclick="showTab('log')">Daily Log</button>
+  <button onclick="showTab('topics')">Topics</button>
+  <button onclick="showTab('mindset')">Mindset</button>
+  <button onclick="showTab('notes')">Notes</button>
+  <button onclick="showTab('setup')">Setup</button>
+</nav>
+
+<main>
+
+  <!-- ── DASHBOARD ── -->
+  <div id="tab-dashboard" class="tab-content active">
+    <div class="grid-3" style="margin-bottom:1rem">
+      <div class="card">
+        <h3>Topics Done</h3>
+        <div class="stat-big" id="dash-done">—</div>
+        <div class="stat-label">of 41 total</div>
+      </div>
+      <div class="card">
+        <h3>Progress</h3>
+        <div class="stat-big" id="dash-pct">—</div>
+        <div class="stat-label">overall completion</div>
+      </div>
+      <div class="card">
+        <h3>Mindset Moments</h3>
+        <div class="stat-big" id="dash-mindset">—</div>
+        <div class="stat-label">instincts recorded</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Overall Journey</h3>
+      <div class="progress-wrap">
+        <div class="progress-label"><span>Phase 1 — Foundations</span><span id="phase1-pct">0%</span></div>
+        <div class="progress-bar"><div class="progress-fill" id="phase1-bar" style="width:0%"></div></div>
+      </div>
+      <div class="progress-wrap">
+        <div class="progress-label"><span>Phase 2 — Networking + Cloud</span><span>0%</span></div>
+        <div class="progress-bar"><div class="progress-fill" style="width:0%"></div></div>
+      </div>
+      <div class="progress-wrap">
+        <div class="progress-label"><span>Phases 3–8</span><span>0%</span></div>
+        <div class="progress-bar"><div class="progress-fill" style="width:0%"></div></div>
+      </div>
+    </div>
+
+    <div class="card" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem">
+      <div>
+        <div style="font-size:1.1rem;font-weight:700">Ready for Session 3?</div>
+        <div style="color:var(--muted);font-size:0.85rem;margin-top:0.25rem">Next: 1.3 — Terminal hands-on, navigating like a detective</div>
+      </div>
+      <button class="btn btn-primary" onclick="openSaveModal()">+ Save Completed Session</button>
+    </div>
+  </div>
+
+  <!-- ── DAILY LOG ── -->
+  <div id="tab-log" class="tab-content">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;flex-wrap:wrap;gap:0.75rem">
+      <h2 style="font-size:1rem;font-weight:700">Session Log</h2>
+      <button class="btn btn-primary" onclick="openSaveModal()">+ Save Completed Session</button>
+    </div>
+    <div id="sessions-list"><div style="color:var(--muted);font-family:var(--font-mono);font-size:0.8rem">Loading sessions…</div></div>
+  </div>
+
+  <!-- ── TOPICS ── -->
+  <div id="tab-topics" class="tab-content">
+    <h2 style="font-size:1rem;font-weight:700;margin-bottom:1rem">Full Roadmap — 41 Topics</h2>
+    <div id="topics-list"><div style="color:var(--muted);font-family:var(--font-mono);font-size:0.8rem">Loading topics…</div></div>
+  </div>
+
+  <!-- ── MINDSET ── -->
+  <div id="tab-mindset" class="tab-content">
+    <h2 style="font-size:1rem;font-weight:700;margin-bottom:0.5rem">Engineering Mindset Moments</h2>
+    <p style="color:var(--muted);font-size:0.85rem;margin-bottom:1rem">Questions and instincts that show how you think, not just what you know.</p>
+
+    <div class="card" style="margin-bottom:1rem">
+      <div style="display:flex;gap:1rem;flex-wrap:wrap;align-items:center">
+        <div class="stat-big" id="strong-count">—</div>
+        <div>
+          <div style="font-size:0.85rem;font-weight:600">Strong Instincts</div>
+          <div style="font-size:0.75rem;color:var(--muted);font-family:var(--font-mono)">Senior-engineer thinking</div>
+        </div>
+        <div style="margin-left:auto;display:flex;gap:0.5rem;flex-wrap:wrap" id="mindset-filters">
+          <button class="btn btn-ghost" style="font-size:0.72rem;padding:0.35rem 0.75rem" onclick="filterMindset('all')">All</button>
+          <button class="btn btn-ghost" style="font-size:0.72rem;padding:0.35rem 0.75rem" onclick="filterMindset('Strong instinct')">Strong</button>
+          <button class="btn btn-ghost" style="font-size:0.72rem;padding:0.35rem 0.75rem" onclick="filterMindset('Good direction')">Good direction</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="mindset-list"><div style="color:var(--muted);font-family:var(--font-mono);font-size:0.8rem">Loading moments…</div></div>
+  </div>
+
+  <!-- ── NOTES ── -->
+  <div id="tab-notes" class="tab-content">
+    <h2 style="font-size:1rem;font-weight:700;margin-bottom:1rem">My Notes</h2>
+    <div class="card">
+      <div class="form-row">
+        <label>Author</label>
+        <input type="text" id="note-author" placeholder="Your name" style="max-width:300px" />
+      </div>
+      <div class="form-row">
+        <label>Note</label>
+        <textarea id="note-text" placeholder="Write your note here…"></textarea>
+      </div>
+      <button class="btn btn-save" onclick="saveNote()">Save Note</button>
+    </div>
+    <div id="notes-list" style="margin-top:1rem"></div>
+  </div>
+
+  <!-- ── SETUP ── -->
+  <div id="tab-setup" class="tab-content">
+    <h2 style="font-size:1rem;font-weight:700;margin-bottom:1rem">Supabase Setup</h2>
+    <div class="card">
+      <div class="setup-field">
+        <label>Supabase URL</label>
+        <input type="text" id="sb-url" placeholder="https://xxxx.supabase.co" />
+      </div>
+      <div class="setup-field">
+        <label>Supabase Anon Key</label>
+        <input type="text" id="sb-key" placeholder="eyJh..." />
+      </div>
+      <button class="btn btn-primary" onclick="saveConfig()">Save & Connect</button>
+    </div>
+    <div class="card" style="margin-top:1rem">
+      <h3>How to find your credentials</h3>
+      <div style="font-size:0.85rem;color:var(--muted);line-height:1.7">
+        1. Go to <strong style="color:var(--text)">supabase.com</strong> → your project<br>
+        2. Click <strong style="color:var(--text)">Project Settings</strong> (gear icon)<br>
+        3. Click <strong style="color:var(--text)">API</strong><br>
+        4. Copy the <strong style="color:var(--text)">Project URL</strong> and <strong style="color:var(--text)">anon public</strong> key
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<!-- ── SAVE SESSION MODAL ── -->
+<div class="modal-overlay" id="saveModal">
+  <div class="modal">
+    <h2>💾 Save Completed Session</h2>
+    <div class="form-row-2" style="margin-bottom:1rem">
+      <div class="form-row" style="margin-bottom:0">
+        <label>Date</label>
+        <input type="date" id="m-date" />
+      </div>
+      <div class="form-row" style="margin-bottom:0">
+        <label>Time</label>
+        <input type="time" id="m-time" />
+      </div>
+    </div>
+    <div class="form-row-2" style="margin-bottom:1rem">
+      <div class="form-row" style="margin-bottom:0">
+        <label>Topic ID (e.g. 1.3)</label>
+        <input type="text" id="m-topicid" placeholder="1.3" />
+      </div>
+      <div class="form-row" style="margin-bottom:0">
+        <label>Topic Name</label>
+        <input type="text" id="m-topicname" placeholder="Terminal hands-on" />
+      </div>
+    </div>
+    <div class="form-row">
+      <label>Full Teaching Notes (everything taught — analogies, examples, explanations)</label>
+      <textarea id="m-fullnotes" style="min-height:200px" placeholder="Write the complete teaching notes here. Include all analogies, examples, and explanations exactly as taught…"></textarea>
+    </div>
+    <div class="form-row">
+      <label>Summary (short — 2 to 3 lines max)</label>
+      <textarea id="m-summary" style="min-height:70px" placeholder="Short summary of what was covered…"></textarea>
+    </div>
+    <div class="form-row">
+      <label>Key Concepts (comma separated)</label>
+      <input type="text" id="m-concepts" placeholder="pwd, ls, cd, absolute vs relative path" />
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-save" onclick="saveSession()">Save Session</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div id="toast"></div>
+
+<script>
+// ── STATE ──
+let sb = null;
+let allMindset = [];
+
+// ── INIT ──
+window.addEventListener('DOMContentLoaded', () => {
+  loadConfig();
+  setDefaultDate();
+});
+
+function setDefaultDate() {
+  const now = new Date();
+  const d = now.toISOString().split('T')[0];
+  const t = now.toTimeString().slice(0,5);
+  const el = document.getElementById('m-date');
+  const et = document.getElementById('m-time');
+  if(el) el.value = d;
+  if(et) et.value = t;
+}
+
+// ── CONFIG ──
+function loadConfig() {
+  const url = localStorage.getItem('sb_url');
+  const key = localStorage.getItem('sb_key');
+  if(url) document.getElementById('sb-url').value = url;
+  if(key) document.getElementById('sb-key').value = key;
+  if(url && key) initSupabase(url, key);
+  else setStatus(false, 'no credentials');
+}
+
+function saveConfig() {
+  const url = document.getElementById('sb-url').value.trim();
+  const key = document.getElementById('sb-key').value.trim();
+  if(!url || !key){ toast('Please fill in both fields','error'); return; }
+  localStorage.setItem('sb_url', url);
+  localStorage.setItem('sb_key', key);
+  initSupabase(url, key);
+  toast('Credentials saved!','success');
+}
+
+function initSupabase(url, key) {
+  try {
+    sb = window.supabase.createClient(url, key);
+    testConnection();
+  } catch(e) {
+    setStatus(false,'init error');
+  }
+}
+
+async function testConnection() {
+  try {
+    const { data, error } = await sb.from('topic_status').select('id').limit(1);
+    if(error) throw error;
+    setStatus(true,'Connected to Supabase');
+    loadAll();
+  } catch(e) {
+    setStatus(false,'connection failed');
+  }
+}
+
+function setStatus(ok, msg) {
+  document.getElementById('statusDot').className = 'dot' + (ok?' connected':'');
+  document.getElementById('statusText').textContent = msg;
+}
+
+// ── LOAD ALL DATA ──
+async function loadAll() {
+  loadTopics();
+  loadSessions();
+  loadMindset();
+  loadNotes();
+  loadDashboard();
+}
+
+// ── TABS ──
+function showTab(name) {
+  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + name).classList.add('active');
+  event.target.classList.add('active');
+}
+
+// ── DASHBOARD ──
+async function loadDashboard() {
+  if(!sb) return;
+  const { data: topics } = await sb.from('topic_status').select('status');
+  const { data: mindset } = await sb.from('mindset_moments').select('id');
+  const done = topics ? topics.filter(t => t.status === 'done').length : 0;
+  const total = topics ? topics.length : 41;
+  const pct = total > 0 ? Math.round((done / total) * 100) : 0;
+  document.getElementById('dash-done').textContent = done;
+  document.getElementById('dash-pct').textContent = pct + '%';
+  document.getElementById('dash-mindset').textContent = mindset ? mindset.length : 0;
+
+  // phase 1 (ids 1-7)
+  const { data: p1 } = await sb.from('topic_status').select('status').gte('id',1).lte('id',7);
+  const p1done = p1 ? p1.filter(t=>t.status==='done').length : 0;
+  const p1pct = Math.round((p1done/7)*100);
+  document.getElementById('phase1-pct').textContent = p1pct+'%';
+  document.getElementById('phase1-bar').style.width = p1pct+'%';
+}
+
+// ── TOPICS ──
+const PHASES = [
+  { label:'Phase 1 — Foundations', ids:[1,2,3,4,5,6,7] },
+  { label:'Phase 2 — Networking + Cloud', ids:[8,9,10,11,12,13,14] },
+  { label:'Phase 3 — Python for DevOps', ids:[15,16,17,18,19,20] },
+  { label:'Phase 4 — Git', ids:[21,22,23,24] },
+  { label:'Phase 5 — Docker', ids:[25,26,27,28] },
+  { label:'Phase 6 — CI/CD', ids:[29,30,31,32,33] },
+  { label:'Phase 7 — IaC + Kubernetes', ids:[34,35,36,37] },
+  { label:'Phase 8 — AIOps', ids:[38,39,40,41] },
+];
+
+async function loadTopics() {
+  if(!sb) return;
+  const { data, error } = await sb.from('topic_status').select('*').order('id');
+  if(error || !data){ document.getElementById('topics-list').innerHTML='<div style="color:var(--red);font-family:var(--font-mono);font-size:0.8rem">Error loading topics</div>'; return; }
+  const map = {};
+  data.forEach(t => map[t.id] = t);
+  let html = '';
+  PHASES.forEach(phase => {
+    html += `<div class="phase-header">${phase.label}</div>`;
+    phase.ids.forEach(id => {
+      const t = map[id];
+      if(!t) return;
+      const badge = t.status === 'done' ? 'badge-done' : t.status === 'next' ? 'badge-next' : 'badge-todo';
+      const label = t.status === 'done' ? 'Done' : t.status === 'next' ? 'Next' : 'Todo';
+      const hasFullNotes = t.full_notes && t.full_notes.trim().length > 0;
+      const hasSummary = t.session_note && t.session_note.trim().length > 0;
+      const notesHtml = (hasFullNotes || hasSummary)
+        ? `<div class="topic-expand" id="expand-${id}" style="display:none">
+            <div style="margin-top:0.75rem;padding-top:0.75rem;border-top:1px solid var(--border)">
+              ${hasFullNotes ? `
+                <div style="font-size:0.7rem;font-family:var(--font-mono);color:var(--accent2);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:0.5rem">📖 Full Teaching Notes</div>
+                <div style="font-size:0.85rem;color:var(--text);line-height:1.9;white-space:pre-wrap;margin-bottom:1rem">${t.full_notes}</div>
+              ` : ''}
+              ${hasSummary ? `
+                <div style="font-size:0.7rem;font-family:var(--font-mono);color:var(--accent2);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:0.4rem">📝 Summary</div>
+                <div style="font-size:0.82rem;color:var(--muted);line-height:1.7">${t.session_note}</div>
+              ` : ''}
+            </div>
+          </div>`
+        : `<div class="topic-expand" id="expand-${id}" style="display:none">
+            <div style="margin-top:0.75rem;padding-top:0.75rem;border-top:1px solid var(--border);font-size:0.82rem;color:var(--muted);font-family:var(--font-mono)">
+              No teaching notes saved yet. Save this session using the Daily Log tab.
+            </div>
+          </div>`;
+      html += `<div class="topic-item" onclick="toggleTopicNotes(this, ${id})" style="flex-direction:column;align-items:stretch">
+        <div style="display:flex;align-items:center;gap:1rem">
+          <div class="topic-id">${t.topic_id || id}</div>
+          <div style="flex:1">
+            <div class="topic-name">${t.topic_name}</div>
+          </div>
+          <span class="badge ${badge}">${label}</span>
+          <span style="font-size:0.7rem;color:var(--muted);font-family:var(--font-mono)">▼</span>
+        </div>
+        ${notesHtml}
+      </div>`;
+    });
+  });
+  document.getElementById('topics-list').innerHTML = html;
+}
+
+function toggleTopicNotes(el, id) {
+  const expand = document.getElementById('expand-' + id);
+  const arrow = el.querySelector('span:last-child');
+  const isOpen = expand.style.display !== 'none';
+  expand.style.display = isOpen ? 'none' : 'block';
+  arrow.textContent = isOpen ? '▼' : '▲';
+  el.style.borderColor = isOpen ? '' : 'var(--accent)';
+}
+
+// ── SESSIONS ──
+async function loadSessions() {
+  if(!sb) return;
+  const { data, error } = await sb.from('sessions').select('*').order('created_at', {ascending:false});
+  const list = document.getElementById('sessions-list');
+  if(error || !data || data.length===0){ list.innerHTML='<div style="color:var(--muted);font-family:var(--font-mono);font-size:0.8rem">No sessions saved yet. Use the button above to record your first session.</div>'; return; }
+  list.innerHTML = data.map(s => {
+    const concepts = s.concepts ? s.concepts.split(',').map(c=>`<span class="concept-chip">${c.trim()}</span>`).join('') : '';
+    return `<div class="session-item">
+      <div class="session-header">
+        <div class="session-topic">${s.topic_id ? s.topic_id+' — ' : ''}${s.topic_name || 'Session'}</div>
+        <div class="session-date">${s.date || ''} ${s.time || ''}</div>
+      </div>
+      ${s.full_notes ? `<div style="font-size:0.82rem;color:var(--text);line-height:1.8;white-space:pre-wrap;margin-top:0.5rem;padding:0.75rem;background:var(--bg);border-radius:6px;border:1px solid var(--border)">${s.full_notes}</div>` : ''}
+      <div class="session-summary" style="margin-top:0.4rem">${s.summary || ''}</div>
+      ${concepts ? `<div class="session-concepts">${concepts}</div>` : ''}
+    </div>`;
+  }).join('');
+}
+
+// ── MINDSET ──
+async function loadMindset() {
+  if(!sb) return;
+  const { data, error } = await sb.from('mindset_moments').select('*').order('created_at', {ascending:false});
+  if(error || !data){ document.getElementById('mindset-list').innerHTML='<div style="color:var(--red);font-family:var(--font-mono);font-size:0.8rem">Error loading</div>'; return; }
+  allMindset = data;
+  const strong = data.filter(m => m.rating === 'Strong instinct').length;
+  document.getElementById('strong-count').textContent = strong;
+  renderMindset(data);
+}
+
+function filterMindset(f) {
+  const filtered = f === 'all' ? allMindset : allMindset.filter(m => m.rating === f);
+  renderMindset(filtered);
+}
+
+function renderMindset(data) {
+  document.getElementById('mindset-list').innerHTML = data.map(m => {
+    const ratingClass = m.rating === 'Strong instinct' ? 'rating-strong' : 'rating-good';
+    return `<div class="mindset-item">
+      <div class="mindset-q">${m.question}</div>
+      <div class="mindset-meta">
+        <span class="${ratingClass}">★ ${m.rating}</span>
+        ${m.concept ? `<span class="concept-tag">${m.concept}</span>` : ''}
+        ${m.linked_topic ? `<span class="concept-tag" style="color:var(--muted)">→ ${m.linked_topic}</span>` : ''}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ── NOTES ──
+async function loadNotes() {
+  if(!sb) return;
+  const { data } = await sb.from('notes').select('*').order('created_at', {ascending:false});
+  if(!data || data.length===0){ document.getElementById('notes-list').innerHTML=''; return; }
+  document.getElementById('notes-list').innerHTML = data.map(n =>
+    `<div class="session-item">
+      <div class="session-header">
+        <div style="font-size:0.8rem;color:var(--muted);font-family:var(--font-mono)">${n.author || 'Anonymous'}</div>
+        <div class="session-date">${n.created_at ? new Date(n.created_at).toLocaleDateString() : ''}</div>
+      </div>
+      <div style="margin-top:0.4rem;font-size:0.88rem;line-height:1.5">${n.note_text || ''}</div>
+    </div>`
+  ).join('');
+}
+
+async function saveNote() {
+  if(!sb){ toast('Not connected to Supabase','error'); return; }
+  const author = document.getElementById('note-author').value.trim() || 'Anonymous';
+  const content = document.getElementById('note-text').value.trim();
+  if(!content){ toast('Please write something','error'); return; }
+  const { error } = await sb.from('notes').insert({ author, note_text: content });
+  if(error){ toast('Error: '+error.message,'error'); return; }
+  document.getElementById('note-text').value = '';
+  toast('Note saved!','success');
+  loadNotes();
+}
+
+// ── SAVE SESSION MODAL ──
+function openSaveModal() {
+  setDefaultDate();
+  document.getElementById('saveModal').classList.add('open');
+}
+function closeModal() {
+  document.getElementById('saveModal').classList.remove('open');
+}
+
+async function saveSession() {
+  if(!sb){ toast('Not connected to Supabase','error'); return; }
+  const date = document.getElementById('m-date').value;
+  const time = document.getElementById('m-time').value;
+  const topicId = document.getElementById('m-topicid').value.trim();
+  const topicName = document.getElementById('m-topicname').value.trim();
+  const fullNotes = document.getElementById('m-fullnotes').value.trim();
+  const summary = document.getElementById('m-summary').value.trim();
+  const concepts = document.getElementById('m-concepts').value.trim();
+
+  if(!topicName || !summary){ toast('Please fill in topic name and summary','error'); return; }
+
+  // Insert session with correct column names
+  const { error: sessErr } = await sb.from('sessions').insert({
+    date: date,
+    time: time,
+    topic_id: topicId,
+    topic_name: topicName,
+    full_notes: fullNotes,
+    summary,
+    concepts
+  });
+  if(sessErr){ toast('Error saving session: '+sessErr.message,'error'); return; }
+
+  // Update topic_status with correct column names
+  if(topicId) {
+    await sb.from('topic_status')
+      .update({ status: 'done', session_note: summary, full_notes: fullNotes })
+      .eq('topic_id', topicId);
+
+    // Mark next topic as next
+    const parts = topicId.split('.');
+    if(parts.length===2) {
+      const nextId = parts[0]+'.'+( parseInt(parts[1])+1 );
+      await sb.from('topic_status').update({ status: 'next' }).eq('topic_id', nextId);
+    }
+  }
+
+  toast('Session saved! 🎉','success');
+  closeModal();
+  loadAll();
+
+  // Reset form
+  document.getElementById('m-fullnotes').value='';
+  document.getElementById('m-topicid').value='';
+  document.getElementById('m-topicname').value='';
+  document.getElementById('m-summary').value='';
+  document.getElementById('m-concepts').value='';
+}
+
+// ── TOAST ──
+function toast(msg, type='success') {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.className = 'show ' + type;
+  setTimeout(() => el.className = '', 3000);
+}
+
+// Close modal on overlay click
+document.getElementById('saveModal').addEventListener('click', function(e){ if(e.target===this) closeModal(); });
+</script>
+</body>
+</html>
