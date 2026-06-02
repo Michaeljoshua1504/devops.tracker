@@ -1,900 +1,1038 @@
-<!DOCTYPE html>  
-<html lang="en">  
-<head>  
-<meta charset="UTF-8" />  
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />  
-<title>DevOps Tracker</title>  
-<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32' fill='none'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='2' y1='16' x2='30' y2='16' gradientUnits='userSpaceOnUse'%3E%3Cstop offset='0%25' stop-color='%2300e5ff'/%3E%3Cstop offset='100%25' stop-color='%237c3aed'/%3E%3C/linearGradient%3E%3C/defs%3E%3Cpath d='M9.5 10C5.35 10 2 12.68 2 16s3.35 6 7.5 6c3.37 0 5.11-1.91 6-2.88.89.97 2.63 2.88 6 2.88 4.15 0 7.5-2.68 7.5-6s-3.35-6-7.5-6c-3.37 0-5.11 1.91-6 2.88-.89-.97-2.63-2.88-6-2.88z' stroke='url(%23g)' stroke-width='2.5'/%3E%3Ccircle cx='16' cy='16' r='1.5' fill='%2300e5ff'/%3E%3C/svg%3E">
-<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet" />  
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>  
-<style>  
-:root {  
---bg: #0b0e14;  
---surface: #131820;  
---surface2: #1b2230;  
---border: #2a3347;  
---accent: #00e5ff;  
---accent2: #7c3aed;  
---green: #22d3a0;  
---yellow: #fbbf24;  
---red: #f87171;  
---text: #e2e8f0;  
---muted: #64748b;  
---font-mono: 'JetBrains Mono', monospace;  
---font-display: 'Syne', sans-serif;  
-}  
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }  
-html { scroll-behavior: smooth; }  
-body {  
-background: var(--bg);  
-color: var(--text);  
-font-family: var(--font-display);  
-min-height: 100vh;  
-overflow-x: hidden;  
-}  
-header {  
+<!DOCTYPE html>   
+<html lang="en" data-theme="dark">   
+<head>   
+<meta charset="UTF-8" />   
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />   
+<title>DevOps Tracker</title>   
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32' fill='none'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='2' y1='16' x2='30' y2='16' gradientUnits='userSpaceOnUse'%3E%3Cstop offset='0%25' stop-color='%2300e5ff'/%3E%3Cstop offset='100%25' stop-color='%237c3aed'/%3E%3C/linearGradient%3E%3C/defs%3E%3Cpath d='M9.5 10C5.35 10 2 12.68 2 16s3.35 6 7.5 6c3.37 0 5.11-1.91 6-2.88.89.97 2.63 2.88 6 2.88 4.15 0 7.5-2.68 7.5-6s-3.35-6-7.5-6c-3.37 0-5.11 1.91-6 2.88-.89-.97-2.63-2.88-6-2.88z' stroke='url(%23g)' stroke-width='2.5'/%3E%3Ccircle cx='16' cy='16' r='1.5' fill='%2300e5ff'/%3E%3C/svg%3E">   
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=SF+Pro+Display:wght@400;500;600;700&display=swap" rel="stylesheet" />   
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>   
+<style>   
+:root[data-theme="dark"] {   
+--bg: #090a0f;   
+--surface: rgba(22, 24, 35, 0.75);   
+--surface2: rgba(32, 37, 54, 0.6);   
+--border: rgba(255, 255, 255, 0.08);   
+--accent: #30d158;   
+--accent2: #bf5af2;   
+--accent-blue: #0a84ff;  
+--green: #30d158;   
+--yellow: #ffd60a;   
+--red: #ff453a;   
+--text: #ffffff;   
+--muted: #8e8e93;   
+--font-mono: 'JetBrains Mono', monospace;   
+--font-display: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Helvetica Neue", sans-serif;   
+--card-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);  
+} 
+
+:root[data-theme="light"] {   
+--bg: #f2f2f7;   
+--surface: rgba(255, 255, 255, 0.8);   
+--surface2: rgba(242, 242, 247, 0.9);   
+--border: rgba(0, 0, 0, 0.06);   
+--accent: #34c759;   
+--accent2: #af52de;   
+--accent-blue: #007aff;  
+--green: #34c759;   
+--yellow: #ffcc00;   
+--red: #ff3b30;   
+--text: #000000;   
+--muted: #8e8e93;   
+--font-mono: 'JetBrains Mono', monospace;   
+--font-display: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Helvetica Neue", sans-serif;   
+--card-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.04);  
+} 
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }   
+html { scroll-behavior: smooth; }   
+body {   
+background: var(--bg);   
+color: var(--text);   
+font-family: var(--font-display);   
+min-height: 100vh;   
+overflow-x: hidden;   
+transition: background 0.3s, color 0.3s;  
+} 
+
+header {   
+display: flex;   
+align-items: center;   
+justify-content: space-between;   
+padding: 1.25rem 2rem;   
+border-bottom: 1px solid var(--border);   
+background: var(--surface);   
+position: sticky; top: 0; z-index: 100;   
+backdrop-filter: blur(20px);   
+-webkit-backdrop-filter: blur(20px);  
+}   
+.logo { font-size: 1.25rem; font-weight: 700; letter-spacing: -0.03em; }   
+.logo span { color: var(--accent-blue); } 
+
+.header-actions {  
 display: flex;  
 align-items: center;  
-justify-content: space-between;  
-padding: 1rem 2rem;  
+gap: 1.5rem;  
+}
+
+.theme-toggle {  
+background: none;  
+border: none;  
+font-size: 1.25rem;  
+cursor: pointer;  
+color: var(--text);  
+display: flex;  
+align-items: center;  
+justify-content: center;  
+width: 36px;  
+height: 36px;  
+border-radius: 50%;  
+transition: background 0.2s;  
+}  
+.theme-toggle:hover {  
+background: var(--border);  
+}
+
+.status-dot {   
+display: flex; align-items: center; gap: 0.5rem;   
+font-family: var(--font-mono); font-size: 0.75rem; color: var(--muted);   
+}   
+.dot {   
+width: 8px; height: 8px; border-radius: 50%;   
+background: var(--muted);   
+transition: background 0.3s, box-shadow 0.3s;   
+}   
+.dot.connected { background: var(--green); box-shadow: 0 0 10px var(--green); animation: pulse 2s infinite; }   
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.5} } 
+
+.nav-container {  
+display: flex;  
+justify-content: center;  
+padding: 0.75rem 1rem;  
+background: var(--bg);  
+position: sticky;  
+top: 69px;  
+z-index: 90;  
+backdrop-filter: blur(20px);  
+-webkit-backdrop-filter: blur(20px);  
 border-bottom: 1px solid var(--border);  
+}
+
+nav {   
+display: flex;  
+background: rgba(120, 120, 128, 0.12);   
+border-radius: 9px;  
+padding: 2px;  
+overflow-x: auto;   
+max-width: 100%;  
+-webkit-overflow-scrolling: touch;  
+}   
+nav::-webkit-scrollbar { display: none; }  
+nav button {   
+background: none; border: none; color: var(--text);   
+font-family: var(--font-display); font-size: 0.85rem; font-weight: 500;   
+padding: 0.5rem 1.25rem; cursor: pointer;   
+border-radius: 7px;  
+white-space: nowrap; transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);   
+}   
+nav button:hover { opacity: 0.8; }   
+nav button.active {  
 background: var(--surface);  
-position: sticky; top: 0; z-index: 100;  
+color: var(--text);  
+box-shadow: 0px 3px 8px rgba(0,0,0,0.12), 0px 3px 1px rgba(0,0,0,0.04);  
+} 
+
+main { max-width: 1000px; margin: 0 auto; padding: 2rem 1.5rem; }   
+.tab-content { display: none; }   
+.tab-content.active { display: block; animation: fadeIn 0.4s ease; }   
+@keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+
+.card {   
+background: var(--surface);   
+border: 1px solid var(--border);   
+border-radius: 14px;   
+padding: 1.5rem;   
+margin-bottom: 1.25rem;   
+box-shadow: var(--card-shadow);  
 backdrop-filter: blur(10px);  
-}  
-.logo { font-size: 1.1rem; font-weight: 800; letter-spacing: -0.02em; }  
-.logo span { color: var(--accent); }  
-.status-dot {  
-display: flex; align-items: center; gap: 0.5rem;  
-font-family: var(--font-mono); font-size: 0.75rem; color: var(--muted);  
-}  
-.dot {  
-width: 8px; height: 8px; border-radius: 50%;  
-background: var(--muted);  
-transition: background 0.3s;  
-}  
-.dot.connected { background: var(--green); box-shadow: 0 0 8px var(--green); animation: pulse 2s infinite; }  
-@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.5} }  
-nav {  
-display: flex; gap: 0; overflow-x: auto;  
-border-bottom: 1px solid var(--border);  
-background: var(--surface);  
-}  
-nav button {  
-background: none; border: none; color: var(--muted);  
-font-family: var(--font-mono); font-size: 0.78rem;  
-padding: 0.85rem 1.5rem; cursor: pointer;  
-border-bottom: 2px solid transparent;  
-white-space: nowrap; transition: all 0.2s;  
-letter-spacing: 0.05em;  
-}  
-nav button:hover { color: var(--text); }  
-nav button.active { color: var(--accent); border-bottom-color: var(--accent); }  
-main { max-width: 1100px; margin: 0 auto; padding: 2rem 1.5rem; }  
-.tab-content { display: none; }  
-.tab-content.active { display: block; }  
-.card {  
-background: var(--surface);  
-border: 1px solid var(--border);  
-border-radius: 12px;  
-padding: 1.5rem;  
-margin-bottom: 1rem;  
-}  
-.card h3 {  
-font-size: 0.7rem; font-family: var(--font-mono);  
-letter-spacing: 0.15em; text-transform: uppercase;  
-color: var(--muted); margin-bottom: 0.75rem;  
-}  
-.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }  
-.grid-3 { display: grid; grid-template-columns: repeat(3,1fr); gap: 1rem; }  
-@media(max-width:700px){ .grid-2,.grid-3{ grid-template-columns:1fr; } }  
-.stat-big { font-size: 2.8rem; font-weight: 800; line-height: 1; }  
-.stat-label { font-size: 0.78rem; color: var(--muted); margin-top: 0.25rem; font-family: var(--font-mono); }  
-.progress-wrap { margin: 1rem 0; }  
-.progress-label { display: flex; justify-content: space-between; font-size: 0.78rem; font-family: var(--font-mono); color: var(--muted); margin-bottom: 0.4rem; }  
-.progress-bar { height: 6px; background: var(--border); border-radius: 3px; overflow: hidden; }  
-.progress-fill { height: 100%; border-radius: 3px; background: linear-gradient(90deg, var(--accent2), var(--accent)); transition: width 0.6s ease; }  
-.badge {  
-display: inline-block; padding: 0.2rem 0.6rem;  
-border-radius: 4px; font-size: 0.7rem; font-family: var(--font-mono);  
-font-weight: 600; letter-spacing: 0.05em;  
-}  
-.badge-done { background: rgba(34,211,160,0.12); color: var(--green); border: 1px solid rgba(34,211,160,0.3); }  
-.badge-next { background: rgba(0,229,255,0.1); color: var(--accent); border: 1px solid rgba(0,229,255,0.3); }  
-.badge-todo { background: rgba(100,116,139,0.1); color: var(--muted); border: 1px solid var(--border); }  
-.topic-item {  
-display: flex; align-items: flex-start; gap: 1rem;  
-padding: 0.9rem 1rem; border-radius: 8px;  
-border: 1px solid var(--border); margin-bottom: 0.5rem;  
-background: var(--surface2); cursor: pointer;  
-transition: border-color 0.2s;  
-}  
-.topic-item:hover { border-color: var(--accent); }  
-.topic-id { font-family: var(--font-mono); font-size: 0.75rem; color: var(--accent2); min-width: 2.5rem; padding-top: 0.1rem; }  
-.topic-name { font-size: 0.9rem; flex: 1; }  
-.topic-notes { font-size: 0.8rem; color: var(--muted); margin-top: 0.25rem; font-family: var(--font-mono); }  
-.phase-header {  
-font-size: 0.65rem; font-family: var(--font-mono); letter-spacing: 0.15em;  
-text-transform: uppercase; color: var(--accent2); margin: 1.5rem 0 0.5rem;  
-}  
-.mindset-item {  
-background: var(--surface2); border: 1px solid var(--border);  
-border-radius: 8px; padding: 1rem; margin-bottom: 0.5rem;  
-cursor: pointer;  
-}  
-.mindset-q { font-size: 0.9rem; margin-bottom: 0.5rem; }  
-.mindset-meta { display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap; }  
-.rating-strong { color: var(--green); font-size: 0.75rem; font-family: var(--font-mono); }  
-.rating-good { color: var(--yellow); font-size: 0.75rem; font-family: var(--font-mono); }  
-.concept-tag {  
-font-size: 0.7rem; background: rgba(124,58,237,0.15);  
-color: #a78bfa; border: 1px solid rgba(124,58,237,0.3);  
-padding: 0.1rem 0.5rem; border-radius: 4px; font-family: var(--font-mono);  
-}  
-.session-item {  
-background: var(--surface2); border: 1px solid var(--border);  
-border-radius: 8px; padding: 1rem; margin-bottom: 0.75rem;  
-cursor: pointer;  
-}  
-.session-header { display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 0.5rem; }  
-.session-topic { font-weight: 700; font-size: 0.95rem; }  
-.session-date { font-family: var(--font-mono); font-size: 0.72rem; color: var(--muted); }  
-.session-concepts { display: flex; gap: 0.4rem; flex-wrap: wrap; margin-top: 0.6rem; }  
-.concept-chip {  
-font-size: 0.68rem; font-family: var(--font-mono);  
-background: var(--surface); border: 1px solid var(--border);  
-padding: 0.15rem 0.5rem; border-radius: 4px; color: var(--muted);  
-}  
-textarea {  
-width: 100%; background: var(--surface2); border: 1px solid var(--border);  
-border-radius: 8px; color: var(--text); font-family: var(--font-mono);  
-font-size: 0.85rem; padding: 0.75rem; resize: vertical;  
-min-height: 120px; outline: none; transition: border-color 0.2s;  
-}  
-textarea:focus { border-color: var(--accent); }  
-input[type="text"], input[type="date"], input[type="time"] {  
-background: var(--surface2); border: 1px solid var(--border);  
-border-radius: 8px; color: var(--text); font-family: var(--font-mono);  
-font-size: 0.85rem; padding: 0.6rem 0.75rem; outline: none;  
-transition: border-color 0.2s; width: 100%;  
-}  
-input:focus { border-color: var(--accent); }  
-.btn {  
-display: inline-flex; align-items: center; gap: 0.4rem;  
-padding: 0.6rem 1.2rem; border-radius: 8px; border: none;  
-font-family: var(--font-mono); font-size: 0.8rem; font-weight: 600;  
-cursor: pointer; transition: all 0.2s; letter-spacing: 0.05em;  
-}  
-.btn-primary { background: var(--accent); color: #000; }  
-.btn-primary:hover { background: #00c8e0; transform: translateY(-1px); }  
-.btn-ghost { background: transparent; color: var(--muted); border: 1px solid var(--border); }  
-.btn-ghost:hover { color: var(--text); border-color: var(--text); }  
-.btn-save { background: var(--green); color: #000; }  
-.btn-save:hover { background: #1ab88c; }  
-.modal-overlay {  
-display: none; position: fixed; inset: 0;  
-background: rgba(0,0,0,0.8); backdrop-filter: blur(4px);  
-z-index: 200; align-items: center; justify-content: center;  
-padding: 1rem;  
-}  
-.modal-overlay.open { display: flex; }  
-.modal {  
-background: var(--surface); border: 1px solid var(--border);  
-border-radius: 16px; padding: 2rem; width: 100%; max-width: 560px;  
-max-height: 90vh; overflow-y: auto;  
-}  
-.modal h2 { font-size: 1.1rem; margin-bottom: 1.5rem; }  
-.form-row { margin-bottom: 1rem; }  
-.form-row label { display: block; font-size: 0.72rem; font-family: var(--font-mono); color: var(--muted); margin-bottom: 0.4rem; letter-spacing: 0.08em; text-transform: uppercase; }  
-.form-row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }  
-.modal-footer { display: flex; gap: 0.75rem; justify-content: flex-end; margin-top: 1.5rem; }  
-.setup-field { margin-bottom: 1rem; }  
-.setup-field label { display: block; font-size: 0.72rem; font-family: var(--font-mono); color: var(--muted); margin-bottom: 0.35rem; letter-spacing: 0.08em; text-transform: uppercase; }  
-#toast {  
-position: fixed; bottom: 2rem; right: 2rem; z-index: 300;  
-background: var(--surface2); border: 1px solid var(--border);  
-border-radius: 8px; padding: 0.75rem 1.25rem;  
-font-family: var(--font-mono); font-size: 0.8rem;  
-transform: translateY(100px); opacity: 0;  
-transition: all 0.3s; pointer-events: none;  
-}  
-#toast.show { transform: translateY(0); opacity: 1; }  
-#toast.success { border-color: var(--green); color: var(--green); }  
-#toast.error { border-color: var(--red); color: var(--red); }  
-.terminal {  
-background: #0d1117; border: 1px solid var(--border);  
-border-radius: 8px; padding: 1rem; font-family: var(--font-mono);  
-font-size: 0.82rem; line-height: 1.7;  
-}  
-.terminal .prompt { color: var(--green); }  
-.terminal .cmd { color: var(--text); }  
-.terminal .out { color: var(--muted); }  
-.terminal .comment { color: #4a5568; font-style: italic; }  
-::-webkit-scrollbar { width: 6px; height: 6px; }  
-::-webkit-scrollbar-track { background: transparent; }  
-::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }  
-/* Session expand/collapse */  
-.session-body { display: none; }  
-.session-item.expanded .session-body { display: block; }  
-.session-expand-hint { font-size: 0.72rem; color: var(--muted); font-family: var(--font-mono); margin-top: 0.4rem; }  
-.session-summary {  
-font-size: 0.85rem;  
-color: var(--muted);  
-margin-top: 0.3rem;  
-line-height: 1.5;  
-display: -webkit-box;  
--webkit-line-clamp: 2;  
--webkit-box-orient: vertical;  
-overflow: hidden;  
-}  
-.session-item.expanded .session-summary {  
-display: block;  
-overflow: visible;  
--webkit-line-clamp: unset;  
-}  
-</style>  
-</head>  
+webkit-backdrop-filter: blur(10px);  
+}   
+.card h3 {   
+font-size: 0.75rem; font-family: var(--font-display); font-weight: 600;  
+letter-spacing: 0.05em; text-transform: uppercase;   
+color: var(--muted); margin-bottom: 0.75rem;   
+}   
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; }   
+.grid-3 { display: grid; grid-template-columns: repeat(3,1fr); gap: 1.25rem; }   
+@media(max-width:700px){ .grid-2,.grid-3{ grid-template-columns:1fr; } } 
+
+.stat-big { font-size: 3rem; font-weight: 700; line-height: 1.1; letter-spacing: -0.02em; }   
+.stat-label { font-size: 0.8rem; color: var(--muted); margin-top: 0.35rem; font-weight: 500; } 
+
+.progress-wrap { margin: 1.25rem 0; }   
+.progress-label { display: flex; justify-content: space-between; font-size: 0.85rem; font-weight: 500; color: var(--text); margin-bottom: 0.5rem; }   
+.progress-bar { height: 7px; background: rgba(120, 120, 128, 0.16); border-radius: 4px; overflow: hidden; }   
+.progress-fill { height: 100%; border-radius: 4px; background: var(--accent-blue); transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1); } 
+
+.badge {   
+display: inline-block; padding: 0.25rem 0.6rem;   
+border-radius: 6px; font-size: 0.75rem; font-weight: 600;   
+}   
+.badge-done { background: rgba(48,209,88,0.15); color: var(--green); }   
+.badge-next { background: rgba(10,132,255,0.15); color: var(--accent-blue); }   
+.badge-todo { background: rgba(142,142,147,0.15); color: var(--muted); } 
+
+.topic-item {   
+display: flex; align-items: flex-start; gap: 1rem;   
+padding: 1rem 1.25rem; border-radius: 12px;   
+border: 1px solid var(--border); margin-bottom: 0.6rem;   
+background: var(--surface2); cursor: pointer;   
+transition: all 0.2s;   
+}   
+.topic-item:hover { border-color: var(--accent-blue); transform: translateY(-1px); }   
+.topic-id { font-family: var(--font-mono); font-size: 0.8rem; font-weight: 600; color: var(--accent2); min-width: 2.5rem; }   
+.topic-name { font-size: 0.95rem; font-weight: 500; flex: 1; } 
+
+.phase-header {   
+font-size: 0.85rem; font-weight: 600;   
+color: var(--text); margin: 2rem 0 0.75rem; padding-left: 0.25rem;  
+} 
+
+.mindset-item {   
+background: var(--surface2); border: 1px solid var(--border);   
+border-radius: 12px; padding: 1.25rem; margin-bottom: 0.6rem;   
+cursor: pointer; transition: border-color 0.2s;  
+}   
+.mindset-item:hover { border-color: var(--accent2); }  
+.mindset-q { font-size: 1rem; font-weight: 500; margin-bottom: 0.6rem; }   
+.mindset-meta { display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap; }   
+.rating-strong { color: var(--green); font-size: 0.75rem; font-weight: 600; }   
+.rating-good { color: var(--yellow); font-size: 0.75rem; font-weight: 600; }   
+.concept-tag {   
+font-size: 0.72rem; background: rgba(191,90,242,0.12);   
+color: var(--accent2); padding: 0.2rem 0.5rem; border-radius: 6px; font-weight: 500;   
+} 
+
+.session-item {   
+background: var(--surface2); border: 1px solid var(--border);   
+border-radius: 12px; padding: 1.25rem; margin-bottom: 0.75rem;   
+cursor: pointer; transition: all 0.2s;  
+}   
+.session-item:hover { border-color: var(--border); }  
+.session-header { display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 0.5rem; }   
+.session-topic { font-weight: 600; font-size: 1rem; }   
+.session-date { font-family: var(--font-display); font-size: 0.8rem; color: var(--muted); }   
+.session-concepts { display: flex; gap: 0.4rem; flex-wrap: wrap; margin-top: 0.75rem; }   
+.concept-chip {   
+font-size: 0.7rem; font-family: var(--font-mono);   
+background: var(--surface); border: 1px solid var(--border);   
+padding: 0.2rem 0.5rem; border-radius: 6px; color: var(--text);   
+} 
+
+textarea, input[type="text"], input[type="date"], input[type="time"] {   
+width: 100%; background: var(--surface2); border: 1px solid var(--border);   
+border-radius: 10px; color: var(--text); font-family: var(--font-display);   
+font-size: 0.9rem; padding: 0.75rem; outline: none; transition: border-color 0.2s;   
+}   
+textarea:focus, input:focus { border-color: var(--accent-blue); }   
+textarea { min-height: 120px; resize: vertical; }
+
+.btn {   
+display: inline-flex; align-items: center; justify-content: center; gap: 0.4rem;   
+padding: 0.75rem 1.25rem; border-radius: 10px; border: none;   
+font-family: var(--font-display); font-size: 0.88rem; font-weight: 600;   
+cursor: pointer; transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);   
+}   
+.btn-primary { background: var(--accent-blue); color: #fff; }   
+.btn-primary:hover { opacity: 0.9; transform: translateY(-1px); }   
+.btn-ghost { background: rgba(120, 120, 128, 0.16); color: var(--text); }   
+.btn-ghost:hover { background: rgba(120, 120, 128, 0.24); }   
+.btn-save { background: var(--green); color: #fff; }   
+.btn-save:hover { opacity: 0.9; } 
+
+.modal-overlay {   
+display: none; position: fixed; inset: 0;   
+background: rgba(0,0,0,0.4); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);   
+z-index: 200; align-items: center; justify-content: center;   
+padding: 1rem;   
+}   
+.modal-overlay.open { display: flex; }   
+.modal {   
+background: var(--surface); border: 1px solid var(--border);   
+border-radius: 20px; padding: 2rem; width: 100%; max-width: 560px;   
+max-height: 90vh; overflow-y: auto; box-shadow: 0 20px 40px rgba(0,0,0,0.3);  
+}   
+.modal h2 { font-size: 1.3rem; font-weight: 700; margin-bottom: 1.5rem; letter-spacing: -0.02em; }   
+.form-row { margin-bottom: 1.25rem; }   
+.form-row label { display: block; font-size: 0.75rem; font-weight: 600; color: var(--muted); margin-bottom: 0.4rem; text-transform: uppercase; letter-spacing: 0.03em; }   
+.form-row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }   
+.modal-footer { display: flex; gap: 0.75rem; justify-content: flex-end; margin-top: 1.5rem; } 
+
+#toast {   
+position: fixed; bottom: 2rem; left: 50%; transform: translate(-50%, 100px); z-index: 300;   
+background: var(--surface2); border: 1px solid var(--border); backdrop-filter: blur(20px);   
+border-radius: 14px; padding: 0.85rem 1.5rem; font-weight: 500;   
+font-size: 0.9rem; opacity: 0; box-shadow: var(--card-shadow);   
+transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.3s; pointer-events: none;   
+}   
+#toast.show { transform: translate(-50%, 0); opacity: 1; }   
+#toast.success { border-color: var(--green); color: var(--green); }   
+#toast.error { border-color: var(--red); color: var(--red); } 
+
+.session-body { display: none; }   
+.session-item.expanded .session-body { display: block; }   
+.session-summary {   
+font-size: 0.9rem; color: var(--muted); margin-top: 0.4rem; line-height: 1.5;   
+display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;   
+}   
+.session-item.expanded .session-summary { display: block; overflow: visible; -webkit-line-clamp: unset; }   
+</style>   
+</head>   
 <body>
 
-<header>  
- <div class="logo">devops<span>.</span>tracker</div>  
- <div class="status-dot">  
-   <div class="dot" id="statusDot"></div>  
-   <span id="statusText">connecting…</span>  
- </div>  
+<header>   
+<div class="logo">devops<span>.</span>tracker</div>   
+<div class="header-actions">  
+<button class="theme-toggle" id="themeToggleBtn" onclick="toggleTheme()" title="Toggle appearance">☀️</button>  
+<div class="status-dot">   
+ <div class="dot" id="statusDot"></div>   
+ <span id="statusText">connecting…</span>   
+</div>   
+</div>  
 </header>
 
-<nav>  
- <button class="active" onclick="showTab('dashboard',this)">Dashboard</button>  
- <button onclick="showTab('log',this)">Daily Log</button>  
- <button onclick="showTab('topics',this)">Topics</button>  
- <button onclick="showTab('mindset',this)">Mindset</button>  
- <button onclick="showTab('notes',this)">Notes</button>  
- <button onclick="showTab('setup',this)">Setup</button>  
-</nav>
+<div class="nav-container">  
+<nav>   
+<button class="active" onclick="showTab('dashboard',this)">Dashboard</button>   
+<button onclick="showTab('log',this)">Daily Log</button>   
+<button onclick="showTab('topics',this)">Topics</button>   
+<button onclick="showTab('mindset',this)">Mindset</button>   
+<button onclick="showTab('notes',this)">Notes</button>   
+<button onclick="showTab('setup',this)">Setup</button>   
+</nav>  
+</div>
 
 <main>
 
-<div id="tab-dashboard" class="tab-content active">  
- <div class="grid-3" style="margin-bottom:1rem">  
-   <div class="card">  
-     <h3>Topics Done</h3>  
-     <div class="stat-big" id="dash-done">—</div>  
-     <div class="stat-label">of 41 total</div>  
-   </div>  
-   <div class="card">  
-     <h3>Progress</h3>  
-     <div class="stat-big" id="dash-pct">—</div>  
-     <div class="stat-label">overall completion</div>  
-   </div>  
-   <div class="card">  
-     <h3>Mindset Moments</h3>  
-     <div class="stat-big" id="dash-mindset">—</div>  
-     <div class="stat-label">instincts recorded</div>  
-   </div>  
- </div>  
- <div class="card">  
-   <h3>Overall Journey</h3>  
-   <div class="progress-wrap">  
-     <div class="progress-label"><span>Phase 1 — Foundations</span><span id="phase1-pct">0%</span></div>  
-     <div class="progress-bar"><div class="progress-fill" id="phase1-bar" style="width:0%"></div></div>  
-   </div>  
-   <div class="progress-wrap">  
-     <div class="progress-label"><span>Phase 2 — Networking + Cloud</span><span>0%</span></div>  
-     <div class="progress-bar"><div class="progress-fill" style="width:0%"></div></div>  
-   </div>  
-   <div class="progress-wrap">  
-     <div class="progress-label"><span>Phases 3–8</span><span>0%</span></div>  
-     <div class="progress-bar"><div class="progress-fill" style="width:0%"></div></div>  
-   </div>  
- </div>  
- <div class="card" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem">  
-   <div>  
-     <div style="font-size:1.1rem;font-weight:700" id="dash-next-label">Ready for your next session?</div>  
-     <div style="color:var(--muted);font-size:0.85rem;margin-top:0.25rem" id="dash-next-topic">Loading next topic…</div>  
-   </div>  
-   <button class="btn btn-primary" onclick="openSaveModal()">+ Save Completed Session</button>  
- </div>  
+<div id="tab-dashboard" class="tab-content active">   
+<div class="grid-3" style="margin-bottom:1.5rem">   
+<div class="card">   
+  <h3>Topics Done</h3>   
+  <div class="stat-big" id="dash-done">—</div>   
+  <div class="stat-label">of 41 total</div>   
+</div>   
+<div class="card">   
+  <h3>Progress</h3>   
+  <div class="stat-big" id="dash-pct">—</div>   
+  <div class="stat-label">overall completion</div>   
+</div>   
+<div class="card">   
+  <h3>Mindset Moments</h3>   
+  <div class="stat-big" id="dash-mindset">—</div>   
+  <div class="stat-label">instincts recorded</div>   
+</div>   
+</div>   
+<div class="card">   
+<h3>Overall Journey</h3>   
+<div class="progress-wrap">   
+  <div class="progress-label"><span>Phase 1 — Foundations</span><span id="phase1-pct">0%</span></div>   
+  <div class="progress-bar"><div class="progress-fill" id="phase1-bar" style="width:0%"></div></div>   
+</div>   
+<div class="progress-wrap">   
+  <div class="progress-label"><span>Phase 2 — Networking + Cloud</span><span id="phase2-pct">0%</span></div>   
+  <div class="progress-bar"><div class="progress-fill" id="phase2-bar" style="width:0%"></div></div>   
+</div>   
+<div class="progress-wrap">   
+  <div class="progress-label"><span>Phases 3–8</span><span id="phase38-pct">0%</span></div>   
+  <div class="progress-bar"><div class="progress-fill" id="phase38-bar" style="width:0%"></div></div>   
+</div>   
+</div>   
+<div class="card" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem">   
+<div style="flex: 1; min-width: 250px;">   
+  <div style="font-size:1.1rem;font-weight:600" id="dash-next-label">Ready for your next session?</div>   
+  <div style="color:var(--muted);font-size:0.9rem;margin-top:0.25rem" id="dash-next-topic">Loading next topic…</div>   
+</div>   
+<button class="btn btn-primary" onclick="openSaveModal()">+ Save Completed Session</button>   
+</div>   
 </div>
 
-<div id="tab-log" class="tab-content">  
- <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;flex-wrap:wrap;gap:0.75rem">  
-   <h2 style="font-size:1rem;font-weight:700">Session Log</h2>  
-   <button class="btn btn-primary" onclick="openSaveModal()">+ Save Completed Session</button>  
- </div>  
- <div id="sessions-list"><div style="color:var(--muted);font-family:var(--font-mono);font-size:0.8rem">Loading sessions…</div></div>  
+<div id="tab-log" class="tab-content">   
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem;flex-wrap:wrap;gap:0.75rem">   
+<h2 style="font-size:1.2rem;font-weight:700">Session Log</h2>   
+<button class="btn btn-primary" onclick="openSaveModal()">+ Save Completed Session</button>   
+</div>   
+<div id="sessions-list"><div style="color:var(--muted);font-size:0.9rem">Loading sessions…</div></div>   
 </div>
 
-<div id="tab-topics" class="tab-content">  
- <h2 style="font-size:1rem;font-weight:700;margin-bottom:1rem">Full Roadmap — 41 Topics</h2>  
- <div id="topics-list"><div style="color:var(--muted);font-family:var(--font-mono);font-size:0.8rem">Loading topics…</div></div>  
+<div id="tab-topics" class="tab-content">   
+<h2 style="font-size:1.2rem;font-weight:700;margin-bottom:1.5rem">Full Roadmap — 41 Topics</h2>   
+<div id="topics-list"><div style="color:var(--muted);font-size:0.9rem">Loading topics…</div></div>   
 </div>
 
-<div id="tab-mindset" class="tab-content">  
- <h2 style="font-size:1rem;font-weight:700;margin-bottom:0.5rem">Engineering Mindset Moments</h2>  
- <p style="color:var(--muted);font-size:0.85rem;margin-bottom:1rem">Questions and instincts that show how you think, not just what you know.</p>  
- <div class="card" style="margin-bottom:1rem">  
-   <div style="display:flex;gap:1rem;flex-wrap:wrap;align-items:center">  
-     <div class="stat-big" id="strong-count">—</div>  
-     <div>  
-       <div style="font-size:0.85rem;font-weight:600">Strong Instincts</div>  
-       <div style="font-size:0.75rem;color:var(--muted);font-family:var(--font-mono)">Senior-engineer thinking</div>  
-     </div>  
-     <div style="margin-left:auto;display:flex;gap:0.5rem;flex-wrap:wrap" id="mindset-filters">  
-       <button class="btn btn-ghost" style="font-size:0.72rem;padding:0.35rem 0.75rem" onclick="filterMindset('all')">All</button>  
-       <button class="btn btn-ghost" style="font-size:0.72rem;padding:0.35rem 0.75rem" onclick="filterMindset('strong')">Strong</button>  
-       <button class="btn btn-ghost" style="font-size:0.72rem;padding:0.35rem 0.75rem" onclick="filterMindset('good')">Good direction</button>  
-     </div>  
-   </div>  
- </div>  
- <div id="mindset-list"><div style="color:var(--muted);font-family:var(--font-mono);font-size:0.8rem">Loading moments…</div></div>  
+<div id="tab-mindset" class="tab-content">   
+<h2 style="font-size:1.2rem;font-weight:700;margin-bottom:0.35rem">Engineering Mindset Moments</h2>   
+<p style="color:var(--muted);font-size:0.9rem;margin-bottom:1.5rem">Questions and instincts that show how you think, not just what you know.</p>   
+<div class="card" style="margin-bottom:1.25rem">   
+<div style="display:flex;gap:1.5rem;flex-wrap:wrap;align-items:center">   
+  <div class="stat-big" id="strong-count">—</div>   
+  <div>   
+    <div style="font-size:0.95rem;font-weight:600">Strong Instincts</div>   
+    <div style="font-size:0.8rem;color:var(--muted)">Senior-engineer thinking</div>   
+  </div>   
+  <div style="margin-left:auto;display:flex;gap:0.5rem;flex-wrap:wrap" id="mindset-filters">   
+    <button class="btn btn-ghost" style="font-size:0.8rem;padding:0.4rem 0.85rem" onclick="filterMindset('all')">All</button>   
+    <button class="btn btn-ghost" style="font-size:0.8rem;padding:0.4rem 0.85rem" onclick="filterMindset('strong')">Strong</button>   
+    <button class="btn btn-ghost" style="font-size:0.8rem;padding:0.4rem 0.85rem" onclick="filterMindset('good')">Good direction</button>   
+  </div>   
+</div>   
+</div>   
+<div id="mindset-list"><div style="color:var(--muted);font-size:0.9rem">Loading moments…</div></div>   
 </div>
 
-<div id="tab-notes" class="tab-content">  
- <h2 style="font-size:1rem;font-weight:700;margin-bottom:1rem">My Notes</h2>  
- <div class="card">  
-   <div class="form-row">  
-     <label>Author</label>  
-     <input type="text" id="note-author" placeholder="Your name" style="max-width:300px" />  
-   </div>  
-   <div class="form-row">  
-     <label>Note</label>  
-     <textarea id="note-text" placeholder="Write your note here…"></textarea>  
-   </div>  
-   <button class="btn btn-save" onclick="saveNote()">Save Note</button>  
- </div>  
- <div id="notes-list" style="margin-top:1rem"></div>  
+<div id="tab-notes" class="tab-content">   
+<h2 style="font-size:1.2rem;font-weight:700;margin-bottom:1.5rem">My Notes</h2>   
+<div class="card">   
+<div class="form-row">   
+  <label>Author</label>   
+  <input type="text" id="note-author" placeholder="Your name" style="max-width:300px" />   
+</div>   
+<div class="form-row">   
+  <label>Note</label>   
+  <textarea id="note-text" placeholder="Write your note here…"></textarea>   
+</div>   
+<button class="btn btn-save" onclick="saveNote()">Save Note</button>   
+</div>   
+<div id="notes-list" style="margin-top:1.25rem"></div>   
 </div>
 
-<div id="tab-setup" class="tab-content">  
- <h2 style="font-size:1rem;font-weight:700;margin-bottom:1rem">Supabase Setup</h2>  
- <div class="card">  
-   <div class="setup-field">  
-     <label>Supabase URL</label>  
-     <input type="text" id="sb-url" placeholder="https://xxxx.supabase.co" />  
-   </div>  
-   <div class="setup-field">  
-     <label>Supabase Anon Key</label>  
-     <input type="text" id="sb-key" placeholder="eyJh..." />  
-   </div>  
-   <button class="btn btn-primary" onclick="saveConfig()">Save & Connect</button>  
- </div>  
- <div class="card" style="margin-top:1rem">  
-   <h3>How to find your credentials</h3>  
-   <div style="font-size:0.85rem;color:var(--muted);line-height:1.7">  
-     1. Go to <strong style="color:var(--text)">supabase.com</strong> → your project<br>  
-     2. Click <strong style="color:var(--text)">Project Settings</strong> (gear icon)<br>  
-     3. Click <strong style="color:var(--text)">API</strong><br>  
-     4. Copy the <strong style="color:var(--text)">Project URL</strong> and <strong style="color:var(--text)">anon public</strong> key  
-   </div>  
- </div>  
+<div id="tab-setup" class="tab-content">   
+<h2 style="font-size:1.2rem;font-weight:700;margin-bottom:1.5rem">Supabase Setup</h2>   
+<div class="card">   
+<div class="setup-field">   
+  <label>Supabase URL</label>   
+  <input type="text" id="sb-url" placeholder="https://xxxx.supabase.co" />   
+</div>   
+<div class="setup-field" style="margin-top:1rem">   
+  <label>Supabase Anon Key</label>   
+  <input type="text" id="sb-key" placeholder="eyJh..." />   
+</div>   
+<button class="btn btn-primary" style="margin-top:1.25rem" onclick="saveConfig()">Save & Connect</button>   
+</div>   
+<div class="card" style="margin-top:1.25rem">   
+<h3>How to find your credentials</h3>   
+<div style="font-size:0.9rem;color:var(--muted);line-height:1.7">   
+  1. Go to <strong style="color:var(--text)">supabase.com</strong> → your project<br>   
+  2. Click <strong style="color:var(--text)">Project Settings</strong> (gear icon)<br>   
+  3. Click <strong style="color:var(--text)">API</strong><br>   
+  4. Copy the <strong style="color:var(--text)">Project URL</strong> and <strong style="color:var(--text)">anon public</strong> key   
+</div>   
+</div>   
 </div>
 
 </main>
 
-<div class="modal-overlay" id="saveModal">  
- <div class="modal">  
-   <h2>💾 Save Completed Session</h2>  
-   <div class="form-row-2" style="margin-bottom:1rem">  
-     <div class="form-row" style="margin-bottom:0">  
-       <label>Date</label>  
-       <input type="date" id="m-date" />  
-     </div>  
-     <div class="form-row" style="margin-bottom:0">  
-       <label>Time</label>  
-       <input type="time" id="m-time" />  
-     </div>  
-   </div>  
-   <div class="form-row-2" style="margin-bottom:1rem">  
-     <div class="form-row" style="margin-bottom:0">  
-       <label>Topic ID (e.g. 1.3)</label>  
-       <input type="text" id="m-topicid" placeholder="1.3" />  
-     </div>  
-     <div class="form-row" style="margin-bottom:0">  
-       <label>Topic Name</label>  
-       <input type="text" id="m-topicname" placeholder="Terminal hands-on" />  
-     </div>  
-   </div>  
-   <div class="form-row">  
-     <label>Full Teaching Notes (everything taught — analogies, examples, explanations)</label>  
-     <textarea id="m-fullnotes" style="min-height:200px" placeholder="Write the complete teaching notes here. Include all analogies, examples, and explanations exactly as taught…"></textarea>  
-   </div>  
-   <div class="form-row">  
-     <label>Summary (short — 2 to 3 lines max)</label>  
-     <textarea id="m-summary" style="min-height:70px" placeholder="Short summary of what was covered…"></textarea>  
-   </div>  
-   <div class="form-row">  
-     <label>Key Concepts (comma separated)</label>  
-     <input type="text" id="m-concepts" placeholder="pwd, ls, cd, absolute vs relative path" />  
-   </div>  
-   <div class="modal-footer">  
-     <button class="btn btn-ghost" onclick="closeModal()">Cancel</button>  
-     <button class="btn btn-save" onclick="saveSession()">Save Session</button>  
-   </div>  
- </div>  
+<div class="modal-overlay" id="saveModal">   
+<div class="modal">   
+<h2>💾 Save Completed Session</h2>   
+<div class="form-row-2">   
+  <div class="form-row">   
+    <label>Date</label>   
+    <input type="date" id="m-date" />   
+  </div>   
+  <div class="form-row">   
+    <label>Time</label>   
+    <input type="time" id="m-time" />   
+  </div>   
+</div>   
+<div class="form-row-2" style="margin-bottom:1rem">   
+ <div class="form-row" style="margin-bottom:0">   
+   <label>Topic ID</label>   
+   <input type="text" id="m-topicid" placeholder="" />   
+ </div>   
+ <div class="form-row" style="margin-bottom:0">   
+   <label>Topic Name</label>   
+   <input type="text" id="m-topicname" placeholder="" />   
+ </div>   
+</div>  
+<div class="form-row">   
+  <label>Full Teaching Notes</label>   
+  <textarea id="m-fullnotes" style="min-height:160px" placeholder="Write complete structural notes, code blocks, analogies, or instructions covered..."></textarea>   
+</div>   
+<div class="form-row">   
+  <label>Summary (2 to 3 lines max)</label>   
+  <textarea id="m-summary" style="min-height:70px" placeholder="Short summary of metrics or topics achieved..."></textarea>   
+</div>   
+<div class="form-row">   
+  <label>Key Concepts (comma separated)</label>   
+  <input type="text" id="m-concepts" placeholder="pwd, ls, cd, absolute path" />   
+</div>   
+<div class="modal-footer">   
+  <button class="btn btn-ghost" onclick="closeModal()">Cancel</button>   
+  <button class="btn btn-save" onclick="saveSession()">Save Session</button>   
+</div>   
+</div>   
 </div>
 
-<div id="toast"></div>  
+<div id="toast"></div>
 
-<script>  
-// ── STATE ──  
-let sb = null;  
-let allMindset = [];
+<script>   
+// ── STATE ──   
+let sb = null;   
+let allMindset = [];  
+let nextTopicGlobal = null;
 
-// ── INIT ──  
-window.addEventListener('DOMContentLoaded', () => {  
- loadConfig();  
- setDefaultDate();  
+// ── INIT ──   
+window.addEventListener('DOMContentLoaded', () => {   
+initTheme();  
+loadConfig();   
+setDefaultDate();   
 });
 
-function setDefaultDate() {  
- const now = new Date();  
- const d = now.toISOString().split('T')[0];  
- const t = now.toTimeString().slice(0,5);  
- const el = document.getElementById('m-date');  
- const et = document.getElementById('m-time');  
- if(el) el.value = d;  
- if(et) et.value = t;  
+function setDefaultDate() {   
+const now = new Date();   
+const d = now.toISOString().split('T')[0];   
+const t = now.toTimeString().slice(0,5);   
+const el = document.getElementById('m-date');   
+const et = document.getElementById('m-time');   
+if(el) el.value = d;   
+if(et) et.value = t;   
 }
 
-// ── CONFIG ──  
-function loadConfig() {  
- const url = localStorage.getItem('sb_url');  
- const key = localStorage.getItem('sb_key');  
- if(url) document.getElementById('sb-url').value = url;  
- if(key) document.getElementById('sb-key').value = key;  
- if(url && key) initSupabase(url, key);  
- else setStatus(false, 'no credentials');  
+// ── THEME ENGINE (iOS Style Switching) ──  
+function initTheme() {  
+const savedTheme = localStorage.getItem('theme') || 'dark';  
+document.documentElement.setAttribute('data-theme', savedTheme);  
+updateThemeToggleIcon(savedTheme);  
 }
 
-function saveConfig() {  
- const url = document.getElementById('sb-url').value.trim();  
- const key = document.getElementById('sb-key').value.trim();  
- if(!url || !key){ toast('Please fill in both fields','error'); return; }  
- localStorage.setItem('sb_url', url);  
- localStorage.setItem('sb_key', key);  
- initSupabase(url, key);  
- toast('Credentials saved!','success');  
+function toggleTheme() {  
+const currentTheme = document.documentElement.getAttribute('data-theme');  
+const nextTheme = currentTheme === 'dark' ? 'light' : 'dark';  
+document.documentElement.setAttribute('data-theme', nextTheme);  
+localStorage.setItem('theme', nextTheme);  
+updateThemeToggleIcon(nextTheme);  
 }
 
-function initSupabase(url, key) {  
- try {  
-   sb = window.supabase.createClient(url, key);  
-   testConnection();  
- } catch(e) {  
-   setStatus(false,'init error');  
- }  
+function updateThemeToggleIcon(theme) {  
+const btn = document.getElementById('themeToggleBtn');  
+if(btn) btn.innerHTML = theme === 'dark' ? '☀️' : '🌙';  
 }
 
-async function testConnection() {  
- try {  
-   const { data, error } = await sb.from('topic_status').select('id').limit(1);  
-   if(error) throw error;  
-   setStatus(true,'Connected to Supabase');  
-   loadAll();  
- } catch(e) {  
-   setStatus(false,'connection failed');  
- }  
+// ── CONFIG ──   
+function loadConfig() {   
+const url = localStorage.getItem('sb_url');   
+const key = localStorage.getItem('sb_key');   
+if(url) document.getElementById('sb-url').value = url;   
+if(key) document.getElementById('sb-key').value = key;   
+if(url && key) initSupabase(url, key);   
+else setStatus(false, 'no credentials');   
 }
 
-function setStatus(ok, msg) {  
- document.getElementById('statusDot').className = 'dot' + (ok?' connected':'');  
- document.getElementById('statusText').textContent = msg;  
+function saveConfig() {   
+const url = document.getElementById('sb-url').value.trim();   
+const key = document.getElementById('sb-key').value.trim();   
+if(!url || !key){ toast('Please fill in both fields','error'); return; }   
+localStorage.setItem('sb_url', url);   
+localStorage.setItem('sb_key', key);   
+initSupabase(url, key);   
+toast('Credentials saved!','success');   
 }
 
-// ── LOAD ALL DATA ──  
-async function loadAll() {  
- loadTopics();  
- loadSessions();  
- loadMindset();  
- loadNotes();  
- loadDashboard();  
+function initSupabase(url, key) {   
+try {   
+sb = window.supabase.createClient(url, key);   
+testConnection();   
+} catch(e) {   
+setStatus(false,'init error');   
+}   
 }
 
-// ── TABS ──  
-function showTab(name, btn) {  
- document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));  
- document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));  
- document.getElementById('tab-' + name).classList.add('active');  
- if(btn) btn.classList.add('active');  
+async function testConnection() {   
+try {   
+const { data, error } = await sb.from('topic_status').select('id').limit(1);   
+if(error) throw error;   
+setStatus(true,'Connected to Supabase');   
+loadAll();   
+} catch(e) {   
+setStatus(false,'connection failed');   
+}   
 }
 
-// ── DASHBOARD ──  
-
-// ── SELF-HEALING DASHBOARD CALCULATION ──  
-async function loadDashboard() {  
- if(!sb) return;
-
- // Fetch both tables at the same time to cross-reference completed sessions
- const [topicsRes, sessionsRes] = await Promise.all([
-   sb.from('topic_status').select('*'),
-   sb.from('sessions').select('topic_id')
- ]);
-
- if (topicsRes.error || !topicsRes.data) return;
-
- // Create a lookup map of recorded sessions
- const sessionsMap = {};
- if (sessionsRes.data) {
-   sessionsRes.data.forEach(s => { if(s.topic_id) sessionsMap[s.topic_id] = true; });
- }
-
- // Loop through and count real completed topics (including rows currently being self-healed)
- let doneCount = 0;
- const phase1Ids = ['1.1','1.2','1.3','1.4','1.5','1.6','1.7'];  
- let p1done = 0;
-
- topicsRes.data.forEach(t => {
-   let isDone = t.status === 'done' || !!sessionsMap[t.topic_id];
-   
-   if (isDone) {
-     doneCount++;
-     if (phase1Ids.includes(t.topic_id)) {
-       p1done++;
-     }
-   }
- });
-
- // Update total mindset moments badge counter
- const { count: mindsetCount } = await sb  
-   .from('mindset_moments')  
-   .select('*', { count: 'exact', head: true });
-
- const pct = Math.round((doneCount / 41) * 100);
-
- document.getElementById('dash-done').textContent = doneCount;  
- document.getElementById('dash-pct').textContent = pct + '%';  
- document.getElementById('dash-mindset').textContent = mindsetCount || 0;
-
- const p1pct = Math.round((p1done / 7) * 100);  
- document.getElementById('phase1-pct').textContent = p1pct + '%';  
- document.getElementById('phase1-bar').style.width = p1pct + '%';
-
- // Show next pending topic item dynamically on your dashboard view
- const { data: nextTopics } = await sb  
-   .from('topic_status')  
-   .select('topic_id, topic_name')  
-   .eq('status', 'next')  
-   .limit(1);
-
- if(nextTopics && nextTopics.length > 0) {  
-   const n = nextTopics[0];  
-   document.getElementById('dash-next-topic').textContent = `Next: ${n.topic_id} — ${n.topic_name}`;  
- }  
+function setStatus(ok, msg) {   
+document.getElementById('statusDot').className = 'dot' + (ok?' connected':'');   
+document.getElementById('statusText').textContent = msg;   
 }
 
-// ── TOPICS ──  
-const PHASES = [  
- { label:'Phase 1 — Foundations', ids:['1.1','1.2','1.3','1.4','1.5','1.6','1.7'] },  
- { label:'Phase 2 — Networking + Cloud', ids:['2.1','2.2','2.3','2.4','2.5','2.6','2.7','2.8'] },  
- { label:'Phase 3 — Python for DevOps', ids:['3.1','3.2','3.3','3.4','3.5','3.6','3.7'] },  
- { label:'Phase 4 — Git', ids:['4.1','4.2','4.3','4.4','4.5'] },  
- { label:'Phase 5 — Docker', ids:['5.1','5.2','5.3','5.4','5.5','5.6'] },  
- { label:'Phase 6 — CI/CD', ids:['6.1','6.2','6.3','6.4','6.5','6.6','6.7','6.8'] },  
- { label:'Phase 7 — IaC + Kubernetes', ids:['7.1','7.2','7.3','7.4','7.5','7.6','7.7','7.8','7.9'] },  
- { label:'Phase 8 — AIOps', ids:['8.1','8.2','8.3','8.4','8.5','8.6','8.7'] },  
+// ── LOAD ALL DATA ──   
+async function loadAll() {   
+loadTopics();   
+loadSessions();   
+loadMindset();   
+loadNotes();   
+loadDashboard();   
+}
+
+// ── TABS ──   
+function showTab(name, btn) {   
+document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));   
+document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));   
+document.getElementById('tab-' + name).classList.add('active');   
+if(btn) btn.classList.add('active');   
+}
+
+// ── DASHBOARD ──   
+async function loadDashboard() {   
+if(!sb) return;
+
+const [topicsRes, sessionsRes] = await Promise.all([   
+sb.from('topic_status').select('*'),   
+sb.from('sessions').select('topic_id')   
+]);
+
+if (topicsRes.error || !topicsRes.data) return;
+
+const sessionsMap = {};   
+if (sessionsRes.data) {   
+sessionsRes.data.forEach(s => { if(s.topic_id) sessionsMap[s.topic_id] = true; });   
+} 
+
+let doneCount = 0;   
+const phase1Ids = ['1.1','1.2','1.3','1.4','1.5','1.6','1.7'];   
+const phase2Ids = ['2.1','2.2','2.3','2.4','2.5','2.6','2.7','2.8'];  
+let p1done = 0;   
+let p2done = 0;  
+let p38done = 0;
+
+topicsRes.data.forEach(t => {   
+let isDone = t.status === 'done' || !!sessionsMap[t.topic_id];   
+if (isDone) {   
+  doneCount++;   
+  if (phase1Ids.includes(t.topic_id)) p1done++;   
+  else if (phase2Ids.includes(t.topic_id)) p2done++;  
+  else p38done++;  
+}   
+});
+
+const { count: mindsetCount } = await sb   
+.from('mindset_moments')   
+.select('*', { count: 'exact', head: true });
+
+const pct = Math.round((doneCount / 41) * 100);
+
+document.getElementById('dash-done').textContent = doneCount;   
+document.getElementById('dash-pct').textContent = pct + '%';   
+document.getElementById('dash-mindset').textContent = mindsetCount || 0;
+
+const p1pct = Math.round((p1done / 7) * 100);   
+document.getElementById('phase1-pct').textContent = p1pct + '%';   
+document.getElementById('phase1-bar').style.width = p1pct + '%';
+
+const p2pct = Math.round((p2done / 8) * 100);   
+document.getElementById('phase2-pct').textContent = p2pct + '%';   
+document.getElementById('phase2-bar').style.width = p2pct + '%';
+
+const p38pct = Math.round((p38done / 26) * 100);   
+document.getElementById('phase38-pct').textContent = p38pct + '%';   
+document.getElementById('phase38-bar').style.width = p38pct + '%';
+
+const { data: nextTopics } = await sb   
+.from('topic_status')   
+.select('topic_id, topic_name')   
+.eq('status', 'next')   
+.limit(1);
+
+if(nextTopics && nextTopics.length > 0) {   
+const n = nextTopics[0];   
+document.getElementById('dash-next-topic').textContent = `Next: ${n.topic_id} — ${n.topic_name}`;   
+nextTopicGlobal = n;  
+} else {  
+document.getElementById('dash-next-topic').textContent = `All active streams caught up!`;  
+nextTopicGlobal = null;  
+}  
+}
+
+// ── ROADMAP CONSTANTS ──   
+const PHASES = [   
+{ label:'Phase 1 — Foundations', ids:['1.1','1.2','1.3','1.4','1.5','1.6','1.7'] },   
+{ label:'Phase 2 — Networking + Cloud', ids:['2.1','2.2','2.3','2.4','2.5','2.6','2.7','2.8'] },   
+{ label:'Phase 3 — Python for DevOps', ids:['3.1','3.2','3.3','3.4','3.5','3.6','3.7'] },   
+{ label:'Phase 4 — Git', ids:['4.1','4.2','4.3','4.4','4.5'] },   
+{ label:'Phase 5 — Docker', ids:['5.1','5.2','5.3','5.4','5.5','5.6'] },   
+{ label:'Phase 6 — CI/CD', ids:['6.1','6.2','6.3','6.4','6.5','6.6','6.7','6.8'] },   
+{ label:'Phase 7 — IaC + Kubernetes', ids:['7.1','7.2','7.3','7.4','7.5','7.6','7.7','7.8','7.9'] },   
+{ label:'Phase 8 — AIOps', ids:['8.1','8.2','8.3','8.4','8.5','8.6','8.7'] },   
 ];
 
-// ── SELF-HEALING ROADMAP SYNC ──  
-// Fetches both statuses and sessions to guarantee accurate rendering and status sync
-async function loadTopics() {  
- if(!sb) return;  
- 
- // Fetch both tables at the exact same time
- const [topicsRes, sessionsRes] = await Promise.all([
-   sb.from('topic_status').select('*').order('id'),
-   sb.from('sessions').select('*')
- ]);
+async function loadTopics() {   
+if(!sb) return;   
+const [topicsRes, sessionsRes] = await Promise.all([   
+sb.from('topic_status').select('*').order('id'),   
+sb.from('sessions').select('*')   
+]);
 
- if(topicsRes.error || !topicsRes.data){ 
-   document.getElementById('topics-list').innerHTML='<div style="color:var(--red);font-family:var(--font-mono);font-size:0.8rem">Error loading topics</div>'; 
-   return; 
- }
-
- // Map out existing topic configurations
- const topicsMap = {};  
- topicsRes.data.forEach(t => topicsMap[t.topic_id] = t);  
-
- // Map out recorded sessions by their topic_id
- const sessionsMap = {};
- if(sessionsRes.data) {
-   sessionsRes.data.forEach(s => {
-     if(s.topic_id) { sessionsMap[s.topic_id] = s; }
-   });
- }
-
- let html = '';  
- PHASES.forEach(phase => {  
-   html += `<div class="phase-header">${phase.label}</div>`;  
-   phase.ids.forEach(tid => {  
-     let t = topicsMap[tid];  
-     if(!t) return;  
-
-     // ── AUTO-HEAL CURRENT TOPIC ──
-     // If a session log exists but the roadmap tracker is lagging behind, repair it dynamically
-     const matchingSession = sessionsMap[tid];
-     if(matchingSession) {
-       if(t.status !== 'done') {
-         t.status = 'done';
-         // Silently repair the database discrepancy in the background
-         sb.from('topic_status').update({ 
-           status: 'done', 
-           session_note: matchingSession.summary, 
-           full_notes: matchingSession.full_notes || '' 
-         }).eq('topic_id', tid);
-       }
-       if(!t.full_notes && matchingSession.full_notes) t.full_notes = matchingSession.full_notes;
-       if(!t.session_note && matchingSession.summary) t.session_note = matchingSession.summary;
-     }
-
-     // ── CASCADE 'NEXT' POINTER TO THE ADJACENT TOPIC ──
-     // If this topic is complete, make sure the immediate next one is flagged as 'next' if it's currently stuck on 'todo'
-     if(t.status === 'done') {
-       const parts = tid.split('.');
-       if(parts.length === 2) {
-         const nextId = parts[0] + '.' + (parseInt(parts[1]) + 1);
-         if(topicsMap[nextId] && topicsMap[nextId].status === 'todo') {
-           topicsMap[nextId].status = 'next';
-           // Update Supabase in the background so it stays permanently healed
-           sb.from('topic_status').update({ status: 'next' }).eq('topic_id', nextId);
-         }
-       }
-     }
-
-     const badge = t.status === 'done' ? 'badge-done' : t.status === 'next' ? 'badge-next' : 'badge-todo';  
-     const label = t.status === 'done' ? 'Done' : t.status === 'next' ? 'Next' : 'Todo';  
-     const hasFullNotes = t.full_notes && t.full_notes.trim().length > 0;  
-     const hasSummary = t.session_note && t.session_note.trim().length > 0;  
-
-     const notesHtml = (hasFullNotes || hasSummary)  
-       ? `<div class="topic-expand" id="expand-${tid.replace('.','_')}" style="display:none">  
-           <div style="margin-top:0.75rem;padding-top:0.75rem;border-top:1px solid var(--border)">  
-             ${hasFullNotes ? `  
-               <div style="font-size:0.7rem;font-family:var(--font-mono);color:var(--accent2);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:0.5rem">📖 Full Teaching Notes</div>  
-               <div style="font-size:0.85rem;color:var(--text);line-height:1.9;white-space:pre-wrap;margin-bottom:1rem">${t.full_notes}</div>  
-             ` : ''}  
-             ${hasSummary ? `  
-               <div style="font-size:0.7rem;font-family:var(--font-mono);color:var(--accent2);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:0.4rem">📝 Summary</div>  
-               <div style="font-size:0.82rem;color:var(--muted);line-height:1.7">${t.session_note}</div>  
-             ` : ''}  
-           </div>  
-         </div>`  
-       : `<div class="topic-expand" id="expand-${tid.replace('.','_')}" style="display:none">  
-           <div style="margin-top:0.75rem;padding-top:0.75rem;border-top:1px solid var(--border);font-size:0.82rem;color:var(--muted);font-family:var(--font-mono)">  
-             No teaching notes saved yet.  
-           </div>  
-         </div>`;  
-
-     html += `<div class="topic-item" onclick="toggleTopicNotes(this, '${tid.replace('.','_')}')" style="flex-direction:column;align-items:stretch">  
-       <div style="display:flex;align-items:center;gap:1rem">  
-         <div class="topic-id">${t.topic_id || tid}</div>  
-         <div style="flex:1"><div class="topic-name">${t.topic_name}</div></div>  
-         <span class="badge ${badge}">${label}</span>  
-         <span style="font-size:0.7rem;color:var(--muted);font-family:var(--font-mono)">▼</span>  
-       </div>  
-       ${notesHtml}  
-     </div>`;  
-   });  
- });  
-
- document.getElementById('topics-list').innerHTML = html;  
+if(topicsRes.error || !topicsRes.data){   
+document.getElementById('topics-list').innerHTML='<div style="color:var(--red);font-size:0.9rem">Error loading topics</div>';   
+return;   
 }
 
-function toggleTopicNotes(el, safeId) {  
- const expand = document.getElementById('expand-' + safeId);  
- const arrow = el.querySelector('span:last-child');  
- const isOpen = expand.style.display !== 'none';  
- expand.style.display = isOpen ? 'none' : 'block';  
- arrow.textContent = isOpen ? '▼' : '▲';  
- el.style.borderColor = isOpen ? '' : 'var(--accent)';  
+const topicsMap = {};   
+topicsRes.data.forEach(t => topicsMap[t.topic_id] = t);
+
+const sessionsMap = {};   
+if(sessionsRes.data) {   
+sessionsRes.data.forEach(s => {   
+  if(s.topic_id) { sessionsMap[s.topic_id] = s; }   
+});   
 }
 
-// ── SESSIONS ──  
-// ── SESSIONS ──  
-// FIX: Restores sequential natural sorting and uses robust CSS class toggling
-async function loadSessions() {  
- if(!sb) return;  
- const { data, error } = await sb.from('sessions').select('*');  
- const list = document.getElementById('sessions-list');  
- if(error || !data || data.length===0){  
-   list.innerHTML='<div style="color:var(--muted);font-family:var(--font-mono);font-size:0.8rem">No sessions saved yet. Use the button above to record your first session.</div>';  
-   return;  
- }  
- 
- // Sorts strictly via custom natural logic: 1.1, 1.2, 1.3 sequentially  
- data.sort((a, b) => {  
-   const idA = a.topic_id || '';  
-   const idB = b.topic_id || '';  
-   return idA.localeCompare(idB, undefined, { numeric: true, sensitivity: 'base' });  
- });  
- 
- list.innerHTML = data.map((s, i) => {  
-   const concepts = s.concepts ? s.concepts.split(',').map(c=>`<span class="concept-chip">${c.trim()}</span>`).join('') : '';  
-   const sid = 'sess-' + i;  
-   return `<div class="session-item" onclick="toggleSession(this, '${sid}')">  
-     <div class="session-header">  
-       <div class="session-topic">${s.topic_id ? s.topic_id+' — ' : ''}${s.topic_name || 'Session'}</div>  
-       <div style="display:flex;align-items:center;gap:0.75rem">  
-         <div class="session-date">${s.date || ''} ${s.time || ''}</div>  
-         <span id="arrow-${sid}" style="font-size:0.7rem;color:var(--muted);font-family:var(--font-mono)">▼</span>  
-       </div>  
-     </div>  
-     <div class="session-summary" style="margin-top:0.3rem;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden">${s.summary || ''}</div>  
-     
-     <div class="session-body" id="${sid}">  
-       ${s.full_notes ? `<div style="font-size:0.82rem;color:var(--text);line-height:1.8;white-space:pre-wrap;margin-top:0.75rem;padding:0.75rem;background:var(--bg);border-radius:6px;border:1px solid var(--border)">${s.full_notes}</div>` : ''}  
-       ${concepts ? `<div class="session-concepts">${concepts}</div>` : ''}  
-     </div>  
-   </div>`;  
- }).join('');  
+let html = '';   
+PHASES.forEach(phase => {   
+html += `<div class="phase-header">${phase.label}</div>`;   
+phase.ids.forEach(tid => {   
+  let t = topicsMap[tid];   
+  if(!t) return;
+
+  const matchingSession = sessionsMap[tid];   
+  if(matchingSession) {   
+    if(t.status !== 'done') {   
+      t.status = 'done';   
+      sb.from('topic_status').update({   
+        status: 'done',   
+        session_note: matchingSession.summary,   
+        full_notes: matchingSession.full_notes || ''   
+      }).eq('topic_id', tid);   
+    }   
+    if(!t.full_notes && matchingSession.full_notes) t.full_notes = matchingSession.full_notes;   
+    if(!t.session_note && matchingSession.summary) t.session_note = matchingSession.summary;   
+  }
+
+  if(t.status === 'done') {   
+    const parts = tid.split('.');   
+    if(parts.length === 2) {   
+      const nextId = parts[0] + '.' + (parseInt(parts[1], 10) + 1);   
+      if(topicsMap[nextId] && topicsMap[nextId].status === 'todo') {   
+        topicsMap[nextId].status = 'next';   
+        sb.from('topic_status').update({ status: 'next' }).eq('topic_id', nextId);   
+      }   
+    }   
+  }
+
+  const badge = t.status === 'done' ? 'badge-done' : t.status === 'next' ? 'badge-next' : 'badge-todo';   
+  const label = t.status === 'done' ? 'Done' : t.status === 'next' ? 'Next' : 'Todo';   
+  const hasFullNotes = t.full_notes && t.full_notes.trim().length > 0;   
+  const hasSummary = t.session_note && t.session_note.trim().length > 0;
+
+  const safeDomId = tid.replace('.', '_');  
+  const notesHtml = (hasFullNotes || hasSummary)   
+    ? `<div class="topic-expand" id="expand-${safeDomId}" style="display:none">   
+        <div style="margin-top:0.75rem;padding-top:0.75rem;border-top:1px solid var(--border)">   
+          ${hasFullNotes ? `   
+            <div style="font-size:0.75rem;color:var(--accent2);font-weight:600;text-transform:uppercase;margin-bottom:0.5rem">📖 Full Teaching Notes</div>   
+            <div style="font-size:0.9rem;color:var(--text);line-height:1.6;white-space:pre-wrap;margin-bottom:1rem">${t.full_notes}</div>   
+          ` : ''}   
+          ${hasSummary ? `   
+            <div style="font-size:0.75rem;color:var(--accent2);font-weight:600;text-transform:uppercase;margin-bottom:0.4rem">📝 Summary</div>   
+            <div style="font-size:0.88rem;color:var(--muted);line-height:1.5">${t.session_note}</div>   
+          ` : ''}   
+        </div>   
+      </div>`   
+    : `<div class="topic-expand" id="expand-${safeDomId}" style="display:none">   
+        <div style="margin-top:0.75rem;padding-top:0.75rem;border-top:1px solid var(--border);font-size:0.85rem;color:var(--muted)">   
+          No teaching notes saved yet.   
+        </div>   
+      </div>`;
+
+  html += `<div class="topic-item" onclick="toggleTopicNotes(this, '${safeDomId}')" style="flex-direction:column;align-items:stretch">   
+    <div style="display:flex;align-items:center;gap:1rem">   
+      <div class="topic-id">${t.topic_id || tid}</div>   
+      <div style="flex:1"><div class="topic-name">${t.topic_name}</div></div>   
+      <span class="badge ${badge}">${label}</span>   
+      <span class="arrow-indicator" style="font-size:0.75rem;color:var(--muted)">▼</span>   
+    </div>   
+    ${notesHtml}   
+  </div>`;   
+});   
+});
+
+document.getElementById('topics-list').innerHTML = html;   
 }
 
-function toggleSession(cardElement, sid) {  
- // Toggles the .expanded class on the card container directly to match your CSS rules  
- const isExpanded = cardElement.classList.toggle('expanded');  
- const arrow = document.getElementById('arrow-' + sid);  
- if(arrow) arrow.textContent = isExpanded ? '▲' : '▼';  
-}
-function toggleSession(sid) {  
- const body = document.getElementById(sid);  
- const arrow = document.getElementById('arrow-' + sid);  
- const isOpen = body.style.display === 'block';  
- body.style.display = isOpen ? 'none' : 'block';  
- if(arrow) arrow.textContent = isOpen ? '▼' : '▲';  
+function toggleTopicNotes(el, safeId) {   
+const expand = document.getElementById('expand-' + safeId);   
+const arrow = el.querySelector('.arrow-indicator');   
+const isOpen = expand.style.display !== 'none';   
+expand.style.display = isOpen ? 'none' : 'block';   
+if(arrow) arrow.textContent = isOpen ? '▼' : '▲';   
 }
 
-function toggleSession(el, sid) {  
- const body = document.getElementById(sid);  
- const arrow = document.getElementById('arrow-' + sid);  
- 
- el.classList.toggle('expanded');  
- const isOpen = el.classList.contains('expanded');  
- 
- body.style.display = isOpen ? 'block' : 'none';  
- if(arrow) arrow.textContent = isOpen ? '▲' : '▼';  
+// ── FIXED SESSIONS ENGINE (WITH DELETE ACTIONS) ──   
+async function loadSessions() {   
+if(!sb) return;   
+const { data, error } = await sb.from('sessions').select('*');   
+const list = document.getElementById('sessions-list');   
+if(error || !data || data.length===0){   
+list.innerHTML='<div style="color:var(--muted);font-size:0.9rem">No sessions saved yet. Use the action button above to record your first entry.</div>';   
+return;   
+}   
+// Natural numerical sequential sort sorting: 1.1, 1.2, 1.10 securely  
+data.sort((a, b) => {   
+const idA = a.topic_id || '';   
+const idB = b.topic_id || '';   
+return idA.localeCompare(idB, undefined, { numeric: true, sensitivity: 'base' });   
+}); 
+
+list.innerHTML = data.map((s, i) => {   
+const concepts = s.concepts ? s.concepts.split(',').map(c=>`<span class="concept-chip">${c.trim()}</span>`).join('') : '';   
+const sid = 'sess-' + i;   
+return `<div class="session-item" onclick="toggleSession(this, '${sid}')">   
+  <div class="session-header">   
+    <div class="session-topic">${s.topic_id ? s.topic_id+' — ' : ''}${s.topic_name || 'Session'}</div>   
+    <div style="display:flex;align-items:center;gap:0.75rem">   
+      <div class="session-date">${s.date || ''} ${s.time || ''}</div>   
+      <span id="arrow-${sid}" style="font-size:0.75rem;color:var(--muted)">▼</span>   
+    </div>   
+  </div>   
+  <div class="session-summary">${s.summary || ''}</div>   
+   
+  <div class="session-body" id="${sid}">   
+    ${s.full_notes ? `<div style="font-size:0.9rem;color:var(--text);line-height:1.6;white-space:pre-wrap;margin-top:1rem;padding:1rem;background:var(--bg);border-radius:10px;border:1px solid var(--border)">${s.full_notes}</div>` : ''}   
+    ${concepts ? `<div class="session-concepts">${concepts}</div>` : ''}   
+    <div style="margin-top:1rem; display:flex; justify-content:flex-end;">
+      <button class="btn btn-ghost" style="color:var(--red); border:1px solid rgba(255,69,58,0.2); font-size:0.78rem; padding:0.35rem 0.75rem;" onclick="event.stopPropagation(); deleteSession('${s.id || ''}', '${s.topic_id || ''}')">🗑️ Delete Entry</button>
+    </div>
+  </div>   
+</div>`;   
+}).join('');   
 }
 
-// ── MINDSET ──  
-async function loadMindset() {  
- if(!sb) return;  
- const { data, error } = await sb.from('mindset_moments').select('*').order('created_at', {ascending:false});  
- if(error || !data){ document.getElementById('mindset-list').innerHTML='<div style="color:var(--red);font-family:var(--font-mono);font-size:0.8rem">Error loading</div>'; return; }  
- allMindset = data;  
- const strong = data.filter(m => m.rating === 'strong').length;  
- document.getElementById('strong-count').textContent = strong;  
- renderMindset(data);  
+function toggleSession(cardElement, sid) {   
+ const body = document.getElementById(sid);   
+ const arrow = document.getElementById('arrow-' + sid);   
+ const isExpanding = !cardElement.classList.contains('expanded');
+
+ cardElement.classList.toggle('expanded');   
+ if(body) body.style.display = isExpanding ? 'block' : 'none';   
+ if(arrow) arrow.textContent = isExpanding ? '▲' : '▼';   
 }
 
-function filterMindset(f) {  
- const filtered = f === 'all' ? allMindset : allMindset.filter(m => m.rating === f);  
- renderMindset(filtered);  
+// ── SMARTER DELETE ENGINE WITH LOG VALIDATION ──
+async function deleteSession(id, topicId) {
+  if(!sb) return;
+  if(!confirm("Are you sure you want to completely delete this session log?")) return;
+
+  const numericId = parseInt(id, 10);
+  if (isNaN(numericId)) {
+    toast('Error: Invalid Session ID tracking format.', 'error');
+    return;
+  }
+
+  // 1. Delete the specific duplicate row
+  const { data, error: delErr } = await sb
+    .from('sessions')
+    .delete()
+    .eq('id', numericId)
+    .select();
+
+  if(delErr) { 
+    alert('Supabase Database Error: ' + delErr.message); 
+    toast('Delete failed', 'error');
+    return; 
+  }
+
+  if (!data || data.length === 0) {
+    alert("Warning: The database accepted the command but removed 0 rows. Check RLS policies.");
+    return;
+  }
+
+  // 2. SMARTER ROADMAP ROLLBACK: Check if another log still exists for this topic
+  if(topicId) {
+    const { data: remainingLogs, error: countErr } = await sb
+      .from('sessions')
+      .select('id')
+      .eq('topic_id', topicId);
+
+    // ONLY roll back the roadmap if there are zero logs left for this topic!
+    if (!countErr && (!remainingLogs || remainingLogs.length === 0)) {
+      await sb.from('topic_status').update({
+        status: 'next',
+        session_note: null,
+        full_notes: null
+      }).eq('topic_id', topicId);
+
+      // Turn the subsequent roadmap element (e.g. 1.4 -> 1.5) back to standard 'todo' status
+      const parts = topicId.split('.');
+      if(parts.length === 2) {
+        const nextId = parts[0] + '.' + (parseInt(parts[1], 10) + 1);
+        const { data: nextTopic } = await sb.from('topic_status').select('status').eq('topic_id', nextId).single();
+        if(nextTopic && nextTopic.status === 'next') {
+          await sb.from('topic_status').update({ status: 'todo' }).eq('topic_id', nextId);
+        }
+      }
+    } else {
+      console.log("Valid log still exists for " + topicId + ". Roadmap progress preserved.");
+    }
+  }
+
+  toast('Session deleted successfully! 🧹', 'success');
+  loadAll(); // Refresh the screen automatically
 }
 
-function renderMindset(data) {  
- if(!data || data.length === 0) {  
-   document.getElementById('mindset-list').innerHTML = '<div style="color:var(--muted);font-family:var(--font-mono);font-size:0.8rem">No moments yet.</div>';  
-   return;  
- }  
- document.getElementById('mindset-list').innerHTML = data.map((m, i) => {  
-   const mid = 'mindset-' + i;  
-   const ratingClass = m.rating === 'strong' ? 'rating-strong' : 'rating-good';  
-   const ratingLabel = m.rating === 'strong' ? 'Strong instinct' : 'Good direction';  
-   return `<div class="mindset-item" onclick="toggleMindset('${mid}')">  
-     <div class="mindset-q">${m.question}</div>  
-     <div class="mindset-meta">  
-       <span class="${ratingClass}">★ ${ratingLabel}</span>  
-       ${m.concept ? `<span class="concept-tag">${m.concept}</span>` : ''}  
-       ${m.linked_topic_name ? `<span class="concept-tag" style="color:var(--muted)">→ ${m.linked_topic_name}</span>` : ''}  
-     </div>  
-     <div id="${mid}" style="display:none;margin-top:0.75rem;padding-top:0.75rem;border-top:1px solid var(--border);font-size:0.85rem;color:var(--muted);line-height:1.7">  
-       ${m.response || ''}  
-     </div>  
-   </div>`;  
- }).join('');  
+// ── MINDSET ──   
+async function loadMindset() {   
+if(!sb) return;   
+const { data, error } = await sb.from('mindset_moments').select('*').order('created_at', {ascending:false});   
+if(error || !data){ document.getElementById('mindset-list').innerHTML='<div style="color:var(--red);font-size:0.9rem">Error loading snapshots</div>'; return; }   
+allMindset = data;   
+const strong = data.filter(m => m.rating === 'strong').length;   
+document.getElementById('strong-count').textContent = strong;   
+renderMindset(data);   
 }
 
-function toggleMindset(mid) {  
- const el = document.getElementById(mid);  
- if(!el) return;  
- el.style.display = el.style.display === 'block' ? 'none' : 'block';  
+function filterMindset(f) {   
+const filtered = f === 'all' ? allMindset : allMindset.filter(m => m.rating === f);   
+renderMindset(filtered);   
 }
 
-// ── NOTES ──  
-async function loadNotes() {  
- if(!sb) return;  
- const { data } = await sb.from('notes').select('*').order('created_at', {ascending:false});  
- if(!data || data.length===0){ document.getElementById('notes-list').innerHTML=''; return; }  
- document.getElementById('notes-list').innerHTML = data.map(n =>  
-   `<div class="session-item">  
-     <div class="session-header">  
-       <div style="font-size:0.8rem;color:var(--muted);font-family:var(--font-mono)">${n.author || 'Anonymous'}</div>  
-       <div class="session-date">${n.created_at ? new Date(n.created_at).toLocaleDateString() : ''}</div>  
-     </div>  
-     <div style="margin-top:0.4rem;font-size:0.88rem;line-height:1.5">${n.note_text || ''}</div>  
-   </div>`  
- ).join('');  
+function renderMindset(data) {   
+if(!data || data.length === 0) {   
+document.getElementById('mindset-list').innerHTML = '<div style="color:var(--muted);font-size:0.9rem">No custom data match this filter template.</div>';   
+return;   
+}   
+document.getElementById('mindset-list').innerHTML = data.map((m, i) => {   
+const mid = 'mindset-' + i;   
+const ratingClass = m.rating === 'strong' ? 'rating-strong' : 'rating-good';   
+const ratingLabel = m.rating === 'strong' ? 'Strong instinct' : 'Good direction';   
+return `<div class="mindset-item" onclick="toggleMindset('${mid}')">   
+  <div class="mindset-q">${m.question}</div>   
+  <div class="mindset-meta">   
+    <span class="${ratingClass}">★ ${ratingLabel}</span>   
+    ${m.concept ? `<span class="concept-tag">${m.concept}</span>` : ''}   
+    ${m.linked_topic_name ? `<span class="concept-tag" style="background:transparent; border-color:var(--border); color:var(--muted)">→ ${m.linked_topic_name}</span>` : ''}   
+  </div>   
+  <div id="${mid}" style="display:none;margin-top:0.75rem;padding-top:0.75rem;border-top:1px solid var(--border);font-size:0.9rem;color:var(--muted);line-height:1.6">   
+    ${m.response || ''}   
+  </div>   
+</div>`;   
+}).join('');   
 }
 
-async function saveNote() {  
- if(!sb){ toast('Not connected to Supabase','error'); return; }  
- const author = document.getElementById('note-author').value.trim() || 'Anonymous';  
- const content = document.getElementById('note-text').value.trim();  
- if(!content){ toast('Please write something','error'); return; }  
- const { error } = await sb.from('notes').insert({ author, note_text: content });  
- if(error){ toast('Error: '+error.message,'error'); return; }  
- document.getElementById('note-text').value = '';  
- toast('Note saved!','success');  
- loadNotes();  
+function toggleMindset(mid) {   
+const el = document.getElementById(mid);   
+if(!el) return;   
+el.style.display = el.style.display === 'block' ? 'none' : 'block';   
 }
 
-// ── SAVE SESSION MODAL ──  
-function openSaveModal() {  
- setDefaultDate();  
- document.getElementById('saveModal').classList.add('open');  
+// ── NOTES ──   
+async function loadNotes() {   
+if(!sb) return;   
+const { data } = await sb.from('notes').select('*').order('created_at', {ascending:false});   
+if(!data || data.length===0){ document.getElementById('notes-list').innerHTML=''; return; }   
+document.getElementById('notes-list').innerHTML = data.map(n =>   
+`<div class="session-item" style="cursor:default">   
+  <div class="session-header">   
+    <div style="font-size:0.8rem;color:var(--muted);font-weight:600">${n.author || 'Anonymous'}</div>   
+    <div class="session-date">${n.created_at ? new Date(n.created_at).toLocaleDateString() : ''}</div>   
+  </div>   
+  <div style="margin-top:0.5rem;font-size:0.95rem;line-height:1.5">${n.note_text || ''}</div>   
+</div>`   
+).join('');   
 }
 
-function closeModal() {  
- document.getElementById('saveModal').classList.remove('open');  
+async function saveNote() {   
+if(!sb){ toast('Not connected to Supabase','error'); return; }   
+const author = document.getElementById('note-author').value.trim() || 'Anonymous';   
+const content = document.getElementById('note-text').value.trim();   
+if(!content){ toast('Please write something','error'); return; }   
+const { error } = await sb.from('notes').insert({ author, note_text: content });   
+if(error){ toast('Error: '+error.message,'error'); return; }   
+document.getElementById('note-text').value = '';   
+toast('Note saved!','success');   
+loadNotes();   
 }
 
-async function saveSession() {  
- if(!sb){ toast('Not connected to Supabase','error'); return; }  
- 
- const date      = document.getElementById('m-date').value;  
- const time      = document.getElementById('m-time').value;  
- const topicId   = document.getElementById('m-topicid').value.trim();  
- const topicName = document.getElementById('m-topicname').value.trim();  
- const fullNotes = document.getElementById('m-fullnotes').value.trim();  
- const summary   = document.getElementById('m-summary').value.trim();  
- const concepts  = document.getElementById('m-concepts').value.trim();  
- 
- if(!topicName || !summary){ toast('Please fill in topic name and summary','error'); return; }  
- 
- const { error: sessErr } = await sb.from('sessions').insert({  
-   date, time, topic_id: topicId, topic_name: topicName,  
-   full_notes: fullNotes, summary, concepts  
- });  
- if(sessErr){ toast('Error saving session: '+sessErr.message,'error'); return; }  
- 
- if(topicId) {  
-   const { error: updateErr } = await sb.from('topic_status')  
-     .update({ status: 'done', session_note: summary, full_notes: fullNotes })  
-     .eq('topic_id', topicId);  
-   if(updateErr) { toast('Session saved but topic status error: '+updateErr.message,'error'); }  
- 
-   const parts = topicId.split('.');  
-   if(parts.length === 2) {  
-     const nextId = parts[0] + '.' + (parseInt(parts[1]) + 1);  
-     const { data: nextTopic } = await sb.from('topic_status')  
-       .select('status')  
-       .eq('topic_id', nextId)  
-       .single();  
-     if(nextTopic && nextTopic.status !== 'done') {  
-       await sb.from('topic_status').update({ status: 'next' }).eq('topic_id', nextId);  
-     }  
-   }  
- }  
- 
- toast('Session saved! 🎉','success');  
- closeModal();  
- loadAll();  
- 
- document.getElementById('m-fullnotes').value = '';  
- document.getElementById('m-topicid').value   = '';  
- document.getElementById('m-topicname').value = '';  
- document.getElementById('m-summary').value   = '';  
- document.getElementById('m-concepts').value  = '';  
+// ── SAVE SESSION MODAL CONTROLS ──   
+async function openSaveModal() {   
+ setDefaultDate();   
+ document.getElementById('m-topicid').value   = '';   
+ document.getElementById('m-topicname').value = '';   
+ document.getElementById('m-fullnotes').value = '';   
+ document.getElementById('m-summary').value   = '';   
+ document.getElementById('m-concepts').value  = ''; 
+
+ if (sb) {   
+   try {     const { data: nextTopics, error } = await sb   
+       .from('topic_status')   
+       .select('topic_id, topic_name')   
+       .eq('status', 'next')   
+       .limit(1); 
+
+     if (!error && nextTopics && nextTopics.length > 0) {   
+       document.getElementById('m-topicid').value = nextTopics[0].topic_id || '';   
+       document.getElementById('m-topicname').value = nextTopics[0].topic_name || '';   
+     }   
+   } catch (e) {   
+     console.error("Error loading current next topic into modal:", e);   
+   }   
+ } 
+
+ document.getElementById('saveModal').classList.add('open');   
 }
 
-// ── TOAST ──  
-function toast(msg, type='success') {  
- const el = document.getElementById('toast');  
- el.textContent = msg;  
- el.className = 'show ' + type;  
- setTimeout(() => el.className = '', 3000);  
+function closeModal() {   
+ document.getElementById('saveModal').classList.remove('open');   
 }
 
-document.getElementById('saveModal').addEventListener('click', function(e){ if(e.target===this) closeModal(); });  
-</script>  
-</body>  
+async function saveSession() {   
+if(!sb){ toast('Not connected to Supabase','error'); return; }   
+const date      = document.getElementById('m-date').value;   
+const time      = document.getElementById('m-time').value;   
+const topicId   = document.getElementById('m-topicid').value.trim();   
+const topicName = document.getElementById('m-topicname').value.trim();   
+const fullNotes = document.getElementById('m-fullnotes').value.trim();   
+const summary   = document.getElementById('m-summary').value.trim();   
+const concepts  = document.getElementById('m-concepts').value.trim();   
+if(!topicName || !summary){ toast('Please fill in topic name and summary','error'); return; }   
+const { error: sessErr } = await sb.from('sessions').insert({   
+date, time, topic_id: topicId, topic_name: topicName,   
+full_notes: fullNotes, summary, concepts   
+});   
+if(sessErr){ toast('Error saving session: '+sessErr.message,'error'); return; }   
+if(topicId) {   
+const { error: updateErr } = await sb.from('topic_status')   
+  .update({ status: 'done', session_note: summary, full_notes: fullNotes })   
+  .eq('topic_id', topicId);   
+if(updateErr) { toast('Session saved but tracker synchronization errored: '+updateErr.message,'error'); }   
+const parts = topicId.split('.');   
+if(parts.length === 2) {   
+  const nextId = parts[0] + '.' + (parseInt(parts[1], 10) + 1);   
+  const { data: nextTopic } = await sb.from('topic_status')   
+    .select('status')   
+    .eq('topic_id', nextId)   
+    .single();   
+  if(nextTopic && nextTopic.status !== 'done') {   
+    await sb.from('topic_status').update({ status: 'next' }).eq('topic_id', nextId);   
+  }   
+}   
+}   
+toast('Session saved! 🎉','success');   
+closeModal();   
+loadAll();   
+document.getElementById('m-fullnotes').value = '';   
+document.getElementById('m-topicid').value   = '';   
+document.getElementById('m-topicname').value = '';   
+document.getElementById('m-summary').value   = '';   
+document.getElementById('m-concepts').value  = '';   
+}
+
+// ── TOAST ──   
+function toast(msg, type='success') {   
+const el = document.getElementById('toast');   
+el.textContent = msg;   
+el.className = 'show ' + type;   
+setTimeout(() => el.className = '', 3000);   
+}
+
+document.getElementById('saveModal').addEventListener('click', function(e){ if(e.target===this) closeModal(); });   
+</script>   
+</body>   
 </html>
