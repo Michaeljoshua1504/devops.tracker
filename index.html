@@ -647,13 +647,26 @@ document.getElementById('statusDot').className = 'dot' + (ok?' connected':'');
 document.getElementById('statusText').textContent = msg;    
 }
 
-// ── LOAD ALL DATA ──    
-async function loadAll() {    
-loadTopics();    
-loadSessions();    
-loadMindset();    
-loadNotes();    
-loadDashboard();    
+// ── LOAD ALL DATA ──
+async function loadAll() {
+  // We MUST await these so JavaScript actually waits for the data to arrive
+  await loadTopics();
+  await loadSessions();
+  await loadMindset();
+  await loadNotes();
+  await loadDashboard();
+}
+
+// ── MASTER STATE MANAGER ──
+async function syncUI() {
+  // 1. Fetch the absolute latest data from Supabase (and wait for it!)
+  await loadAll(); 
+  
+  // 2. Force every single tab to redraw with the fresh data
+  if (typeof renderMindset === 'function' && typeof allMindset !== 'undefined') renderMindset(allMindset);
+  if (typeof renderNotes === 'function' && typeof allNotes !== 'undefined') renderNotes(allNotes);
+  if (typeof renderSessions === 'function' && typeof allSessions !== 'undefined') renderSessions(allSessions);
+  if (typeof renderRoadmap === 'function') renderRoadmap(); 
 }
 
 // ── TABS ──    
@@ -949,7 +962,7 @@ async function deleteSession(id, topicId) {
  }
 
  toast('Session deleted successfully! 🧹', 'success');  
- loadAll(); 
+ await syncUI(); // <-- Updated!
 }
 
 // ── MINDSET (With Duplicates & Protected) ──    
@@ -1043,8 +1056,9 @@ function renderMindset(data) {
      </div>    
      <div id="${mid}" style="display:none;margin-top:0.75rem;padding-top:0.75rem;border-top:1px solid var(--border);font-size:0.9rem;color:var(--muted);line-height:1.6">    
        ${m.response || ''} 
-       <div style="margin-top:1rem; display:flex; justify-content:flex-end;">
-         <button class="btn btn-ghost" style="color:var(--red); border:1px solid rgba(255,69,58,0.2); font-size:0.78rem; padding:0.35rem 0.75rem;" onclick="event.stopPropagation(); deleteMindsetMoment('${m.id}')">🗑️ Delete Entry</button>
+       <div style="margin-top:1rem; display:flex; justify-content:flex-end; gap:0.5rem;">
+         <button class="btn btn-ghost" style="font-size:0.78rem; padding:0.35rem 0.75rem;" onclick="event.stopPropagation(); editMindsetMoment('${m.id}')">✏️ Edit</button>
+         <button class="btn btn-ghost" style="color:var(--red); border:1px solid rgba(255,69,58,0.2); font-size:0.78rem; padding:0.35rem 0.75rem;" onclick="event.stopPropagation(); deleteMindsetMoment('${m.id}')">🗑️ Delete</button>
        </div>
      </div>    
     </div>`;    
@@ -1086,7 +1100,7 @@ async function confirmDeleteMindset() {
 
   toast('Moment deleted successfully! 🧹', 'success');
   closeDeleteModal();
-  loadALL(); 
+  await syncUI(); // <-- Fixed typo and updated!
 }
 
 // Add this line to the ── EVENT LISTENERS ── section at the bottom so clicking the background closes the modal
@@ -1115,7 +1129,22 @@ async function saveNote() {
  document.getElementById('note-title').value = '';    
  document.getElementById('note-text').value = '';    
  toast('Note Saved! 🎉');    
- loadNotes();    
+ await syncUI();  
+}
+
+// ── DELETE NOTE ──
+async function deleteNote(id) {
+  if (!confirm("Are you sure you want to delete this note?")) return;
+  
+  const { error } = await sb.from('notes').delete().eq('id', id);
+  
+  if (error) { 
+    toast('Error deleting: ' + error.message, 'error'); 
+    return; 
+  }
+  
+  toast('Note deleted 🗑️', 'success');
+  await syncUI(); // Instantly redraws the UI!
 }
 
 async function loadNotes() {    
@@ -1149,9 +1178,14 @@ async function loadNotes() {
        </div>  
         
        <div style="font-size:0.9rem; line-height:1.6; color:var(--muted); white-space:pre-wrap;">${n.note_text || ''}</div>    
+
+       <!-- NEW DELETE BUTTON -->
+       <div style="margin-top:1.5rem; display:flex; justify-content:flex-end;">  
+         <button class="btn btn-ghost" style="color:var(--red); border:1px solid rgba(255,69,58,0.2); font-size:0.78rem; padding:0.35rem 0.75rem;" onclick="deleteNote('${n.id}')">🗑️ Delete Note</button>  
+       </div>
      </div>`  
-   ).join('');  
- } catch (e) {
+    ).join(''); 
+  } catch (e) {
    console.error("Notes Crash Protected:", e);
  }  
 }
@@ -1222,7 +1256,7 @@ if(parts.length === 2) {
 }    
 toast('Session saved! 🎉','success');    
 closeModal();    
-loadAll();    
+await syncUI(); // <-- Updated!   
 document.getElementById('m-fullnotes').value = '';    
 document.getElementById('m-topicid').value   = '';    
 document.getElementById('m-topicname').value = '';    
@@ -1230,8 +1264,12 @@ document.getElementById('m-summary').value   = '';
 document.getElementById('m-concepts').value  = '';    
 }
 
-// ── MINDSET MODAL CONTROLS ──    
+// ── MINDSET MODAL CONTROLS (Add & Edit) ──    
+let currentMindsetEditId = null;
+
 function openMindsetModal() {    
+  currentMindsetEditId = null;
+  document.querySelector('#mindsetModal h2').innerHTML = '🧠 Add Mindset Moment';
   document.getElementById('mind-question').value = '';    
   document.getElementById('mind-concept').value = '';    
   document.getElementById('mind-topic').value = '';    
@@ -1240,7 +1278,27 @@ function openMindsetModal() {
   document.getElementById('mindsetModal').classList.add('open');    
 }
 
+function editMindsetMoment(id) {
+  // Find the specific data for the moment you clicked
+  const m = allMindset.find(x => x.id === id || x.id === parseInt(id));
+  if(!m) return;
+  
+  // Set the global state so the save function knows we are editing
+  currentMindsetEditId = m.id;
+  
+  // Change the title and fill the inputs with your existing data
+  document.querySelector('#mindsetModal h2').innerHTML = '✏️ Edit Mindset Moment';
+  document.getElementById('mind-question').value = m.question || '';
+  document.getElementById('mind-concept').value = m.concept || '';
+  document.getElementById('mind-topic').value = m.linked_topic_name || '';
+  document.getElementById('mind-response').value = m.response || '';
+  document.getElementById('mind-rating').value = m.rating || 'good';
+  
+  document.getElementById('mindsetModal').classList.add('open');
+}
+
 function closeMindsetModal() {    
+  currentMindsetEditId = null;
   document.getElementById('mindsetModal').classList.remove('open');    
 }
 
@@ -1255,15 +1313,23 @@ async function saveMindsetMoment() {
   
   if(!question){ toast('Please enter a question or situation','error'); return; }    
   
-  const { error } = await sb.from('mindset_moments').insert({    
-    question, rating, concept, linked_topic_name, response    
-  });    
+  const payload = { question, rating, concept, linked_topic_name, response };
+  let error;
+
+  // If we have an ID, we UPDATE. If we don't, we INSERT.
+  if (currentMindsetEditId) {
+    const res = await sb.from('mindset_moments').update(payload).eq('id', currentMindsetEditId);
+    error = res.error;
+  } else {
+    const res = await sb.from('mindset_moments').insert(payload);
+    error = res.error;
+  }
   
   if(error){ toast('Error saving moment: '+error.message,'error'); return; }    
   
-  toast('Mindset Moment saved! 🧠','success');    
+  toast(currentMindsetEditId ? 'Moment updated! ✨' : 'Mindset Moment saved! 🧠', 'success');    
   closeMindsetModal();    
-  loadALL(); 
+  await syncUI(); 
 }
 
 // ── EVENT LISTENERS ──
