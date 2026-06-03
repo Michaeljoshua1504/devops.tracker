@@ -155,7 +155,7 @@ padding: 1.5rem;
 margin-bottom: 1.25rem;   
 box-shadow: var(--card-shadow);  
 backdrop-filter: blur(10px);  
-webkit-backdrop-filter: blur(10px);  
+-webkit-backdrop-filter: blur(10px);  
 }   
 .card h3 {   
 font-size: 0.75rem; font-family: var(--font-display); font-weight: 600;  
@@ -283,9 +283,9 @@ transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.3s
 .session-item.expanded .session-body { display: block; }   
 .session-summary {   
 font-size: 0.9rem; color: var(--muted); margin-top: 0.4rem; line-height: 1.5;   
-display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;   
+display: -webkit-box; -webkit-line-clamp: 2; line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;   
 }   
-.session-item.expanded .session-summary { display: block; overflow: visible; -webkit-line-clamp: unset; }   
+.session-item.expanded .session-summary { display: block; overflow: visible; -webkit-line-clamp: unset; line-clamp: 2; }   
 </style>   
 </head>   
 <body>
@@ -389,19 +389,34 @@ display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overf
 <div id="mindset-list"><div style="color:var(--muted);font-size:0.9rem">Loading moments…</div></div>   
 </div>
 
+<!-- NOTES TAB HERE -->
 <div id="tab-notes" class="tab-content">   
 <h2 style="font-size:1.2rem;font-weight:700;margin-bottom:1.5rem">My Notes</h2>   
 <div class="card">   
-<div class="form-row">   
-  <label>Author</label>   
-  <input type="text" id="note-author" placeholder="Your name" style="max-width:300px" />   
+
+  <div class="form-row">   
+    <label>Date</label>   
+    <input type="date" id="note-date" style="max-width:300px" />   
+  </div> 
+
+  <div class="form-row">   
+    <label>Author</label>   
+    <input type="text" id="note-author" value="Your Name" style="max-width:300px" />   
+  </div>   
+
+  <div class="form-row">   
+    <label>Heading</label>   
+    <input type="text" id="note-title" placeholder="e.g., Bug Fixes & Refactoring" style="max-width:300px" />   
+  </div>
+
+  <div class="form-row">   
+    <label>Note</label>   
+    <textarea id="note-text" placeholder="Write your note here…"></textarea>   
+  </div>   
+
+  <button class="btn btn-save" onclick="saveNote()">Save Note</button>   
 </div>   
-<div class="form-row">   
-  <label>Note</label>   
-  <textarea id="note-text" placeholder="Write your note here…"></textarea>   
-</div>   
-<button class="btn btn-save" onclick="saveNote()">Save Note</button>   
-</div>   
+
 <div id="notes-list" style="margin-top:1.25rem"></div>   
 </div>
 
@@ -663,98 +678,108 @@ const PHASES = [
 { label:'Phase 8 — AIOps', ids:['8.1','8.2','8.3','8.4','8.5','8.6','8.7'] },   
 ];
 
+// ── ROADMAP TOPICS ──
 async function loadTopics() {   
-if(!sb) return;   
-const [topicsRes, sessionsRes] = await Promise.all([   
-sb.from('topic_status').select('*').order('id'),   
-sb.from('sessions').select('*')   
-]);
+  if(!sb) return;   
+  
+  // 1. Fetch BOTH topics and sessions simultaneously
+  const [topicsRes, sessionsRes] = await Promise.all([
+    sb.from('topic_status').select('*').order('id'),
+    sb.from('sessions').select('*')
+  ]);
 
-if(topicsRes.error || !topicsRes.data){   
-document.getElementById('topics-list').innerHTML='<div style="color:var(--red);font-size:0.9rem">Error loading topics</div>';   
-return;   
-}
-
-const topicsMap = {};   
-topicsRes.data.forEach(t => topicsMap[t.topic_id] = t);
-
-const sessionsMap = {};   
-if(sessionsRes.data) {   
-sessionsRes.data.forEach(s => {   
-  if(s.topic_id) { sessionsMap[s.topic_id] = s; }   
-});   
-}
-
-let html = '';   
-PHASES.forEach(phase => {   
-html += `<div class="phase-header">${phase.label}</div>`;   
-phase.ids.forEach(tid => {   
-  let t = topicsMap[tid];   
-  if(!t) return;
-
-  const matchingSession = sessionsMap[tid];   
-  if(matchingSession) {   
-    if(t.status !== 'done') {   
-      t.status = 'done';   
-      sb.from('topic_status').update({   
-        status: 'done',   
-        session_note: matchingSession.summary,   
-        full_notes: matchingSession.full_notes || ''   
-      }).eq('topic_id', tid);   
-    }   
-    if(!t.full_notes && matchingSession.full_notes) t.full_notes = matchingSession.full_notes;   
-    if(!t.session_note && matchingSession.summary) t.session_note = matchingSession.summary;   
+  if(topicsRes.error || !topicsRes.data){   
+    document.getElementById('topics-list').innerHTML='<div style="color:var(--red);font-size:0.9rem">Error loading topics</div>';   
+    return;   
   }
 
-  if(t.status === 'done') {   
-    const parts = tid.split('.');   
-    if(parts.length === 2) {   
-      const nextId = parts[0] + '.' + (parseInt(parts[1], 10) + 1);   
-      if(topicsMap[nextId] && topicsMap[nextId].status === 'todo') {   
-        topicsMap[nextId].status = 'next';   
-        sb.from('topic_status').update({ status: 'next' }).eq('topic_id', nextId);   
-      }   
-    }   
+  const topicsMap = {};   
+  topicsRes.data.forEach(t => topicsMap[t.topic_id] = t);
+
+  // 2. Map the most recent session for each topic to override old test data
+  const latestSessions = {};
+  if (sessionsRes.data) {
+    sessionsRes.data.sort((a,b) => (b.date + b.time).localeCompare(a.date + a.time));
+    sessionsRes.data.forEach(s => {
+      if (s.topic_id && !latestSessions[s.topic_id]) {
+        latestSessions[s.topic_id] = s;
+      }
+    });
   }
 
-  const badge = t.status === 'done' ? 'badge-done' : t.status === 'next' ? 'badge-next' : 'badge-todo';   
-  const label = t.status === 'done' ? 'Done' : t.status === 'next' ? 'Next' : 'Todo';   
-  const hasFullNotes = t.full_notes && t.full_notes.trim().length > 0;   
-  const hasSummary = t.session_note && t.session_note.trim().length > 0;
+  let html = '';   
+  PHASES.forEach(phase => {   
+    html += `<div class="phase-header">${phase.label}</div>`;   
+    phase.ids.forEach(tid => {   
+      let t = topicsMap[tid];   
+      if(!t) return;
 
-  const safeDomId = tid.replace('.', '_');  
-  const notesHtml = (hasFullNotes || hasSummary)   
-    ? `<div class="topic-expand" id="expand-${safeDomId}" style="display:none">   
-        <div style="margin-top:0.75rem;padding-top:0.75rem;border-top:1px solid var(--border)">   
-          ${hasFullNotes ? `   
-            <div style="font-size:0.75rem;color:var(--accent2);font-weight:600;text-transform:uppercase;margin-bottom:0.5rem">📖 Full Teaching Notes</div>   
-            <div style="font-size:0.9rem;color:var(--text);line-height:1.6;white-space:pre-wrap;margin-bottom:1rem">${t.full_notes}</div>   
-          ` : ''}   
-          ${hasSummary ? `   
-            <div style="font-size:0.75rem;color:var(--accent2);font-weight:600;text-transform:uppercase;margin-bottom:0.4rem">📝 Summary</div>   
-            <div style="font-size:0.88rem;color:var(--muted);line-height:1.5">${t.session_note}</div>   
-          ` : ''}   
+      // 3. Grab ALL data from the latest real session
+      const matchingSession = latestSessions[tid];
+      const displayNotes = (matchingSession && matchingSession.full_notes) ? matchingSession.full_notes : (t.full_notes || '');
+      const displaySummary = (matchingSession && matchingSession.summary) ? matchingSession.summary : (t.session_note || '');
+      const displayConcepts = (matchingSession && matchingSession.concepts) ? matchingSession.concepts : '';
+
+      const badge = t.status === 'done' ? 'badge-done' : t.status === 'next' ? 'badge-next' : 'badge-todo';   
+      const label = t.status === 'done' ? 'Done' : t.status === 'next' ? 'Next' : 'Todo';   
+      
+      const hasFullNotes = displayNotes.trim().length > 0;   
+      const hasSummary = displaySummary.trim().length > 0;
+      const hasConcepts = displayConcepts.trim().length > 0;
+
+      const safeDomId = tid.replace('.', '_');  
+
+      // 4. LAYOUT FIX: Perfect Flexbox formatting for the Concept Chips
+      let conceptsHtml = '';
+      if (hasConcepts) {
+        // Style the individual chips to look like beautiful iOS pills
+        const chips = displayConcepts.split(',').filter(c => c.trim() !== '').map(c => 
+          `<span class="chip" style="display:inline-block; background:var(--surface, #2a2a2a); border:1px solid var(--border, #444); color:var(--text, #fff); padding:0.3rem 0.8rem; border-radius:100px; font-size:0.75rem; font-weight:500;">${c.trim()}</span>`
+        ).join('');
+        
+        // Wrap them in a flex container so they space perfectly
+        conceptsHtml = `
+          <div style="margin-top:1.2rem; padding-top:1rem; border-top:1px solid var(--border)">
+            <div style="font-size:0.75rem;color:var(--accent2);font-weight:600;text-transform:uppercase;margin-bottom:0.75rem;letter-spacing:0.5px;">💡 Key Concepts</div>
+            <div style="display:flex; flex-wrap:wrap; gap:0.5rem; align-items:center;">
+              ${chips}
+            </div>
+          </div>`;
+      }
+      
+      const notesHtml = (hasFullNotes || hasSummary || hasConcepts)   
+        ? `<div class="topic-expand" id="expand-${safeDomId}" style="display:none">   
+            <div style="margin-top:0.75rem;padding-top:0.75rem;border-top:1px solid var(--border)">   
+              ${hasFullNotes ? `   
+                <div style="font-size:0.75rem;color:var(--accent2);font-weight:600;text-transform:uppercase;margin-bottom:0.5rem">📖 Full Teaching Notes</div>   
+                <div style="font-size:0.9rem;color:var(--text);line-height:1.6;white-space:pre-wrap;margin-bottom:1rem">${displayNotes}</div>   
+              ` : ''}   
+              ${hasSummary ? `   
+                <div style="font-size:0.75rem;color:var(--accent2);font-weight:600;text-transform:uppercase;margin-bottom:0.4rem">📝 Summary</div>   
+                <div style="font-size:0.88rem;color:var(--muted);line-height:1.5">${displaySummary}</div>   
+              ` : ''}   
+              ${conceptsHtml}
+            </div>   
+          </div>`   
+        : `<div class="topic-expand" id="expand-${safeDomId}" style="display:none">   
+            <div style="margin-top:0.75rem;padding-top:0.75rem;border-top:1px solid var(--border);font-size:0.85rem;color:var(--muted)">   
+              No teaching notes saved yet.   
+            </div>   
+          </div>`;
+
+      html += `<div class="topic-item" onclick="toggleTopicNotes(this, '${safeDomId}')" style="flex-direction:column;align-items:stretch">   
+        <div style="display:flex;align-items:center;gap:1rem">   
+          <div class="topic-id">${t.topic_id || tid}</div>   
+          <div style="flex:1"><div class="topic-name">${t.topic_name}</div></div>   
+          <span class="badge ${badge}">${label}</span>   
+          <span class="arrow-indicator" style="font-size:0.75rem;color:var(--muted)">▼</span>   
         </div>   
-      </div>`   
-    : `<div class="topic-expand" id="expand-${safeDomId}" style="display:none">   
-        <div style="margin-top:0.75rem;padding-top:0.75rem;border-top:1px solid var(--border);font-size:0.85rem;color:var(--muted)">   
-          No teaching notes saved yet.   
-        </div>   
-      </div>`;
+        ${notesHtml}   
+      </div>`;   
+    });   
+  });
 
-  html += `<div class="topic-item" onclick="toggleTopicNotes(this, '${safeDomId}')" style="flex-direction:column;align-items:stretch">   
-    <div style="display:flex;align-items:center;gap:1rem">   
-      <div class="topic-id">${t.topic_id || tid}</div>   
-      <div style="flex:1"><div class="topic-name">${t.topic_name}</div></div>   
-      <span class="badge ${badge}">${label}</span>   
-      <span class="arrow-indicator" style="font-size:0.75rem;color:var(--muted)">▼</span>   
-    </div>   
-    ${notesHtml}   
-  </div>`;   
-});   
-});
-
-document.getElementById('topics-list').innerHTML = html;   
+  document.getElementById('topics-list').innerHTML = html;   
 }
 
 function toggleTopicNotes(el, safeId) {   
@@ -938,16 +963,64 @@ document.getElementById('notes-list').innerHTML = data.map(n =>
 ).join('');   
 }
 
+// ── SAVE NOTE WITH HEADING ──
 async function saveNote() {   
-if(!sb){ toast('Not connected to Supabase','error'); return; }   
-const author = document.getElementById('note-author').value.trim() || 'Anonymous';   
-const content = document.getElementById('note-text').value.trim();   
-if(!content){ toast('Please write something','error'); return; }   
-const { error } = await sb.from('notes').insert({ author, note_text: content });   
-if(error){ toast('Error: '+error.message,'error'); return; }   
-document.getElementById('note-text').value = '';   
-toast('Note saved!','success');   
-loadNotes();   
+  if(!sb){ showToast('Not connected to database.'); return; }   
+  
+  let dateVal = document.getElementById('note-date').value;
+  if (!dateVal) dateVal = new Date().toISOString().split('T')[0];
+
+  const author = document.getElementById('note-author').value.trim() || 'DevOps Log';   
+  const title = document.getElementById('note-title').value.trim() || 'Daily Log'; // Grab Heading
+  const content = document.getElementById('note-text').value.trim();   
+  
+  if(!content){ showToast('Please write an entry first.'); return; }   
+  
+  // Send everything to Supabase
+  const { error } = await sb.from('notes').insert({ 
+    date: dateVal,
+    author: author, 
+    title: title,       // <--- Saves Heading to 'title' column
+    note_text: content 
+  });   
+  
+  if(error){ showToast('Error: ' + error.message); return; }   
+  
+  // Clear only the Heading and Note fields after successful save
+  document.getElementById('note-title').value = '';   
+  document.getElementById('note-text').value = '';   
+  toast('Note Saved! 🎉');   
+  loadNotes();   
+}
+
+// ── LOAD AND RENDER NOTES WITH HEADING ──
+async function loadNotes() {   
+  if(!sb) return;   
+  const { data } = await sb.from('notes').select('*').order('date', {ascending: false});   
+  
+  const container = document.getElementById('notes-list');
+  if(!data || data.length === 0){ 
+    container.innerHTML = '<div style="color:var(--muted);font-size:0.9rem;">No journal entries yet.</div>'; 
+    return; 
+  }   
+  
+  // Auto-fill today's date into the input field for convenience
+  document.getElementById('note-date').value = new Date().toISOString().split('T')[0];
+  
+  container.innerHTML = data.map(n => `
+    <div class="session-item" style="cursor:default; margin-bottom:1rem; padding:1.2rem;">   
+      <div class="session-header" style="display:flex; justify-content:between; align-items:center;">   
+        <div style="font-size:0.85rem; font-weight:600; color:var(--accent2); text-transform:uppercase;">👤 ${n.author || 'DevOps Log'}</div>   
+        <div class="session-date" style="font-size:0.85rem; color:var(--muted);">${n.date || ''}</div>   
+      </div>   
+      
+      <div style="font-size:1.1rem; font-weight:700; color:var(--text); margin-top:0.6rem; margin-bottom:0.4rem;">
+        ${n.title || 'Daily Log'}
+      </div>
+      
+      <div style="font-size:0.9rem; line-height:1.6; color:var(--muted); white-space:pre-wrap;">${n.note_text || ''}</div>   
+    </div>`
+  ).join('');   
 }
 
 // ── SAVE SESSION MODAL CONTROLS ──   
@@ -1033,6 +1106,7 @@ setTimeout(() => el.className = '', 3000);
 }
 
 document.getElementById('saveModal').addEventListener('click', function(e){ if(e.target===this) closeModal(); });   
-</script>   
+</script>
+<div id="toast" class="toast"></div>
 </body>   
 </html>
