@@ -333,7 +333,7 @@ display: -webkit-box; -webkit-line-clamp: 2; line-clamp: 2; -webkit-box-orient: 
 <div class="card">    
  <h3>Topics Done</h3>    
  <div class="stat-big" id="dash-done">—</div>    
- <div class="stat-label">of 41 total</div>    
+ <div class="stat-label">of 67 total</div>    
 </div>    
 <div class="card">    
  <h3>Progress</h3>    
@@ -357,7 +357,7 @@ display: -webkit-box; -webkit-line-clamp: 2; line-clamp: 2; -webkit-box-orient: 
  <div class="progress-bar"><div class="progress-fill" id="phase2-bar" style="width:0%"></div></div>    
 </div>    
 <div class="progress-wrap">    
- <div class="progress-label"><span>Phases 3–8</span><span id="phase38-pct">0%</span></div>    
+ <div class="progress-label"><span>Phases 3–8 — Advanced Automation & AIOps</span><span id="phase38-pct">0%</span></div>    
  <div class="progress-bar"><div class="progress-fill" id="phase38-bar" style="width:0%"></div></div>    
 </div>    
 </div>    
@@ -379,7 +379,7 @@ display: -webkit-box; -webkit-line-clamp: 2; line-clamp: 2; -webkit-box-orient: 
 </div>
 
 <div id="tab-topics" class="tab-content">    
-<h2 style="font-size:1.2rem;font-weight:700;margin-bottom:1.5rem">Full Roadmap — 41 Topics</h2>    
+<h2 style="font-size:1.2rem;font-weight:700;margin-bottom:1.5rem">Full Roadmap — 67 Topics</h2>    
 <div id="topics-list"><div style="color:var(--muted);font-size:0.9rem">Loading topics…</div></div>    
 </div>
 
@@ -702,7 +702,7 @@ async function loadDashboard() {
     });
 
     const mindsetCount = mindsetRes.count || 0;
-    const pct = Math.round((doneCount / 41) * 100);
+    const pct = Math.round((doneCount / 67) * 100);
 
     document.getElementById('dash-done').textContent = doneCount;    
     document.getElementById('dash-pct').textContent = pct + '%';    
@@ -712,11 +712,13 @@ async function loadDashboard() {
     document.getElementById('phase1-pct').textContent = p1pct + '%';    
     document.getElementById('phase1-bar').style.width = p1pct + '%';
 
-    const p2pct = Math.round((p2done / 8) * 100);    
+    // Update Phase 2 total to 10
+    const p2pct = Math.round((p2done / 10) * 100);    
     document.getElementById('phase2-pct').textContent = p2pct + '%';    
     document.getElementById('phase2-bar').style.width = p2pct + '%';
 
-    const p38pct = Math.round((p38done / 26) * 100);    
+    // Update Phase 3-8 total to 50
+    const p38pct = Math.round((p38done / 50) * 100);    
     document.getElementById('phase38-pct').textContent = p38pct + '%';    
     document.getElementById('phase38-bar').style.width = p38pct + '%';
 
@@ -742,13 +744,13 @@ async function loadDashboard() {
 // ── ROADMAP CONSTANTS ──    
 const PHASES = [    
 { label:'Phase 1 — Foundations', ids:['1.1','1.2','1.3','1.4','1.5','1.6','1.7'] },    
-{ label:'Phase 2 — Networking + Cloud', ids:['2.1','2.2','2.3','2.4','2.5','2.6','2.7','2.8'] },    
+{ label:'Phase 2 — Networking + Cloud', ids:['2.1','2.2','2.3','2.4','2.5','2.6','2.7','2.8','2.9','2.10'] },    
 { label:'Phase 3 — Python for DevOps', ids:['3.1','3.2','3.3','3.4','3.5','3.6','3.7'] },    
 { label:'Phase 4 — Git', ids:['4.1','4.2','4.3','4.4','4.5'] },    
 { label:'Phase 5 — Docker', ids:['5.1','5.2','5.3','5.4','5.5','5.6'] },    
-{ label:'Phase 6 — CI/CD', ids:['6.1','6.2','6.3','6.4','6.5','6.6','6.7','6.8'] },    
-{ label:'Phase 7 — IaC + Kubernetes', ids:['7.1','7.2','7.3','7.4','7.5','7.6','7.7','7.8','7.9'] },    
-{ label:'Phase 8 — AIOps', ids:['8.1','8.2','8.3','8.4','8.5','8.6','8.7'] },    
+{ label:'Phase 6 — CI/CD', ids:['6.1','6.2','6.3','6.4','6.5','6.6','6.7','6.8','6.9'] },    
+{ label:'Phase 7 — IaC + Kubernetes', ids:['7.1','7.2','7.3','7.4','7.5','7.6','7.7','7.8','7.9','7.10'] },    
+{ label:'Phase 8 — AIOps', ids:['8.1','8.2','8.3','8.4','8.5','8.6','8.7','8.8','8.9','8.10','8.11','8.12','8.13'] },    
 ];
 
 // ── ROADMAP TOPICS ──  
