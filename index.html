@@ -438,7 +438,7 @@ display: -webkit-box; -webkit-line-clamp: 2; line-clamp: 2; -webkit-box-orient: 
 
   <button class="btn btn-save" onclick="saveNote()">Save Note</button>    
 </div>  
-<div id="notes-list" style="margin-top:1.25rem"></div>    
+<div id="notes-list" style="max-height: 65vh; overflow-y: auto; padding-right: 10px; padding-bottom: 2rem;"></div> 
 </div>
 
 <div id="tab-setup" class="tab-content">    
@@ -1147,47 +1147,58 @@ async function deleteNote(id) {
   await syncUI(); // Instantly redraws the UI!
 }
 
+// ── NOTES (Protected and Ordered) ──    
 async function loadNotes() {    
- if(!sb) return;   
- try {
-   const { data, error } = await sb.from('notes').select('*');    
-   const container = document.getElementById('notes-list');  
+  if(!sb) return;   
+  try {
+    // 1. Ask Supabase to explicitly sort by newest first
+    const { data, error } = await sb.from('notes').select('*').order('created_at', { ascending: false });    
+    const container = document.getElementById('notes-list');  
    
-   if(error){  
-     container.innerHTML = '<div style="color:var(--red);font-size:0.9rem;">Error connecting to Notes database.</div>';  
-     return;  
-   }
-   if(!data || data.length === 0){  
-     container.innerHTML = '<div style="color:var(--muted);font-size:0.9rem;">No journal entries yet.</div>';  
-     return;  
-   }    
+    if(error){  
+      console.error("Notes DB Error:", error);
+      container.innerHTML = `<div style="color:var(--red);font-size:0.9rem;">Error connecting: ${error.message}</div>`;  
+      return;  
+    }
 
-   // Soft sort in Javascript to prevent DB crash if 'date' column is missing
-   data.sort((a,b) => new Date(b.date || b.created_at || 0) - new Date(a.date || a.created_at || 0));
+    // 2. X-RAY: Print the downloaded data to the browser console
+    console.log("Notes downloaded from Supabase:", data);
 
-   document.getElementById('note-date').value = new Date().toISOString().split('T')[0];  
-   container.innerHTML = data.map(n => `  
-     <div class="session-item" style="cursor:default; margin-bottom:1rem; padding:1.2rem;">    
-       <div class="session-header" style="display:flex; justify-content:space-between; align-items:center; width:100%">    
-         <div style="font-size:0.85rem; font-weight:600; color:var(--accent2); text-transform:uppercase;">👤 ${n.author || 'DevOps Log'}</div>    
-         <div class="session-date" style="font-size:0.85rem; color:var(--muted);">${n.date || (n.created_at ? n.created_at.split('T')[0] : '')}</div>    
-       </div>    
+    if(!data || data.length === 0){  
+      container.innerHTML = '<div style="color:var(--muted);font-size:0.9rem;">No journal entries yet.</div>';  
+      return;  
+    }    
+
+    // Set today's date in the input field
+    document.getElementById('note-date').value = new Date().toISOString().split('T')[0];  
+    // 3. Build the HTML safely
+    container.innerHTML = data.map((n, i) => {
+      
+      // SANITIZE THE TEXT: This prevents code snippets (like < or >) from breaking the website
+      const safeTitle = (n.title || 'Daily Log').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+      const safeText = (n.note_text || '').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+      
+      return `  
+      <div class="session-item" style="cursor:default; margin-bottom:1rem; padding:1.2rem;">    
+        <div class="session-header" style="display:flex; justify-content:space-between; align-items:center; width:100%">    
+          <div style="font-size:0.85rem; font-weight:600; color:var(--accent2); text-transform:uppercase;">👤 ${n.author || 'DevOps Log'}</div>    
+          <div class="session-date" style="font-size:0.85rem; color:var(--muted);">${n.date || (n.created_at ? n.created_at.split('T')[0] : '')}</div>    
+        </div>    
         
-       <div style="font-size:1.1rem; font-weight:700; color:var(--text); margin-top:0.6rem; margin-bottom:0.4rem;">  
-         ${n.title || 'Daily Log'}  
-       </div>  
+        <div style="font-size:1.1rem; font-weight:700; color:var(--text); margin-top:0.6rem; margin-bottom:0.4rem;">  
+          ${safeTitle}  
+        </div>  
         
-       <div style="font-size:0.9rem; line-height:1.6; color:var(--muted); white-space:pre-wrap;">${n.note_text || ''}</div>    
+        <div style="font-size:0.9rem; line-height:1.6; color:var(--muted); white-space:pre-wrap;">${safeText}</div>    
 
-       <!-- NEW DELETE BUTTON -->
-       <div style="margin-top:1.5rem; display:flex; justify-content:flex-end;">  
-         <button class="btn btn-ghost" style="color:var(--red); border:1px solid rgba(255,69,58,0.2); font-size:0.78rem; padding:0.35rem 0.75rem;" onclick="deleteNote('${n.id}')">🗑️ Delete Note</button>  
-       </div>
-     </div>`  
-    ).join(''); 
+        <div style="margin-top:1.5rem; display:flex; justify-content:flex-end;">  
+          <button class="btn btn-ghost" style="color:var(--red); border:1px solid rgba(255,69,58,0.2); font-size:0.78rem; padding:0.35rem 0.75rem;" onclick="deleteNote('${n.id}')">🗑️ Delete Note</button>  
+        </div>
+      </div>`;
+    }).join(''); 
   } catch (e) {
-   console.error("Notes Crash Protected:", e);
- }  
+    console.error("Notes Crash Protected:", e);
+  }  
 }
 
 // ── SAVE SESSION MODAL CONTROLS ──    
