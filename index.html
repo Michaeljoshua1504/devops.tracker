@@ -430,7 +430,7 @@ display: -webkit-box; -webkit-line-clamp: 2; line-clamp: 2; -webkit-box-orient: 
 </div>
 
 <div id="tab-notes" class="tab-content">     
-<h2 style="font-size:1.2rem;font-weight:700;margin-bottom:1.5rem">My Notes</h2>     
+<h2 style="font-size:1.2rem;font-weight:700;margin-bottom:1.5rem">Journal</h2>     
 <div class="card">   
  <div class="form-row-2">  
    <div class="form-row">     
@@ -444,11 +444,11 @@ display: -webkit-box; -webkit-line-clamp: 2; line-clamp: 2; -webkit-box-orient: 
  </div>
 
  <div class="form-row">     
-   <label>Heading</label>     
+   <label>Title</label>     
    <input type="text" id="note-title" placeholder="e.g., Bug Fixes & Refactoring" />     
  </div>  
  <div class="form-row">     
-   <label>Note</label>     
+   <label>Write your Journal</label>     
    <textarea id="note-text" placeholder="Write your note here..."></textarea>     
  </div> 
 
@@ -613,6 +613,7 @@ let sb = null;
 let allMindset = [];    
 let allProjects = []; // <-- NEW STATE ARRAY FOR PROJECTS
 let nextTopicGlobal = null;
+let editingNoteId = null;
 
 // ── UTILITIES ──
 function escapeHTML(str) {
@@ -1258,27 +1259,58 @@ async function confirmDeleteMindset() {
 // Add this line to the ── EVENT LISTENERS ── section at the bottom so clicking the background closes the modal  
 document.getElementById('deleteConfirmModal').addEventListener('click', function(e){ if(e.target===this) closeDeleteModal(); });
 
-// ── NOTES (Protected against missing columns) ──     
+// ── NOTES (Protected and Ordered + X-Ray) ──     
 async function saveNote() {     
-if(!sb){ toast('Not connected to database.'); return; }     
-let dateVal = document.getElementById('note-date').value;   
-if (!dateVal) dateVal = new Date().toISOString().split('T')[0];
+    if(!sb){ toast('Not connected to database.'); return; }     
+    let dateVal = document.getElementById('note-date').value;   
+    if (!dateVal) dateVal = new Date().toISOString().split('T')[0];
 
-const author = document.getElementById('note-author').value.trim() || 'DevOps Log';     
-const title = document.getElementById('note-title').value.trim() || 'Daily Log';  
-const content = document.getElementById('note-text').value.trim();     
-if(!content){ toast('Please write an entry first.'); return; }     
-const { error } = await sb.from('notes').insert({   
-  date: dateVal,   
-  author: author,   
-  title: title,        
-  note_text: content   
-});     
-if(error){ toast('Error: ' + error.message); return; }     
-document.getElementById('note-title').value = '';     
-document.getElementById('note-text').value = '';     
-toast('Note Saved! 🎉');     
-await syncUI();   
+    const author = document.getElementById('note-author').value.trim() || 'DevOps Log';     
+    const title = document.getElementById('note-title').value.trim() || 'Daily Log';  
+    const content = document.getElementById('note-text').value.trim();     
+    if(!content){ toast('Please write an entry first.'); return; }     
+
+    if (editingNoteId) {
+        // === UPDATE PATH ===
+        // Added .select() to force Supabase to return the row it just updated
+        const { data, error } = await sb.from('notes').update({   
+            date: dateVal,   
+            author: author,   
+            title: title,        
+            note_text: content   
+        }).eq('id', editingNoteId).select();     
+
+        if(error){ toast('Error: ' + error.message); return; }     
+        
+        // THE X-RAY: Look in your browser's Developer Tools Console (Right Click -> Inspect -> Console)
+        console.log("Supabase Update Result:", data);
+        if (data.length === 0) {
+            toast('❌ Update blocked by Supabase RLS Policies!');
+            return;
+        }
+
+        // Reset the tracker and button
+        editingNoteId = null;
+        document.querySelector('.btn-save').innerText = 'Save Note';
+        toast('Note Updated! ✏️');
+
+    } else {
+        // === INSERT PATH ===
+        const { error } = await sb.from('notes').insert({   
+            date: dateVal,   
+            author: author,   
+            title: title,        
+            note_text: content   
+        });     
+
+        if(error){ toast('Error: ' + error.message); return; }   
+        toast('Note Saved! 🎉');  
+    }
+
+    // Clear the boxes and reload the UI
+    document.getElementById('note-title').value = '';     
+    document.getElementById('note-text').value = '';       
+    await syncUI();   
 }
 
 // ── DELETE NOTE ──  
@@ -1317,13 +1349,18 @@ async function loadNotes() {
 
    // Set today's date in the input field  
    document.getElementById('note-date').value = new Date().toISOString().split('T')[0];   
+   
    // 3. Build the HTML safely  
    container.innerHTML = data.map((n, i) => {  
       
-     // SANITIZE THE TEXT: This prevents code snippets (like < or >) from breaking the website  
+     // SANITIZE FOR DISPLAY (Prevents HTML Injection)
      const safeTitle = (n.title || 'Daily Log').replace(/</g, '&lt;').replace(/>/g, '&gt;');  
      const safeText = (n.note_text || '').replace(/</g, '&lt;').replace(/>/g, '&gt;');  
       
+     // SANITIZE FOR BUTTON (Prevents quotes and newlines from breaking the Javascript click function)
+     const btnTitle = (n.title || 'Daily Log').replace(/'/g, "\\'").replace(/"/g, "&quot;").replace(/[\r\n]+/g, "\\n");
+     const btnText = (n.note_text || '').replace(/'/g, "\\'").replace(/"/g, "&quot;").replace(/[\r\n]+/g, "\\n");
+
      return `   
      <div class="session-item" style="cursor:default; margin-bottom:1rem; padding:1.2rem;">     
        <div class="session-header" style="display:flex; justify-content:space-between; align-items:center; width:100%">     
@@ -1338,6 +1375,7 @@ async function loadNotes() {
        <div style="font-size:0.9rem; line-height:1.6; color:var(--muted); white-space:pre-wrap;">${safeText}</div>   
 
        <div style="margin-top:1.5rem; display:flex; justify-content:flex-end;">   
+         <button class="btn" style="background: #eab308; margin-right: 10px;" onclick="triggerEdit('${n.id}', '${btnTitle}', '${btnText}', '${n.date || ''}', '${n.author || ''}')">Edit ✏️</button>
          <button class="btn btn-ghost" style="color:var(--red); border:1px solid rgba(255,69,58,0.2); font-size:0.78rem; padding:0.35rem 0.75rem;" onclick="deleteNote('${n.id}')">🗑️ Delete Note</button>   
        </div>  
      </div>`;  
@@ -1493,6 +1531,24 @@ el.textContent = msg;
 el.className = 'show ' + type;     
 setTimeout(() => el.className = '', 3000);     
 }  
+
+// ── TRIGGER EDIT MODE ──
+function triggerEdit(id, title, content, date, author) {
+    document.getElementById('note-title').value = title;
+    document.getElementById('note-text').value = content;
+    
+    // Safely set date and author if they exist
+    if(date) document.getElementById('note-date').value = date;
+    if(author) document.getElementById('note-author').value = author;
+    
+    // Change the button text so the user knows they are editing
+    document.querySelector('.btn-save').innerText = 'Update Note';
+    
+    // Remember the ID and scroll to top
+    editingNoteId = id;
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
 </script>   
 </body>     
 </html>
