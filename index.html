@@ -302,6 +302,22 @@ font-size: 0.9rem; color: var(--muted); margin-top: 0.4rem; line-height: 1.5;
 display: -webkit-box; -webkit-line-clamp: 2; line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;     
 }     
 .session-item.expanded .session-summary { display: block; overflow: visible; -webkit-line-clamp: unset; line-clamp: 2; }     
+
+select {
+  width: 100%;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  color: var(--text);
+  padding: 0.75rem;
+  font-family: var(--font-display);
+  font-size: 0.9rem;
+  outline: none;
+  transition: border-color 0.2s;
+  appearance: none;
+  -webkit-appearance: none;
+}
+
 </style>     
 </head>     
 <body>
@@ -325,7 +341,7 @@ display: -webkit-box; -webkit-line-clamp: 2; line-clamp: 2; -webkit-box-orient: 
 <button onclick="showTab('projects',this)">Portfolio</button>     
 <button onclick="showTab('mindset',this)">Mindset</button>     
 <button onclick="showTab('notes',this)">Notes</button>     
-<button onclick="showTab('setup',this)">Setup</button>     
+<button onclick="showTab('cmds',this)">Terminal Cmds 💻</button> <button onclick="showTab('setup',this)">Setup</button>     
 </nav>    
 </div>
 
@@ -457,6 +473,30 @@ display: -webkit-box; -webkit-line-clamp: 2; line-clamp: 2; -webkit-box-orient: 
 <div id="notes-list" style="max-height: 65vh; overflow-y: auto; padding-right: 10px; padding-bottom: 2rem;"></div>  
 </div>
 
+<div id="tab-cmds" class="tab-content">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+        <h2 style="font-size:1.2rem; font-weight:700; margin: 0;">Terminal Commands Runbook</h2>
+        <button class="btn" style="background: var(--accent);" onclick="openCmdModal()">+ Add Command</button>
+    </div>
+    
+    <div style="margin-bottom: 1.5rem;">
+        <input type="text" id="cmd-search" placeholder="Search commands, meanings, or topics..." style="width: 100%; padding: 0.8rem; margin-bottom: 1rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); background: rgba(0,0,0,0.2); color: white;" onkeyup="renderCommands()">
+        
+        <div id="cmd-filters" style="display: flex; gap: 8px; flex-wrap: wrap;">
+            <button class="btn" style="background: var(--accent); padding: 0.4rem 0.8rem;" onclick="setCmdFilter('All')">All</button>
+            <button class="btn btn-ghost" style="padding: 0.4rem 0.8rem;" onclick="setCmdFilter('Linux')">Linux</button>
+            <button class="btn btn-ghost" style="padding: 0.4rem 0.8rem;" onclick="setCmdFilter('Git')">Git</button>
+            <button class="btn btn-ghost" style="padding: 0.4rem 0.8rem;" onclick="setCmdFilter('Docker')">Docker</button>
+            <button class="btn btn-ghost" style="padding: 0.4rem 0.8rem;" onclick="setCmdFilter('Kubernetes')">Kubernetes</button>
+            <button class="btn btn-ghost" style="padding: 0.4rem 0.8rem;" onclick="setCmdFilter('Terraform')">Terraform</button>
+            <button class="btn btn-ghost" style="padding: 0.4rem 0.8rem;" onclick="setCmdFilter('Python')">Python</button>
+            <button class="btn btn-ghost" style="padding: 0.4rem 0.8rem;" onclick="setCmdFilter('Cloud CLI')">Cloud CLI</button>
+        </div>
+    </div>
+
+    <div id="cmds-list" style="max-height: 65vh; overflow-y: auto; padding-right: 10px; padding-bottom: 2rem;"></div>
+</div>
+
 <div id="tab-setup" class="tab-content">     
 <h2 style="font-size:1.2rem;font-weight:700;margin-bottom:1.5rem">Supabase Setup</h2>     
 <div class="card">     
@@ -524,6 +564,7 @@ display: -webkit-box; -webkit-line-clamp: 2; line-clamp: 2; -webkit-box-orient: 
 </div>     
 </div>     
 </div>
+
 
 <div class="modal-overlay" id="projectModal">
 <div class="modal">
@@ -606,6 +647,67 @@ display: -webkit-box; -webkit-line-clamp: 2; line-clamp: 2; -webkit-box-orient: 
 </div>
 
 <div id="toast"></div>
+
+<div class="modal-overlay" id="cmdModal">
+<div class="modal">
+  <h2 id="cmd-modal-title">💻 Add Command</h2>
+
+  <div class="form-row-2">
+    <div class="form-row">
+      <label>Command <span style="color:var(--red)">*</span></label>
+      <input type="text" id="cmd-text" placeholder="e.g., mkdir -p" />
+    </div>
+    <div class="form-row">
+      <label>Category <span style="color:var(--red)">*</span></label>
+      <select id="cmd-category" style="width:100%; background:var(--surface2); border:1px solid var(--border); border-radius:10px; color:var(--text); padding:0.75rem; font-family:var(--font-display); outline:none;">
+        <option value="Linux">Linux</option>
+        <option value="Git">Git</option>
+        <option value="Docker">Docker</option>
+        <option value="Kubernetes">Kubernetes</option>
+        <option value="Terraform">Terraform</option>
+        <option value="Python">Python</option>
+        <option value="Cloud CLI">Cloud CLI</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="form-row">
+    <label>Plain English Meaning <span style="color:var(--red)">*</span></label>
+    <input type="text" id="cmd-meaning" placeholder="e.g., Makes a directory, creates missing parent folders" />
+  </div>
+
+  <div class="form-row">
+    <label>Example Usage</label>
+    <input type="text" id="cmd-example" placeholder="e.g., mkdir -p /home/user/app" />
+  </div>
+
+  <div class="form-row-2">
+    <div class="form-row">
+      <label>Topic Learned</label>
+      <input type="text" id="cmd-topic" placeholder="e.g., 1.3" />
+    </div>
+    <div class="form-row">
+      <label>Future Topics</label>
+      <input type="text" id="cmd-future" placeholder="e.g., 1.5, Phase 6" />
+    </div>
+  </div>
+
+  <div class="form-row">
+    <label>Linked Commands (Comma separated)</label>
+    <input type="text" id="cmd-links" placeholder="e.g., cd, touch, ls" />
+  </div>
+
+  <div class="form-row">
+    <label>Security Note</label>
+    <textarea id="cmd-security" style="min-height:80px; border-left: 3px solid var(--red);" placeholder="e.g., Avoid running as root — never run chmod 777 on system folders"></textarea>
+  </div>
+
+  <div class="modal-footer">
+    <button class="btn btn-ghost" onclick="closeCmdModal()">Cancel</button>
+    <button class="btn btn-save" onclick="saveCommand()">Save Command</button>
+  </div>
+</div>
+</div>
 
 <script>     
 // ── STATE ──     
@@ -712,6 +814,7 @@ async function loadAll() {
  await loadProjects(); // <-- INJECTED PROJECT SYNC
  await loadNotes();  
  await loadDashboard();  
+ await loadCommands();
 }
 
 // ── MASTER STATE MANAGER ──  
@@ -1259,6 +1362,7 @@ async function confirmDeleteMindset() {
 // Add this line to the ── EVENT LISTENERS ── section at the bottom so clicking the background closes the modal  
 document.getElementById('deleteConfirmModal').addEventListener('click', function(e){ if(e.target===this) closeDeleteModal(); });
 
+
 // ── NOTES (Protected and Ordered + X-Ray) ──     
 async function saveNote() {     
     if(!sb){ toast('Not connected to database.'); return; }     
@@ -1523,6 +1627,7 @@ async function saveMindsetMoment() {
 document.getElementById('saveModal').addEventListener('click', function(e){ if(e.target===this) closeModal(); });     
 document.getElementById('projectModal').addEventListener('click', function(e){ if(e.target===this) closeProjectModal(); });
 document.getElementById('mindsetModal').addEventListener('click', function(e){ if(e.target===this) closeMindsetModal(); });
+document.getElementById('cmdModal').addEventListener('click', function(e){ if(e.target===this) closeCmdModal(); });
 
 // ── TOAST ──     
 function toast(msg, type='success') {     
@@ -1548,6 +1653,209 @@ function triggerEdit(id, title, content, date, author) {
     editingNoteId = id;
     window.scrollTo({ top: 0, behavior: 'smooth' });
 }
+
+// ==========================================
+// ── TERMINAL COMMANDS RUNBOOK ENGINE ──
+// ==========================================
+
+let allCommands = [];
+let currentCmdFilter = 'All';
+let currentCmdEditId = null;
+
+async function loadCommands() {
+    if(!sb) return;
+    try {
+        const { data, error } = await sb.from('commands').select('*').order('created_at', { ascending: false });
+        if (error) throw error;
+        allCommands = data || [];
+        renderCommands();
+    } catch (e) {
+        console.error("Commands DB Error:", e);
+    }
+}
+
+function renderCommands() {
+    const container = document.getElementById('cmds-list');
+    if (!container) return; 
+
+    const searchInput = document.getElementById('cmd-search');
+    const searchTerm = searchInput ? searchInput.value.toLowerCase() : '';
+    
+    const filtered = allCommands.filter(cmd => {
+        const matchesCategory = currentCmdFilter === 'All' || cmd.category === currentCmdFilter;
+        const matchesSearch = (cmd.command_text || '').toLowerCase().includes(searchTerm) || 
+                              (cmd.meaning || '').toLowerCase().includes(searchTerm) ||
+                              (cmd.topic_learned || '').toLowerCase().includes(searchTerm);
+        return matchesCategory && matchesSearch;
+    });
+
+    if (filtered.length === 0) {
+        container.innerHTML = '<div style="color:var(--muted); padding: 1rem;">No commands found. Add your first one!</div>';
+        return;
+    }
+
+    container.innerHTML = filtered.map(cmd => {
+        const safeCmdForButton = (cmd.command_text || '').replace(/'/g, "\\'").replace(/"/g, "&quot;");
+        
+        // Render the Array of linked commands as cool pill tags
+        const linkedPills = (cmd.linked_cmds && cmd.linked_cmds.length > 0)
+            ? cmd.linked_cmds.map(c => `<span style="display:inline-block; font-size:0.75rem; background:rgba(255,255,255,0.1); border:1px solid rgba(255,255,255,0.2); padding:0.2rem 0.5rem; border-radius:4px; margin-right:6px; color:var(--accent-blue);">🔗 ${c}</span>`).join('')
+            : '';
+
+        return `
+        <div class="session-item" style="margin-bottom:1rem; padding:1.2rem; cursor: default;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 0.8rem; flex-wrap: wrap; gap: 10px;">
+                <div style="display:flex; gap:10px; align-items:center;">
+                    <span style="font-size:0.75rem; font-weight:700; color:var(--accent2); background: rgba(0,255,170,0.1); padding: 0.3rem 0.6rem; border-radius: 4px; text-transform: uppercase;">${cmd.category || 'Uncategorized'}</span>
+                    <span style="font-size:0.75rem; color:var(--muted);">Learned: ${cmd.topic_learned || 'N/A'}</span>
+                    ${cmd.future_topics ? `<span style="font-size:0.75rem; color:var(--muted);">Future: ${cmd.future_topics}</span>` : ''}
+                </div>
+                
+                <div style="display:flex; gap: 0.5rem;">
+                    <button class="btn btn-ghost" style="font-size:0.75rem; padding:0.3rem 0.6rem;" onclick="editCommand('${cmd.id}')">✏️ Edit</button>
+                    <button class="btn btn-ghost" style="color:var(--red); font-size:0.75rem; padding:0.3rem 0.6rem; border:1px solid rgba(255,69,58,0.2);" onclick="deleteCommand('${cmd.id}')">🗑️ Delete</button>
+                </div>
+            </div>
+            
+            <div style="display:flex; justify-content:space-between; align-items:center; background: rgba(0,0,0,0.5); padding: 0.8rem 1rem; border-radius: 6px; border: 1px solid rgba(255,255,255,0.1); margin-bottom: 0.8rem;">
+                <code style="font-size: 1.1rem; color: #fff; font-family: monospace; word-break: break-all;">${cmd.command_text || ''}</code>
+                <button class="btn btn-ghost" onclick="copyCmd('${safeCmdForButton}')" style="padding: 0.4rem; font-size: 1.1rem; min-width: auto; margin-left: 10px;" title="Copy to clipboard">📋</button>
+            </div>
+
+            <div style="font-size:1rem; font-weight:600; color:var(--text); margin-bottom:0.4rem;">${cmd.meaning || ''}</div>
+            
+            ${cmd.example ? `<div style="font-size:0.85rem; color:var(--muted); margin-bottom:0.4rem; margin-top: 0.8rem;"><b>Example:</b> <br><code style="background: rgba(255,255,255,0.05); padding: 4px 6px; border-radius: 4px; display: inline-block; margin-top: 4px;">${cmd.example}</code></div>` : ''}
+            
+            ${linkedPills ? `<div style="margin-top: 1rem; margin-bottom: 0.5rem;">${linkedPills}</div>` : ''}
+
+            ${cmd.security_note ? `<div style="font-size:0.85rem; color: #ff6b6b; margin-top:1rem; padding-top: 0.8rem; border-top: 1px solid rgba(255,69,58,0.2);">🔒 <b>Security Note:</b> ${cmd.security_note}</div>` : ''}
+        </div>
+    `}).join('');
+}
+
+// ── CRUD OPERATIONS (ADD, EDIT, DELETE) ──
+
+function openCmdModal() {
+    currentCmdEditId = null;
+    document.getElementById('cmd-modal-title').innerText = '💻 Add Command';
+    document.getElementById('cmd-text').value = '';
+    document.getElementById('cmd-category').value = 'Linux';
+    document.getElementById('cmd-meaning').value = '';
+    document.getElementById('cmd-example').value = '';
+    document.getElementById('cmd-topic').value = '';
+    document.getElementById('cmd-future').value = '';
+    document.getElementById('cmd-links').value = '';
+    document.getElementById('cmd-security').value = '';
+    
+    // Fallback display toggles
+    const modal = document.getElementById('cmdModal');
+    modal.classList.add('open');
+    modal.style.display = 'flex'; 
+}
+
+function closeCmdModal() {
+    const modal = document.getElementById('cmdModal');
+    modal.classList.remove('open');
+    modal.style.display = 'none';
+}
+
+function editCommand(id) {
+    const cmd = allCommands.find(c => c.id === id);
+    if (!cmd) return;
+    
+    currentCmdEditId = cmd.id;
+    document.getElementById('cmd-modal-title').innerText = '✏️ Edit Command';
+    
+    document.getElementById('cmd-text').value = cmd.command_text || '';
+    document.getElementById('cmd-category').value = cmd.category || 'Linux';
+    document.getElementById('cmd-meaning').value = cmd.meaning || '';
+    document.getElementById('cmd-example').value = cmd.example || '';
+    document.getElementById('cmd-topic').value = cmd.topic_learned || '';
+    document.getElementById('cmd-future').value = cmd.future_topics || '';
+    document.getElementById('cmd-security').value = cmd.security_note || '';
+    
+    document.getElementById('cmd-links').value = (cmd.linked_cmds && cmd.linked_cmds.length > 0) ? cmd.linked_cmds.join(', ') : '';
+    
+    // Fallback display toggles
+    const modal = document.getElementById('cmdModal');
+    modal.classList.add('open');
+    modal.style.display = 'flex';
+}
+
+async function saveCommand() {
+    if(!sb) { toast('Database not connected', 'error'); return; }
+    
+    const text = document.getElementById('cmd-text').value.trim();
+    const meaning = document.getElementById('cmd-meaning').value.trim();
+    
+    if(!text || !meaning) { toast('Command and Meaning are required!', 'error'); return; }
+
+    // This perfectly converts your comma separated text into the Postgres Array!
+    const rawLinks = document.getElementById('cmd-links').value;
+    const linksArray = rawLinks ? rawLinks.split(',').map(s => s.trim()).filter(Boolean) : [];
+
+    const payload = {
+        command_text: text,
+        category: document.getElementById('cmd-category').value,
+        meaning: meaning,
+        example: document.getElementById('cmd-example').value.trim(),
+        topic_learned: document.getElementById('cmd-topic').value.trim(),
+        future_topics: document.getElementById('cmd-future').value.trim(),
+        linked_cmds: linksArray,
+        security_note: document.getElementById('cmd-security').value.trim()
+    };
+
+    let error;
+    if (currentCmdEditId) {
+        const res = await sb.from('commands').update(payload).eq('id', currentCmdEditId);
+        error = res.error;
+    } else {
+        const res = await sb.from('commands').insert([payload]);
+        error = res.error;
+    }
+
+    if (error) { toast('Error saving command: ' + error.message, 'error'); return; }
+    
+    toast('Command saved to Runbook! 💻', 'success');
+    closeCmdModal();
+    await syncUI(); // Reload everything seamlessly
+}
+
+async function deleteCommand(id) {
+    if (!confirm("Remove this command from your runbook?")) return;
+    const { error } = await sb.from('commands').delete().eq('id', id);
+    if (error) { toast('Error deleting: ' + error.message, 'error'); return; }
+    toast('Command removed 🗑️', 'success');
+    await syncUI();
+}
+
+function setCmdFilter(category) {
+    currentCmdFilter = category;
+    const filterContainer = document.getElementById('cmd-filters');
+    if (filterContainer) {
+        const buttons = filterContainer.querySelectorAll('button');
+        buttons.forEach(btn => {
+            if (btn.innerText === category) {
+                btn.className = 'btn';
+                btn.style.background = 'var(--accent)';
+            } else {
+                btn.className = 'btn btn-ghost';
+                btn.style.background = 'transparent';
+            }
+        });
+    }
+    renderCommands();
+}
+
+function copyCmd(text) {
+    navigator.clipboard.writeText(text).then(() => {
+        toast('Command copied! 📋');
+    }).catch(err => {
+        console.error('Failed to copy text: ', err);
+        toast('Failed to copy command.', 'error');
+    });
+}
+// ==========================================
 
 </script>   
 </body>     
