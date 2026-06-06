@@ -1765,12 +1765,12 @@ async function saveMindsetMoment() {
         if (dbError) {
             console.error("❌ Supabase rejected the save!", dbError);
             toast("Database Error: Check the Console!", "error");
-        } else {
+       } else {
             console.log("✅ Successfully saved!");
             toast("Mindset Moment saved successfully! 🧠", "success");
             
             closeMindsetModal();
-            setTimeout(() => { window.location.reload(); }, 800); 
+            loadMindset(); // 🪄 Silently fetches the new data and redraws the list!
         }
 
     } catch (err) {
