@@ -318,6 +318,37 @@ select {
   -webkit-appearance: none;
 }
 
+/* --- NEW MINDSET MOMENT BADGES & TOGGLES --- */
+.radio-group { 
+    display: flex; 
+    gap: 15px; 
+    margin-top: 8px; 
+    margin-bottom: 15px;
+}
+.radio-group label { 
+    cursor: pointer; 
+    font-size: 0.9em; 
+    display: flex; 
+    align-items: center; 
+    gap: 5px; 
+    background: #2a2a2a;
+    padding: 8px 12px;
+    border-radius: 6px;
+    border: 1px solid #444;
+}
+.radio-group input[type="radio"] {
+    accent-color: #3b82f6;
+}
+.moment-badges { 
+    display: flex; 
+    gap: 8px; 
+    margin-bottom: 12px; 
+}
+.badge-question { background: rgba(59, 130, 246, 0.2); color: #60a5fa; border: 1px solid #3b82f6; padding: 4px 8px; border-radius: 12px; font-size: 0.75em; font-weight: bold; }
+.badge-situation { background: rgba(139, 92, 246, 0.2); color: #a78bfa; border: 1px solid #8b5cf6; padding: 4px 8px; border-radius: 12px; font-size: 0.75em; font-weight: bold; }
+.badge-me { background: rgba(16, 185, 129, 0.2); color: #34d399; border: 1px solid #10b981; padding: 4px 8px; border-radius: 12px; font-size: 0.75em; font-weight: bold; }
+.badge-ai { background: rgba(245, 158, 11, 0.2); color: #fbbf24; border: 1px solid #f59e0b; padding: 4px 8px; border-radius: 12px; font-size: 0.75em; font-weight: bold; }
+
 </style>     
 </head>     
 <body>
@@ -427,7 +458,7 @@ select {
    <button class="btn btn-primary" onclick="openMindsetModal()">+ Add Moment</button>  
  </div>
 
- <div class="card" style="margin-bottom:1.25rem">     
+<div class="card" style="margin-bottom:1.25rem">     
    <div style="display:flex;gap:1.5rem;flex-wrap:wrap;align-items:center">     
     <div class="stat-big" id="strong-count">—</div>     
     <div>     
@@ -438,12 +469,17 @@ select {
       <button class="btn btn-ghost" style="font-size:0.8rem;padding:0.4rem 0.85rem" onclick="filterMindset('all')">All</button>     
       <button class="btn btn-ghost" style="font-size:0.8rem;padding:0.4rem 0.85rem" onclick="filterMindset('strong')">Strong</button>     
       <button class="btn btn-ghost" style="font-size:0.8rem;padding:0.4rem 0.85rem" onclick="filterMindset('good')">Good direction</button>     
-      <button class="btn btn-ghost" style="font-size:0.8rem;padding:0.4rem 0.85rem; border:1px solid var(--yellow); color:var(--yellow)" onclick="filterMindset('duplicates')">Find Duplicates</button>  
+      <button class="btn btn-ghost" style="font-size:0.8rem;padding:0.4rem 0.85rem; border:1px solid #3b82f6; color:#3b82f6" onclick="filterMindset('question')">❓ Questions</button>  
+      <button class="btn btn-ghost" style="font-size:0.8rem;padding:0.4rem 0.85rem; border:1px solid #8b5cf6; color:#8b5cf6" onclick="filterMindset('situation')">🎬 Situations</button>  
     </div>     
    </div>     
- </div>     
-  <div id="mindset-list"><div style="color:var(--muted);font-size:0.9rem">Loading moments…</div></div>     
+   
+   <div style="margin-top: 1.2rem;">
+       <input type="text" id="mindset-search" onkeyup="searchMindset()" placeholder="🔍 Search moments by keyword, concept tag, topic, or answer..." style="width: 100%; padding: 0.6rem 1rem; border-radius: 6px; background: var(--surface2); border: 1px solid var(--border); color: var(--text); font-family: inherit; font-size: 0.9rem; outline: none; transition: 0.2s border;">
+   </div>
 </div>
+
+  <div id="mindset-list"><div style="color:var(--muted);font-size:0.9rem">Loading moments…</div></div></div>
 
 <div id="tab-notes" class="tab-content">     
 <h2 style="font-size:1.2rem;font-weight:700;margin-bottom:1.5rem">Journal</h2>     
@@ -604,10 +640,24 @@ select {
 <div class="modal-overlay" id="mindsetModal">     
 <div class="modal">     
 <h2>🧠 Add Mindset Moment</h2>     
+
+<div class="form-row" style="margin-bottom: 1rem;">
+  <label>Entry Type</label>
+  <div style="display: flex; gap: 1rem; margin-top: 0.5rem;">
+      <label style="cursor: pointer; display: flex; align-items: center; gap: 0.3rem; font-size: 0.9rem;">
+          <input type="radio" name="moment_type" value="Question" checked onchange="document.getElementById('label-question').innerText='The Question'; document.getElementById('label-response').innerText='The Insight / Answer';"> ❓ Question
+      </label>
+      <label style="cursor: pointer; display: flex; align-items: center; gap: 0.3rem; font-size: 0.9rem;">
+          <input type="radio" name="moment_type" value="Situation" onchange="document.getElementById('label-question').innerText='What Happened'; document.getElementById('label-response').innerText='The Response / Action Taken';"> 🎬 Situation
+      </label>
+  </div>
+</div>
+
 <div class="form-row">     
-<label>The Question / Situation</label>     
+<label id="label-question">The Question</label>     
 <input type="text" id="mind-question" placeholder="e.g., Why do we use Linux instead of Windows?" />     
 </div>     
+
 <div class="form-row-2">     
 <div class="form-row">     
   <label>Rating</label>     
@@ -621,14 +671,29 @@ select {
   <input type="text" id="mind-concept" placeholder="e.g., Architecture" />     
 </div>     
 </div>    
+
 <div class="form-row">     
 <label>Linked Topic (Optional)</label>     
 <input type="text" id="mind-topic" placeholder="e.g., 1.1 How computers work" />     
 </div>     
+
 <div class="form-row">     
-<label>The Insight / Response</label>     
+<label id="label-response">The Insight / Response</label>     
 <textarea id="mind-response" style="min-height:100px" placeholder="Write the realization or answer here..."></textarea>     
 </div>     
+
+<div class="form-row" style="margin-bottom: 1rem;">
+  <label>Who provided the insight?</label>
+  <div style="display: flex; gap: 1rem; margin-top: 0.5rem;">
+      <label style="cursor: pointer; display: flex; align-items: center; gap: 0.3rem; font-size: 0.9rem;">
+          <input type="radio" name="insight_source" value="Me"> 🧠 Me (I figured it out)
+      </label>
+      <label style="cursor: pointer; display: flex; align-items: center; gap: 0.3rem; font-size: 0.9rem;">
+          <input type="radio" name="insight_source" value="AI" checked> 🤖 AI helped
+      </label>
+  </div>
+</div>
+
 <div class="modal-footer">     
 <button class="btn btn-ghost" onclick="closeMindsetModal()">Cancel</button>     
 <button class="btn btn-save" onclick="saveMindsetMoment()">Save Moment</button>     
@@ -1244,32 +1309,31 @@ async function loadMindset() {
 }
 
 function filterMindset(f) {     
+
+document.getElementById('mindset-search').value = '';
+
  let filtered = [];  
+ 
  if (f === 'all') {  
    filtered = allMindset;  
+   
  } else if (f === 'duplicates') {  
    const groups = {};  
-    
-   // 1. Group all moments by their question text  
    allMindset.forEach(m => {  
-     if(!m.question) return;  
-     const q = m.question.toLowerCase().trim();  
+     const textToCheck = m.situation || m.question; 
+     if(!textToCheck) return;  
+     const q = textToCheck.toLowerCase().trim();  
      if(!groups[q]) groups[q] = [];  
      groups[q].push(m);  
    });  
     
-   // 2. Filter out single items, keep only groups with 2+ identical questions  
    Object.keys(groups).forEach(q => {  
      if(groups[q].length > 1) {  
-       // Sort by date so the oldest one comes first  
        const sortedGroup = groups[q].sort((a,b) => new Date(a.created_at) - new Date(b.created_at));  
-        
-       // Tag them so the UI knows which is the original  
        const taggedGroup = sortedGroup.map((item, index) => ({  
          ...item,  
          duplicateTag: index === 0 ? 'Original' : 'Duplicate'  
        }));  
-        
        filtered = filtered.concat(taggedGroup);  
      }  
    });  
@@ -1280,10 +1344,29 @@ function filterMindset(f) {
    } else {  
      toast(`Found ${filtered.length} duplicate entries. Grouping them now.`, 'success');  
    }  
- } else {  
-   filtered = allMindset.filter(m => m.rating === f);  
+   
+ } 
+ // --- STRICT QUESTION & SITUATION FILTERS ---
+ else if (f === 'question') {
+   filtered = allMindset.filter(m => m.moment_type === 'Question');
+ } 
+ else if (f === 'situation') {
+   filtered = allMindset.filter(m => m.moment_type === 'Situation');
+ } 
+ // --- BULLETPROOF RATING FILTERS ---
+ else if (f === 'strong') {
+   // Converts data to lowercase so "strong" and "Strong Instinct" both match perfectly
+   filtered = allMindset.filter(m => m.rating && m.rating.toLowerCase().includes('strong'));
+ } 
+ else if (f === 'good') {
+   // Converts data to lowercase so "good" and "Good Direction" both match perfectly
+   filtered = allMindset.filter(m => m.rating && m.rating.toLowerCase().includes('good'));
+ } 
+ else {  
+   filtered = allMindset;  
  }  
-  renderMindset(filtered);     
+ 
+ renderMindset(filtered);     
 }
 
 function renderMindset(data) {     
@@ -1291,10 +1374,14 @@ function renderMindset(data) {
    document.getElementById('mindset-list').innerHTML = '<div style="color:var(--muted);font-size:0.9rem">No custom data match this filter template.</div>';     
    return;     
  }     
-  document.getElementById('mindset-list').innerHTML = data.map((m, i) => {     
+
+ document.getElementById('mindset-list').innerHTML = data.map((m, i) => {     
    const mid = 'mindset-' + i;     
-   const ratingClass = m.rating === 'strong' ? 'rating-strong' : 'rating-good';     
-   const ratingLabel = m.rating === 'strong' ? 'Strong instinct' : 'Good direction';     
+   
+   // Handle legacy and new rating formats safely
+   const isStrong = m.rating && m.rating.toLowerCase().includes('strong');
+   const ratingClass = isStrong ? 'rating-strong' : 'rating-good';     
+   const ratingLabel = isStrong ? 'Strong instinct' : 'Good direction';     
     
    // Add visual badges for the Duplicate Finder  
    let dupBadge = '';  
@@ -1304,16 +1391,37 @@ function renderMindset(data) {
      dupBadge = `<span class="concept-tag" style="background:rgba(255,69,58,0.15);color:var(--red);border:1px solid var(--red)">🗑️ Trash (Duplicate)</span>`;  
    }
 
+   // --- NEW: THE COLORED BADGES ---
+   const mType = m.moment_type || 'Question';
+   const mSource = m.insight_source || 'AI';
+   
+   const typeBadge = mType === 'Question' 
+        ? '<span class="badge-question">❓ Question</span>' 
+        : '<span class="badge-situation">🎬 Situation</span>';
+        
+   const sourceBadge = mSource === 'Me' 
+        ? '<span class="badge-me">🧠 Me</span>' 
+        : '<span class="badge-ai">🤖 AI</span>';
+
    return `<div class="mindset-item" onclick="toggleMindset('${mid}')">     
-    <div class="mindset-q">${m.question || 'Untitled Question'}</div>     
+    
+    <div style="margin-bottom: 8px; display: flex; gap: 8px;">
+        ${typeBadge}
+        ${sourceBadge}
+    </div>
+    
+    <div class="mindset-q">${m.question || m.situation || 'Untitled Question'}</div>     
+    
     <div class="mindset-meta">     
       <span class="${ratingClass}">★ ${ratingLabel}</span>     
-      ${m.concept ? `<span class="concept-tag">${m.concept}</span>` : ''}     
-      ${m.linked_topic_name ? `<span class="concept-tag" style="background:transparent; border-color:var(--border); color:var(--muted)">→ ${m.linked_topic_name}</span>` : ''}     
+      ${m.tag || m.concept ? `<span class="concept-tag">${m.tag || m.concept}</span>` : ''}     
+      ${m.topic || m.linked_topic_name ? `<span class="concept-tag" style="background:transparent; border-color:var(--border); color:var(--muted)">→ ${m.topic || m.linked_topic_name}</span>` : ''}     
       ${dupBadge}  
     </div>     
+    
     <div id="${mid}" style="display:none;margin-top:0.75rem;padding-top:0.75rem;border-top:1px solid var(--border);font-size:0.9rem;color:var(--muted);line-height:1.6">     
-      ${m.response || ''}  
+      <strong>Insight/Action Taken:</strong><br>
+      ${m.insight || m.response || ''}  
       <div style="margin-top:1rem; display:flex; justify-content:flex-end; gap:0.5rem;">  
         <button class="btn btn-ghost" style="font-size:0.78rem; padding:0.35rem 0.75rem;" onclick="event.stopPropagation(); editMindsetMoment('${m.id}')">✏️ Edit</button>  
         <button class="btn btn-ghost" style="color:var(--red); border:1px solid rgba(255,69,58,0.2); font-size:0.78rem; padding:0.35rem 0.75rem;" onclick="event.stopPropagation(); deleteMindsetMoment('${m.id}')">🗑️ Delete</button>  
@@ -1600,30 +1708,76 @@ function closeMindsetModal() {
  document.getElementById('mindsetModal').classList.remove('open');     
 }
 
-async function saveMindsetMoment() {     
- if(!sb){ toast('Not connected to Supabase','error'); return; }     
-  const question = document.getElementById('mind-question').value.trim();     
- const rating = document.getElementById('mind-rating').value;     
- const concept = document.getElementById('mind-concept').value.trim();     
- const linked_topic_name = document.getElementById('mind-topic').value.trim();     
- const response = document.getElementById('mind-response').value.trim();     
-  if(!question){ toast('Please enter a question or situation','error'); return; }     
-  const payload = { question, rating, concept, linked_topic_name, response };  
- let error;
+async function saveMindsetMoment() {
+    console.log("1. Save button clicked! Starting process...");
 
- // If we have an ID, we UPDATE. If we don't, we INSERT.  
- if (currentMindsetEditId) {  
-   const res = await sb.from('mindset_moments').update(payload).eq('id', currentMindsetEditId);  
-   error = res.error;  
- } else {  
-   const res = await sb.from('mindset_moments').insert(payload);  
-   error = res.error;  
- }  
-  if(error){ toast('Error saving moment: '+error.message,'error'); return; }     
-  toast(currentMindsetEditId ? 'Moment updated! ✨' : 'Mindset Moment saved! 🧠', 'success');     
- closeMindsetModal();     
- await syncUI();  
+    try {
+        // Grab the values from the toggles safely (with fallbacks just in case)
+        const typeNode = document.querySelector('input[name="moment_type"]:checked');
+        const sourceNode = document.querySelector('input[name="insight_source"]:checked');
+        
+        const momentType = typeNode ? typeNode.value : 'Question';
+        const insightSource = sourceNode ? sourceNode.value : 'AI';
+        
+        console.log("2. Toggles grabbed:", momentType, insightSource);
+
+        // Grab the text from the inputs
+        const questionText = document.getElementById('mind-question').value.trim();
+        const ratingValue = document.getElementById('mind-rating').value; 
+        const conceptTag = document.getElementById('mind-concept').value.trim();
+        const linkedTopic = document.getElementById('mind-topic').value.trim();
+        const responseText = document.getElementById('mind-response').value.trim();
+
+        // Validation
+        if (!questionText || !responseText) {
+            toast("Please fill in both the Question/Situation and the Insight!", "error");
+            console.log("❌ Stopped: Fields were empty.");
+            return;
+        }
+
+        const formattedRating = ratingValue === 'strong' ? 'Strong Instinct' : 'Good Direction';
+
+        // Prepare the exact package of data we are sending
+        const payload = 
+        {
+          moment_type: momentType,
+          insight_source: insightSource,
+          question: questionText, 
+          rating: ratingValue,             // 🚨 CHANGED: Send the raw 'strong' or 'good' value!
+          concept: conceptTag,             
+          linked_topic_name: linkedTopic,  
+          response: responseText           
+        }
+
+        let dbError = null;
+
+        // 🚨 THE FIX: Destructuring the error safely so JS never crashes
+        if (currentMindsetEditId) {
+            console.log("4. UPDATING existing moment...");
+            const { error } = await sb.from('mindset_moments').update(payload).eq('id', currentMindsetEditId);
+            dbError = error;
+        } else {
+            console.log("4. INSERTING new moment...");
+            const { error } = await sb.from('mindset_moments').insert([payload]);
+            dbError = error;
+        }
+
+        if (dbError) {
+            console.error("❌ Supabase rejected the save!", dbError);
+            toast("Database Error: Check the Console!", "error");
+        } else {
+            console.log("✅ Successfully saved!");
+            toast("Mindset Moment saved successfully! 🧠", "success");
+            
+            closeMindsetModal();
+            setTimeout(() => { window.location.reload(); }, 800); 
+        }
+
+    } catch (err) {
+        console.error("❌ CRITICAL JAVASCRIPT CRASH:", err);
+    }
 }
+
 
 // ── EVENT LISTENERS ──  
 document.getElementById('saveModal').addEventListener('click', function(e){ if(e.target===this) closeModal(); });     
@@ -1655,6 +1809,34 @@ function triggerEdit(id, title, content, date, author) {
     editingNoteId = id;
     window.scrollTo({ top: 0, behavior: 'smooth' });
 }
+
+function searchMindset() {
+    // Grab what the user typed and make it lowercase
+    const term = document.getElementById('mindset-search').value.toLowerCase().trim();
+    
+    // If the search bar is empty, just show everything
+    if (!term) {
+        filterMindset('all'); 
+        return;
+    }
+
+    // Filter the database by checking every field
+    const filtered = allMindset.filter(m => {
+        // Safely grab text (using fallback '' so it doesn't crash on missing data)
+        const q = (m.situation || m.question || '').toLowerCase();
+        const a = (m.insight || '').toLowerCase();
+        const tag = (m.tag || '').toLowerCase();
+        const top = (m.topic || '').toLowerCase();
+        
+        // Return true if the search term exists in ANY of these fields
+        return q.includes(term) || a.includes(term) || tag.includes(term) || top.includes(term);
+    });
+
+    // Draw the filtered cards on the screen
+    renderMindset(filtered);
+}
+
+
 
 // ==========================================
 // ── TERMINAL COMMANDS RUNBOOK ENGINE ──
@@ -1929,6 +2111,8 @@ function copyCmd(text) {
     });
 }
 // ==========================================
+
+
 
 </script>   
 </body>     
