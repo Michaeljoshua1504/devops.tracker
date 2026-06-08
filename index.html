@@ -1,2119 +1,2160 @@
-<!DOCTYPE html>     
-<html lang="en" data-theme="dark">     
-<head>     
-<meta charset="UTF-8" />     
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />     
-<title>DevOps Tracker</title>     
-<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32' fill='none'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='2' y1='16' x2='30' y2='16' gradientUnits='userSpaceOnUse'%3E%3Cstop offset='0%25' stop-color='%2300e5ff'/%3E%3Cstop offset='100%25' stop-color='%237c3aed'/%3E%3C/linearGradient%3E%3C/defs%3E%3Cpath d='M9.5 10C5.35 10 2 12.68 2 16s3.35 6 7.5 6c3.37 0 5.11-1.91 6-2.88.89.97 2.63 2.88 6 2.88 4.15 0 7.5-2.68 7.5-6s-3.35-6-7.5-6c-3.37 0-5.11 1.91-6 2.88-.89-.97-2.63-2.88-6-2.88z' stroke='url(%23g)' stroke-width='2.5'/%3E%3Ccircle cx='16' cy='16' r='1.5' fill='%2300e5ff'/%3E%3C/svg%3E">     
-<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=SF+Pro+Display:wght@400;500;600;700&display=swap" rel="stylesheet" />     
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>     
-<style>     
-:root[data-theme="dark"] {     
---bg: #090a0f;     
---surface: rgba(22, 24, 35, 0.75);     
---surface2: rgba(32, 37, 54, 0.6);     
---border: rgba(255, 255, 255, 0.08);     
---accent: #30d158;     
---accent2: #bf5af2;     
---accent-blue: #0a84ff;    
---green: #30d158;     
---yellow: #ffd60a;     
---red: #ff453a;     
---text: #ffffff;     
---muted: #8e8e93;     
---font-mono: 'JetBrains Mono', monospace;     
---font-display: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Helvetica Neue", sans-serif;     
---card-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);    
+<!DOCTYPE html>       
+<html lang="en" data-theme="dark">       
+<head>       
+<meta charset="UTF-8" />       
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />       
+<title>DevOps Tracker</title>       
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32' fill='none'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='2' y1='16' x2='30' y2='16' gradientUnits='userSpaceOnUse'%3E%3Cstop offset='0%25' stop-color='%2300e5ff'/%3E%3Cstop offset='100%25' stop-color='%237c3aed'/%3E%3C/linearGradient%3E%3C/defs%3E%3Cpath d='M9.5 10C5.35 10 2 12.68 2 16s3.35 6 7.5 6c3.37 0 5.11-1.91 6-2.88.89.97 2.63 2.88 6 2.88 4.15 0 7.5-2.68 7.5-6s-3.35-6-7.5-6c-3.37 0-5.11 1.91-6 2.88-.89-.97-2.63-2.88-6-2.88z' stroke='url(%23g)' stroke-width='2.5'/%3E%3Ccircle cx='16' cy='16' r='1.5' fill='%2300e5ff'/%3E%3C/svg%3E">       
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=SF+Pro+Display:wght@400;500;600;700&display=swap" rel="stylesheet" />       
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>       
+<style>       
+:root[data-theme="dark"] {       
+--bg: #090a0f;       
+--surface: rgba(22, 24, 35, 0.75);       
+--surface2: rgba(32, 37, 54, 0.6);       
+--border: rgba(255, 255, 255, 0.08);       
+--accent: #30d158;       
+--accent2: #bf5af2;       
+--accent-blue: #0a84ff;      
+--green: #30d158;       
+--yellow: #ffd60a;       
+--red: #ff453a;       
+--text: #ffffff;       
+--muted: #8e8e93;       
+--font-mono: 'JetBrains Mono', monospace;       
+--font-display: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Helvetica Neue", sans-serif;       
+--card-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);      
 }
 
-:root[data-theme="light"] {     
---bg: #f2f2f7;     
---surface: rgba(255, 255, 255, 0.8);     
---surface2: rgba(242, 242, 247, 0.9);     
---border: rgba(0, 0, 0, 0.06);     
---accent: #34c759;     
---accent2: #af52de;     
---accent-blue: #007aff;    
---green: #34c759;     
---yellow: #ffcc00;     
---red: #ff3b30;     
---text: #000000;     
---muted: #8e8e93;     
---font-mono: 'JetBrains Mono', monospace;     
---font-display: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Helvetica Neue", sans-serif;     
---card-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.04);    
+:root[data-theme="light"] {       
+--bg: #f2f2f7;       
+--surface: rgba(255, 255, 255, 0.8);       
+--surface2: rgba(242, 242, 247, 0.9);       
+--border: rgba(0, 0, 0, 0.06);       
+--accent: #34c759;       
+--accent2: #af52de;       
+--accent-blue: #007aff;      
+--green: #34c759;       
+--yellow: #ffcc00;       
+--red: #ff3b30;       
+--text: #000000;       
+--muted: #8e8e93;       
+--font-mono: 'JetBrains Mono', monospace;       
+--font-display: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Helvetica Neue", sans-serif;       
+--card-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.04);      
 }
 
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }     
-html { scroll-behavior: smooth; }     
-body {     
-background: var(--bg);     
-color: var(--text);     
-font-family: var(--font-display);     
-min-height: 100vh;     
-overflow-x: hidden;     
-transition: background 0.3s, color 0.3s;    
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }       
+html { scroll-behavior: smooth; }       
+body {       
+background: var(--bg);       
+color: var(--text);       
+font-family: var(--font-display);       
+min-height: 100vh;       
+overflow-x: hidden;       
+transition: background 0.3s, color 0.3s;      
 }
 
-header {     
-display: flex;     
-align-items: center;     
-justify-content: space-between;     
-padding: 1.25rem 2rem;     
-border-bottom: 1px solid var(--border);     
-background: var(--surface);     
-position: sticky; top: 0; z-index: 100;     
-backdrop-filter: blur(20px);     
--webkit-backdrop-filter: blur(20px);    
-}     
-.logo { font-size: 1.25rem; font-weight: 700; letter-spacing: -0.03em; }     
+header {       
+display: flex;       
+align-items: center;       
+justify-content: space-between;       
+padding: 1.25rem 2rem;       
+border-bottom: 1px solid var(--border);       
+background: var(--surface);       
+position: sticky; top: 0; z-index: 100;       
+backdrop-filter: blur(20px);       
+-webkit-backdrop-filter: blur(20px);      
+}       
+.logo { font-size: 1.25rem; font-weight: 700; letter-spacing: -0.03em; }       
 .logo span { color: var(--accent-blue); }
 
-.header-actions {    
-display: flex;    
-align-items: center;    
-gap: 1.5rem;    
+.header-actions {      
+display: flex;      
+align-items: center;      
+gap: 1.5rem;      
 }
 
-.theme-toggle {    
-background: none;    
-border: none;    
-font-size: 1.25rem;    
-cursor: pointer;    
-color: var(--text);    
-display: flex;    
-align-items: center;    
-justify-content: center;    
-width: 36px;    
-height: 36px;    
-border-radius: 50%;    
-transition: background 0.2s;    
-}    
-.theme-toggle:hover {    
-background: var(--border);    
+.theme-toggle {      
+background: none;      
+border: none;      
+font-size: 1.25rem;      
+cursor: pointer;      
+color: var(--text);      
+display: flex;      
+align-items: center;      
+justify-content: center;      
+width: 36px;      
+height: 36px;      
+border-radius: 50%;      
+transition: background 0.2s;      
+}      
+.theme-toggle:hover {      
+background: var(--border);      
 }
 
-.status-dot {     
-display: flex; align-items: center; gap: 0.5rem;     
-font-family: var(--font-mono); font-size: 0.75rem; color: var(--muted);     
-}     
-.dot {     
-width: 8px; height: 8px; border-radius: 50%;     
-background: var(--muted);     
-transition: background 0.3s, box-shadow 0.3s;     
-}     
-.dot.connected { background: var(--green); box-shadow: 0 0 10px var(--green); animation: pulse 2s infinite; }     
+.status-dot {       
+display: flex; align-items: center; gap: 0.5rem;       
+font-family: var(--font-mono); font-size: 0.75rem; color: var(--muted);       
+}       
+.dot {       
+width: 8px; height: 8px; border-radius: 50%;       
+background: var(--muted);       
+transition: background 0.3s, box-shadow 0.3s;       
+}       
+.dot.connected { background: var(--green); box-shadow: 0 0 10px var(--green); animation: pulse 2s infinite; }       
 @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.5} }
 
-.nav-container {    
-display: flex;    
-justify-content: center;    
-padding: 0.75rem 1rem;    
-background: var(--bg);    
-position: sticky;    
-top: 69px;    
-z-index: 90;    
-backdrop-filter: blur(20px);    
--webkit-backdrop-filter: blur(20px);    
-border-bottom: 1px solid var(--border);    
+.nav-container {      
+display: flex;      
+justify-content: center;      
+padding: 0.75rem 1rem;      
+background: var(--bg);      
+position: sticky;      
+top: 69px;      
+z-index: 90;      
+backdrop-filter: blur(20px);      
+-webkit-backdrop-filter: blur(20px);      
+border-bottom: 1px solid var(--border);      
 }
 
-nav {     
-display: flex;    
-background: rgba(120, 120, 128, 0.12);     
-border-radius: 9px;    
-padding: 2px;    
-overflow-x: auto;     
-max-width: 100%;    
--webkit-overflow-scrolling: touch;    
-}     
-nav::-webkit-scrollbar { display: none; }    
-nav button {     
-background: none; border: none; color: var(--text);     
-font-family: var(--font-display); font-size: 0.85rem; font-weight: 500;     
-padding: 0.5rem 1.25rem; cursor: pointer;     
-border-radius: 7px;    
-white-space: nowrap; transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);     
-}     
-nav button:hover { opacity: 0.8; }     
-nav button.active {    
- background: var(--surface2);    
- color: var(--accent-blue);    
- border: 1px solid var(--border);  
- box-shadow: 0px 4px 12px rgba(0,0,0,0.3);    
+nav {       
+display: flex;      
+background: rgba(120, 120, 128, 0.12);       
+border-radius: 9px;      
+padding: 2px;      
+overflow-x: auto;       
+max-width: 100%;      
+-webkit-overflow-scrolling: touch;      
+}       
+nav::-webkit-scrollbar { display: none; }      
+nav button {       
+background: none; border: none; color: var(--text);       
+font-family: var(--font-display); font-size: 0.85rem; font-weight: 500;       
+padding: 0.5rem 1.25rem; cursor: pointer;       
+border-radius: 7px;      
+white-space: nowrap; transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);       
+}       
+nav button:hover { opacity: 0.8; }       
+nav button.active {      
+ background: var(--surface2);      
+ color: var(--accent-blue);      
+ border: 1px solid var(--border);    
+ box-shadow: 0px 4px 12px rgba(0,0,0,0.3);      
 }
 
-main { max-width: 1100px; margin: 0 auto; padding: 2rem 1.5rem; }     
-.tab-content {  
- display: none;  
- /* Force the computer's GPU to handle the animation to prevent lag */  
- will-change: opacity, transform;  
-}     
-.tab-content.active {  
- display: block;  
- /* Apple's signature snappy tab transition */  
- animation: iosTab 0.4s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;  
-}     
-@keyframes iosTab {  
- /* Starts slightly shrunken and faded */  
- 0% { opacity: 0; transform: scale(0.97) translateY(10px); }  
- /* Snaps into full size and full opacity */  
- 100% { opacity: 1; transform: scale(1) translateY(0); }  
+main { max-width: 1100px; margin: 0 auto; padding: 2rem 1.5rem; }       
+.tab-content {    
+ display: none;    
+ /* Force the computer's GPU to handle the animation to prevent lag */    
+ will-change: opacity, transform;    
+}       
+.tab-content.active {    
+ display: block;    
+ /* Apple's signature snappy tab transition */    
+ animation: iosTab 0.4s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;    
+}       
+@keyframes iosTab {    
+ /* Starts slightly shrunken and faded */    
+ 0% { opacity: 0; transform: scale(0.97) translateY(10px); }    
+ /* Snaps into full size and full opacity */    
+ 100% { opacity: 1; transform: scale(1) translateY(0); }    
 }
 
-.card {     
-background: var(--surface);     
-border: 1px solid var(--border);     
-border-radius: 14px;     
-padding: 1.5rem;     
-margin-bottom: 1.25rem;     
-box-shadow: var(--card-shadow);    
-backdrop-filter: blur(10px);    
--webkit-backdrop-filter: blur(10px);    
-}     
-.card h3 {     
-font-size: 0.75rem; font-family: var(--font-display); font-weight: 600;    
-letter-spacing: 0.05em; text-transform: uppercase;     
-color: var(--muted); margin-bottom: 0.75rem;     
-}     
-.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; }     
-.grid-3 { display: grid; grid-template-columns: repeat(3,1fr); gap: 1.25rem; }     
-.grid-4 { display: grid; grid-template-columns: repeat(4,1fr); gap: 1.25rem; } 
-@media(max-width:900px){ .grid-4{ grid-template-columns: 1fr 1fr; } }
+.card {       
+background: var(--surface);       
+border: 1px solid var(--border);       
+border-radius: 14px;       
+padding: 1.5rem;       
+margin-bottom: 1.25rem;       
+box-shadow: var(--card-shadow);      
+backdrop-filter: blur(10px);      
+-webkit-backdrop-filter: blur(10px);      
+}       
+.card h3 {       
+font-size: 0.75rem; font-family: var(--font-display); font-weight: 600;      
+letter-spacing: 0.05em; text-transform: uppercase;       
+color: var(--muted); margin-bottom: 0.75rem;       
+}       
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; }       
+.grid-3 { display: grid; grid-template-columns: repeat(3,1fr); gap: 1.25rem; }       
+.grid-4 { display: grid; grid-template-columns: repeat(4,1fr); gap: 1.25rem; }   
+@media(max-width:900px){ .grid-4{ grid-template-columns: 1fr 1fr; } }  
 @media(max-width:700px){ .grid-2,.grid-3,.grid-4{ grid-template-columns:1fr; } }
 
-.stat-big { font-size: 3rem; font-weight: 700; line-height: 1.1; letter-spacing: -0.02em; }     
+.stat-big { font-size: 3rem; font-weight: 700; line-height: 1.1; letter-spacing: -0.02em; }       
 .stat-label { font-size: 0.8rem; color: var(--muted); margin-top: 0.35rem; font-weight: 500; }
 
-.progress-wrap { margin: 1.25rem 0; }     
-.progress-label { display: flex; justify-content: space-between; font-size: 0.85rem; font-weight: 500; color: var(--text); margin-bottom: 0.5rem; }     
-.progress-bar { height: 7px; background: rgba(120, 120, 128, 0.16); border-radius: 4px; overflow: hidden; }     
+.progress-wrap { margin: 1.25rem 0; }       
+.progress-label { display: flex; justify-content: space-between; font-size: 0.85rem; font-weight: 500; color: var(--text); margin-bottom: 0.5rem; }       
+.progress-bar { height: 7px; background: rgba(120, 120, 128, 0.16); border-radius: 4px; overflow: hidden; }       
 .progress-fill { height: 100%; border-radius: 4px; background: var(--accent-blue); transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1); }
 
-.badge {     
-display: inline-block; padding: 0.25rem 0.6rem;     
-border-radius: 6px; font-size: 0.75rem; font-weight: 600;     
-}     
-.badge-done { background: rgba(48,209,88,0.15); color: var(--green); }     
-.badge-next { background: rgba(10,132,255,0.15); color: var(--accent-blue); }     
+.badge {       
+display: inline-block; padding: 0.25rem 0.6rem;       
+border-radius: 6px; font-size: 0.75rem; font-weight: 600;       
+}       
+.badge-done { background: rgba(48,209,88,0.15); color: var(--green); }       
+.badge-next { background: rgba(10,132,255,0.15); color: var(--accent-blue); }       
 .badge-todo { background: rgba(142,142,147,0.15); color: var(--muted); }
 
-.topic-item {     
-display: flex; align-items: flex-start; gap: 1rem;     
-padding: 1rem 1.25rem; border-radius: 12px;     
-border: 1px solid var(--border); margin-bottom: 0.6rem;     
-background: var(--surface2); cursor: pointer;     
-transition: all 0.2s;     
-}     
-.topic-item:hover { border-color: var(--accent-blue); transform: translateY(-1px); }     
-.topic-id { font-family: var(--font-mono); font-size: 0.8rem; font-weight: 600; color: var(--accent2); min-width: 2.5rem; }     
+.topic-item {       
+display: flex; align-items: flex-start; gap: 1rem;       
+padding: 1rem 1.25rem; border-radius: 12px;       
+border: 1px solid var(--border); margin-bottom: 0.6rem;       
+background: var(--surface2); cursor: pointer;       
+transition: all 0.2s;       
+}       
+.topic-item:hover { border-color: var(--accent-blue); transform: translateY(-1px); }       
+.topic-id { font-family: var(--font-mono); font-size: 0.8rem; font-weight: 600; color: var(--accent2); min-width: 2.5rem; }       
 .topic-name { font-size: 0.95rem; font-weight: 500; flex: 1; }
 
-.phase-header {     
-font-size: 0.85rem; font-weight: 600;     
-color: var(--text); margin: 2rem 0 0.75rem; padding-left: 0.25rem;    
+.phase-header {       
+font-size: 0.85rem; font-weight: 600;       
+color: var(--text); margin: 2rem 0 0.75rem; padding-left: 0.25rem;      
 }
 
-.mindset-item {     
-background: var(--surface2); border: 1px solid var(--border);     
-border-radius: 12px; padding: 1.25rem; margin-bottom: 0.6rem;     
-cursor: pointer; transition: border-color 0.2s;    
-}     
-.mindset-item:hover { border-color: var(--accent2); }    
-.mindset-q { font-size: 1rem; font-weight: 500; margin-bottom: 0.6rem; }     
-.mindset-meta { display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap; }     
-.rating-strong { color: var(--green); font-size: 0.75rem; font-weight: 600; }     
-.rating-good { color: var(--yellow); font-size: 0.75rem; font-weight: 600; }     
-.concept-tag {     
-font-size: 0.72rem; background: rgba(191,90,242,0.12);     
-color: var(--accent2); padding: 0.2rem 0.5rem; border-radius: 6px; font-weight: 500;     
+.mindset-item {       
+background: var(--surface2); border: 1px solid var(--border);       
+border-radius: 12px; padding: 1.25rem; margin-bottom: 0.6rem;       
+cursor: pointer; transition: border-color 0.2s;      
+}       
+.mindset-item:hover { border-color: var(--accent2); }      
+.mindset-q { font-size: 1rem; font-weight: 500; margin-bottom: 0.6rem; }       
+.mindset-meta { display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap; }       
+.rating-strong { color: var(--green); font-size: 0.75rem; font-weight: 600; }       
+.rating-good { color: var(--yellow); font-size: 0.75rem; font-weight: 600; }       
+.concept-tag {       
+font-size: 0.72rem; background: rgba(191,90,242,0.12);       
+color: var(--accent2); padding: 0.2rem 0.5rem; border-radius: 6px; font-weight: 500;       
 }
 
-.session-item {     
-background: var(--surface2); border: 1px solid var(--border);     
-border-radius: 12px; padding: 1.25rem; margin-bottom: 0.75rem;     
-cursor: pointer; transition: all 0.2s;    
-}     
-.session-item:hover { border-color: var(--border); }    
-.session-header { display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 0.5rem; }     
-.session-topic { font-weight: 600; font-size: 1rem; }     
-.session-date { font-family: var(--font-display); font-size: 0.8rem; color: var(--muted); }     
-.session-concepts { display: flex; gap: 0.4rem; flex-wrap: wrap; margin-top: 0.75rem; }     
-.concept-chip {     
-font-size: 0.7rem; font-family: var(--font-mono);     
-background: var(--surface); border: 1px solid var(--border);     
-padding: 0.2rem 0.5rem; border-radius: 6px; color: var(--text);     
+.session-item {       
+background: var(--surface2); border: 1px solid var(--border);       
+border-radius: 12px; padding: 1.25rem; margin-bottom: 0.75rem;       
+cursor: pointer; transition: all 0.2s;      
+}       
+.session-item:hover { border-color: var(--border); }      
+.session-header { display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 0.5rem; }       
+.session-topic { font-weight: 600; font-size: 1rem; }       
+.session-date { font-family: var(--font-display); font-size: 0.8rem; color: var(--muted); }       
+.session-concepts { display: flex; gap: 0.4rem; flex-wrap: wrap; margin-top: 0.75rem; }       
+.concept-chip {       
+font-size: 0.7rem; font-family: var(--font-mono);       
+background: var(--surface); border: 1px solid var(--border);       
+padding: 0.2rem 0.5rem; border-radius: 6px; color: var(--text);       
 }
 
-textarea, input[type="text"], input[type="date"], input[type="time"], input[type="url"] {     
-width: 100%; background: var(--surface2); border: 1px solid var(--border);     
-border-radius: 10px; color: var(--text); font-family: var(--font-display);     
-font-size: 0.9rem; padding: 0.75rem; outline: none; transition: border-color 0.2s;     
-}     
-textarea:focus, input:focus { border-color: var(--accent-blue); }     
+textarea, input[type="text"], input[type="date"], input[type="time"], input[type="url"] {       
+width: 100%; background: var(--surface2); border: 1px solid var(--border);       
+border-radius: 10px; color: var(--text); font-family: var(--font-display);       
+font-size: 0.9rem; padding: 0.75rem; outline: none; transition: border-color 0.2s;       
+}       
+textarea:focus, input:focus { border-color: var(--accent-blue); }       
 textarea { min-height: 120px; resize: vertical; }
 
-.btn {     
-display: inline-flex; align-items: center; justify-content: center; gap: 0.4rem;     
-padding: 0.75rem 1.25rem; border-radius: 10px; border: none;     
-font-family: var(--font-display); font-size: 0.88rem; font-weight: 600;     
-cursor: pointer; transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);     
-}     
-.btn-primary { background: var(--accent-blue); color: #fff; }     
-.btn-primary:hover { opacity: 0.9; transform: translateY(-1px); }     
-.btn-ghost { background: rgba(120, 120, 128, 0.16); color: var(--text); }     
-.btn-ghost:hover { background: rgba(120, 120, 128, 0.24); }     
-.btn-save { background: var(--green); color: #fff; }     
+.btn {       
+display: inline-flex; align-items: center; justify-content: center; gap: 0.4rem;       
+padding: 0.75rem 1.25rem; border-radius: 10px; border: none;       
+font-family: var(--font-display); font-size: 0.88rem; font-weight: 600;       
+cursor: pointer; transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);       
+}       
+.btn-primary { background: var(--accent-blue); color: #fff; }       
+.btn-primary:hover { opacity: 0.9; transform: translateY(-1px); }       
+.btn-ghost { background: rgba(120, 120, 128, 0.16); color: var(--text); }       
+.btn-ghost:hover { background: rgba(120, 120, 128, 0.24); }       
+.btn-save { background: var(--green); color: #fff; }       
 .btn-save:hover { opacity: 0.9; }
 
-.modal-overlay {     
-display: none; position: fixed; inset: 0;     
-background: rgba(0,0,0,0.4); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);     
-z-index: 200; align-items: center; justify-content: center;     
-padding: 1rem;     
-}     
-.modal-overlay.open { display: flex; }     
-.modal {     
-background: var(--surface); border: 1px solid var(--border);     
-border-radius: 20px; padding: 2rem; width: 100%; max-width: 560px;     
-max-height: 90vh; overflow-y: auto; box-shadow: 0 20px 40px rgba(0,0,0,0.3);    
-}     
-.modal h2 { font-size: 1.3rem; font-weight: 700; margin-bottom: 1.5rem; letter-spacing: -0.02em; }     
-.form-row { margin-bottom: 1.25rem; }     
-.form-row label { display: block; font-size: 0.75rem; font-weight: 600; color: var(--muted); margin-bottom: 0.4rem; text-transform: uppercase; letter-spacing: 0.03em; }     
-.form-row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }     
+.modal-overlay {       
+display: none; position: fixed; inset: 0;       
+background: rgba(0,0,0,0.4); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);       
+z-index: 200; align-items: center; justify-content: center;       
+padding: 1rem;       
+}       
+.modal-overlay.open { display: flex; }       
+.modal {       
+background: var(--surface); border: 1px solid var(--border);       
+border-radius: 20px; padding: 2rem; width: 100%; max-width: 560px;       
+max-height: 90vh; overflow-y: auto; box-shadow: 0 20px 40px rgba(0,0,0,0.3);      
+}       
+.modal h2 { font-size: 1.3rem; font-weight: 700; margin-bottom: 1.5rem; letter-spacing: -0.02em; }       
+.form-row { margin-bottom: 1.25rem; }       
+.form-row label { display: block; font-size: 0.75rem; font-weight: 600; color: var(--muted); margin-bottom: 0.4rem; text-transform: uppercase; letter-spacing: 0.03em; }       
+.form-row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }       
 .modal-footer { display: flex; gap: 0.75rem; justify-content: flex-end; margin-top: 1.5rem; }
 
-#toast {     
-position: fixed; bottom: 2rem; left: 50%; transform: translate(-50%, 100px); z-index: 300;     
-background: var(--surface2); border: 1px solid var(--border); backdrop-filter: blur(20px);     
-border-radius: 14px; padding: 0.85rem 1.5rem; font-weight: 500;     
-font-size: 0.9rem; opacity: 0; box-shadow: var(--card-shadow);     
-transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.3s; pointer-events: none;     
-}     
-#toast.show { transform: translate(-50%, 0); opacity: 1; }     
-#toast.success { border-color: var(--green); color: var(--green); }     
+#toast {       
+position: fixed; bottom: 2rem; left: 50%; transform: translate(-50%, 100px); z-index: 300;       
+background: var(--surface2); border: 1px solid var(--border); backdrop-filter: blur(20px);       
+border-radius: 14px; padding: 0.85rem 1.5rem; font-weight: 500;       
+font-size: 0.9rem; opacity: 0; box-shadow: var(--card-shadow);       
+transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.3s; pointer-events: none;       
+}       
+#toast.show { transform: translate(-50%, 0); opacity: 1; }       
+#toast.success { border-color: var(--green); color: var(--green); }       
 #toast.error { border-color: var(--red); color: var(--red); }
 
-.session-body { display: none; }     
-.session-item.expanded .session-body { display: block; }     
-.session-summary {     
-font-size: 0.9rem; color: var(--muted); margin-top: 0.4rem; line-height: 1.5;     
-display: -webkit-box; -webkit-line-clamp: 2; line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;     
-}     
+.session-body { display: none; }       
+.session-item.expanded .session-body { display: block; }       
+.session-summary {       
+font-size: 0.9rem; color: var(--muted); margin-top: 0.4rem; line-height: 1.5;       
+display: -webkit-box; -webkit-line-clamp: 2; line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;       
+}       
 .session-item.expanded .session-summary { display: block; overflow: visible; -webkit-line-clamp: unset; line-clamp: 2; }     
 
-select {
-  width: 100%;
-  background: var(--surface2);
-  border: 1px solid var(--border);
-  border-radius: 10px;
-  color: var(--text);
-  padding: 0.75rem;
-  font-family: var(--font-display);
-  font-size: 0.9rem;
-  outline: none;
-  transition: border-color 0.2s;
-  appearance: none;
-  -webkit-appearance: none;
+select {  
+  width: 100%;  
+  background: var(--surface2);  
+  border: 1px solid var(--border);  
+  border-radius: 10px;  
+  color: var(--text);  
+  padding: 0.75rem;  
+  font-family: var(--font-display);  
+  font-size: 0.9rem;  
+  outline: none;  
+  transition: border-color 0.2s;  
+  appearance: none;  
+  -webkit-appearance: none;  
 }
 
-/* --- NEW MINDSET MOMENT BADGES & TOGGLES --- */
-.radio-group { 
-    display: flex; 
-    gap: 15px; 
-    margin-top: 8px; 
-    margin-bottom: 15px;
-}
-.radio-group label { 
-    cursor: pointer; 
-    font-size: 0.9em; 
-    display: flex; 
-    align-items: center; 
-    gap: 5px; 
-    background: #2a2a2a;
-    padding: 8px 12px;
-    border-radius: 6px;
-    border: 1px solid #444;
-}
-.radio-group input[type="radio"] {
-    accent-color: #3b82f6;
-}
-.moment-badges { 
-    display: flex; 
-    gap: 8px; 
-    margin-bottom: 12px; 
-}
-.badge-question { background: rgba(59, 130, 246, 0.2); color: #60a5fa; border: 1px solid #3b82f6; padding: 4px 8px; border-radius: 12px; font-size: 0.75em; font-weight: bold; }
-.badge-situation { background: rgba(139, 92, 246, 0.2); color: #a78bfa; border: 1px solid #8b5cf6; padding: 4px 8px; border-radius: 12px; font-size: 0.75em; font-weight: bold; }
-.badge-me { background: rgba(16, 185, 129, 0.2); color: #34d399; border: 1px solid #10b981; padding: 4px 8px; border-radius: 12px; font-size: 0.75em; font-weight: bold; }
+/* --- NEW MINDSET MOMENT BADGES & TOGGLES --- */  
+.radio-group {   
+    display: flex;   
+    gap: 15px;   
+    margin-top: 8px;   
+    margin-bottom: 15px;  
+}  
+.radio-group label {   
+    cursor: pointer;   
+    font-size: 0.9em;   
+    display: flex;   
+    align-items: center;   
+    gap: 5px;   
+    background: #2a2a2a;  
+    padding: 8px 12px;  
+    border-radius: 6px;  
+    border: 1px solid #444;  
+}  
+.radio-group input[type="radio"] {  
+    accent-color: #3b82f6;  
+}  
+.moment-badges {   
+    display: flex;   
+    gap: 8px;   
+    margin-bottom: 12px;   
+}  
+.badge-question { background: rgba(59, 130, 246, 0.2); color: #60a5fa; border: 1px solid #3b82f6; padding: 4px 8px; border-radius: 12px; font-size: 0.75em; font-weight: bold; }  
+.badge-situation { background: rgba(139, 92, 246, 0.2); color: #a78bfa; border: 1px solid #8b5cf6; padding: 4px 8px; border-radius: 12px; font-size: 0.75em; font-weight: bold; }  
+.badge-me { background: rgba(16, 185, 129, 0.2); color: #34d399; border: 1px solid #10b981; padding: 4px 8px; border-radius: 12px; font-size: 0.75em; font-weight: bold; }  
 .badge-ai { background: rgba(245, 158, 11, 0.2); color: #fbbf24; border: 1px solid #f59e0b; padding: 4px 8px; border-radius: 12px; font-size: 0.75em; font-weight: bold; }
 
-</style>     
-</head>     
+</style>       
+</head>       
 <body>
 
-<header>     
-<div class="logo">devops<span>.</span>tracker</div>     
-<div class="header-actions">    
-<button class="theme-toggle" id="themeToggleBtn" onclick="toggleTheme()" title="Toggle appearance">☀️</button>    
-<div class="status-dot">     
-<div class="dot" id="statusDot"></div>     
-<span id="statusText">connecting…</span>     
-</div>     
-</div>    
+<header>       
+<div class="logo">devops<span>.</span>tracker</div>       
+<div class="header-actions">      
+<button class="theme-toggle" id="themeToggleBtn" onclick="toggleTheme()" title="Toggle appearance">☀️</button>      
+<div class="status-dot">       
+<div class="dot" id="statusDot"></div>       
+<span id="statusText">connecting…</span>       
+</div>       
+</div>      
 </header>
 
-<div class="nav-container">    
-<nav>     
-<button class="active" onclick="showTab('dashboard',this)">Dashboard</button>     
-<button onclick="showTab('log',this)">Daily Log</button>     
-<button onclick="showTab('topics',this)">Topics</button>     
-<button onclick="showTab('projects',this)">Portfolio</button>     
-<button onclick="showTab('mindset',this)">Mindset</button>     
-<button onclick="showTab('notes',this)">Notes</button>     
-<button onclick="showTab('cmds',this)">Terminal Cmds 💻</button> <button onclick="showTab('setup',this)">Setup</button>     
-</nav>    
+<div class="nav-container">      
+  <nav>       
+    <button class="active" onclick="showTab('dashboard',this)">Dashboard</button>       
+    <button onclick="showTab('log',this)">Session Log</button>       
+    <button onclick="showTab('topics',this)">Topics</button>       
+    <button onclick="showTab('projects',this)">Portfolio</button>       
+    <button onclick="showTab('mindset',this)">Mindset</button>       
+    <button onclick="showTab('notes',this)">Daily Log</button>       
+    <button onclick="showTab('cmds',this)">Terminal Cmds 💻</button>  
+    <button onclick="showTab('jarvis',this)">⚡ Jarvis</button>  
+    <button onclick="showTab('setup',this)">Setup</button>       
+  </nav>      
 </div>
 
 <main>
 
-<div id="tab-dashboard" class="tab-content active">     
-<div class="grid-4" style="margin-bottom:1.5rem">     
-<div class="card">     
-<h3>Topics Done</h3>     
-<div class="stat-big" id="dash-done">—</div>     
-<div class="stat-label">of 67 total</div>     
-</div>     
-<div class="card">     
-<h3>Progress</h3>     
-<div class="stat-big" id="dash-pct">—</div>     
-<div class="stat-label">overall completion</div>     
-</div>    
-<div class="card">     
-<h3>Portfolio Builds</h3>     
-<div class="stat-big" id="dash-projects">—</div>     
-<div class="stat-label">live mini-projects</div>     
-</div> 
-<div class="card">     
-<h3>Mindset Moments</h3>     
-<div class="stat-big" id="dash-mindset">—</div>     
-<div class="stat-label">instincts recorded</div>     
-</div>     
-</div>     
-<div class="card">     
-<h3>Overall Journey</h3>     
-<div class="progress-wrap">     
-<div class="progress-label"><span>Phase 1 — Foundations</span><span id="phase1-pct">0%</span></div>     
-<div class="progress-bar"><div class="progress-fill" id="phase1-bar" style="width:0%"></div></div>     
-</div>     
-<div class="progress-wrap">     
-<div class="progress-label"><span>Phase 2 — Networking + Cloud</span><span id="phase2-pct">0%</span></div>     
-<div class="progress-bar"><div class="progress-fill" id="phase2-bar" style="width:0%"></div></div>     
-</div>     
-<div class="progress-wrap">     
-<div class="progress-label"><span>Phases 3–8 — Advanced Automation & AIOps</span><span id="phase38-pct">0%</span></div>     
-<div class="progress-bar"><div class="progress-fill" id="phase38-bar" style="width:0%"></div></div>     
-</div>     
-</div>     
-<div class="card" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem">     
-<div style="flex: 1; min-width: 250px;">     
-<div style="font-size:1.1rem;font-weight:600" id="dash-next-label">Ready for your next session?</div>     
-<div style="color:var(--muted);font-size:0.9rem;margin-top:0.25rem" id="dash-next-topic">Loading next topic…</div>     
-</div>     
-<button class="btn btn-primary" onclick="openSaveModal()">+ Save Completed Session</button>     
-</div>     
-</div>
-
-<div id="tab-log" class="tab-content">     
-<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem;flex-wrap:wrap;gap:0.75rem">     
-<h2 style="font-size:1.2rem;font-weight:700">Session Log</h2>     
-<button class="btn btn-primary" onclick="openSaveModal()">+ Save Completed Session</button>     
-</div>     
-<div id="sessions-list"><div style="color:var(--muted);font-size:0.9rem">Loading sessions…</div></div>     
-</div>
-
-<div id="tab-topics" class="tab-content">     
-<h2 style="font-size:1.2rem;font-weight:700;margin-bottom:1.5rem">Full Roadmap — 67 Topics</h2>     
-<div id="topics-list"><div style="color:var(--muted);font-size:0.9rem">Loading topics…</div></div>     
-</div>
-
-<div id="tab-projects" class="tab-content">
-<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:1.5rem;flex-wrap:wrap;gap:0.75rem">
-  <div>
-    <h2 style="font-size:1.2rem;font-weight:700;margin-bottom:0.35rem">Hands-On Portfolio Projects</h2>
-    <p style="color:var(--muted);font-size:0.9rem;">Your code engine architecture linked directly to GitHub.</p>
-  </div>
-  <button class="btn btn-primary" onclick="openProjectModal()">+ Add Project</button>
-</div>
-<div id="projects-list"><div style="color:var(--muted);font-size:0.9rem">Loading portfolio builds...</div></div>
-</div>
-
-<div id="tab-mindset" class="tab-content">     
- <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:1.5rem;flex-wrap:wrap;gap:0.75rem">  
-   <div>  
-     <h2 style="font-size:1.2rem;font-weight:700;margin-bottom:0.35rem">Engineering Mindset Moments</h2>     
-     <p style="color:var(--muted);font-size:0.9rem;">Questions and instincts that show how you think, not just what you know.</p>     
-   </div>  
-   <button class="btn btn-primary" onclick="openMindsetModal()">+ Add Moment</button>  
- </div>
-
-<div class="card" style="margin-bottom:1.25rem">     
-   <div style="display:flex;gap:1.5rem;flex-wrap:wrap;align-items:center">     
-    <div class="stat-big" id="strong-count">—</div>     
-    <div>     
-      <div style="font-size:0.95rem;font-weight:600">Strong Instincts</div>     
-      <div style="font-size:0.8rem;color:var(--muted)">Senior-engineer thinking</div>     
-    </div>     
-    <div style="margin-left:auto;display:flex;gap:0.5rem;flex-wrap:wrap" id="mindset-filters">     
-      <button class="btn btn-ghost" style="font-size:0.8rem;padding:0.4rem 0.85rem" onclick="filterMindset('all')">All</button>     
-      <button class="btn btn-ghost" style="font-size:0.8rem;padding:0.4rem 0.85rem" onclick="filterMindset('strong')">Strong</button>     
-      <button class="btn btn-ghost" style="font-size:0.8rem;padding:0.4rem 0.85rem" onclick="filterMindset('good')">Good direction</button>     
-      <button class="btn btn-ghost" style="font-size:0.8rem;padding:0.4rem 0.85rem; border:1px solid #3b82f6; color:#3b82f6" onclick="filterMindset('question')">❓ Questions</button>  
-      <button class="btn btn-ghost" style="font-size:0.8rem;padding:0.4rem 0.85rem; border:1px solid #8b5cf6; color:#8b5cf6" onclick="filterMindset('situation')">🎬 Situations</button>  
-    </div>     
-   </div>     
-   
-   <div style="margin-top: 1.2rem;">
-       <input type="text" id="mindset-search" onkeyup="searchMindset()" placeholder="🔍 Search moments by keyword, concept tag, topic, or answer..." style="width: 100%; padding: 0.6rem 1rem; border-radius: 6px; background: var(--surface2); border: 1px solid var(--border); color: var(--text); font-family: inherit; font-size: 0.9rem; outline: none; transition: 0.2s border;">
-   </div>
-</div>
-
-  <div id="mindset-list"><div style="color:var(--muted);font-size:0.9rem">Loading moments…</div></div></div>
-
-<div id="tab-notes" class="tab-content">     
-<h2 style="font-size:1.2rem;font-weight:700;margin-bottom:1.5rem">Journal</h2>     
-<div class="card">   
- <div class="form-row-2">  
-   <div class="form-row">     
-     <label>Date</label>     
-     <input type="date" id="note-date" />     
-   </div>  
-   <div class="form-row">     
-     <label>Author</label>     
-     <input type="text" id="note-author" value="Michael Joshua" />     
-   </div>   
- </div>
-
- <div class="form-row">     
-   <label>Title</label>     
-   <input type="text" id="note-title" placeholder="e.g., Bug Fixes & Refactoring" />     
- </div>  
- <div class="form-row">     
-   <label>Write your Journal</label>     
-   <textarea id="note-text" placeholder="Write your note here..."></textarea>     
- </div> 
-
- <button class="btn btn-save" onclick="saveNote()">Save Note</button>     
-</div>   
-<div id="notes-list" style="max-height: 65vh; overflow-y: auto; padding-right: 10px; padding-bottom: 2rem;"></div>  
-</div>
-
-<div id="tab-cmds" class="tab-content">
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
-        <h2 style="font-size:1.2rem; font-weight:700; margin: 0;">Terminal Commands Runbook</h2>
-        <button class="btn" style="background: var(--accent);" onclick="openCmdModal()">+ Add Command</button>
+<!-- ── DASHBOARD TAB ── -->
+<div id="tab-dashboard" class="tab-content active">
+  <div class="grid-4" style="margin-bottom:1.25rem">
+    <div class="card" style="text-align:center">
+      <div class="stat-big" id="dash-done">—</div>
+      <div class="stat-label">Topics Completed</div>
     </div>
-    
-    <div style="margin-bottom: 1.5rem;">
-        <input type="text" id="cmd-search" placeholder="Search commands, meanings, or topics..." style="width: 100%; padding: 0.8rem; margin-bottom: 1rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); background: rgba(0,0,0,0.2); color: white;" onkeyup="renderCommands()">
-        
-        <div id="cmd-filters" style="display: flex; gap: 8px; flex-wrap: wrap;">
-    <button class="btn" style="background: var(--accent); padding: 0.4rem 0.8rem;" onclick="setCmdFilter('All')">All</button>
-    <button class="btn btn-ghost" style="padding: 0.4rem 0.8rem;" onclick="setCmdFilter('Linux')">Linux</button>
-    <button class="btn btn-ghost" style="padding: 0.4rem 0.8rem;" onclick="setCmdFilter('Git')">Git</button>
-    <button class="btn btn-ghost" style="padding: 0.4rem 0.8rem;" onclick="setCmdFilter('Docker')">Docker</button>
-    <button class="btn btn-ghost" style="padding: 0.4rem 0.8rem;" onclick="setCmdFilter('Kubernetes')">Kubernetes</button>
-    <button class="btn btn-ghost" style="padding: 0.4rem 0.8rem;" onclick="setCmdFilter('Terraform')">Terraform</button>
-    <button class="btn btn-ghost" style="padding: 0.4rem 0.8rem;" onclick="setCmdFilter('Python')">Python</button>
-    <button class="btn btn-ghost" style="padding: 0.4rem 0.8rem;" onclick="setCmdFilter('Cloud CLI')">Cloud CLI</button>
-    
-    <button class="btn btn-ghost" style="padding: 0.4rem 0.8rem; border: 1px solid rgba(255,255,255,0.3);" onclick="setCmdFilter('Duplicates')">🔍 Duplicates</button>
+    <div class="card" style="text-align:center">
+      <div class="stat-big" id="dash-pct">—</div>
+      <div class="stat-label">Overall Progress</div>
+    </div>
+    <div class="card" style="text-align:center">
+      <div class="stat-big" id="dash-mindset">—</div>
+      <div class="stat-label">Mindset Moments</div>
+    </div>
+    <div class="card" style="text-align:center">
+      <div class="stat-big" id="dash-projects">—</div>
+      <div class="stat-label">Portfolio Projects</div>
+    </div>
+  </div>
+  <div class="card">
+    <h3>Phase Progress</h3>
+    <div class="progress-wrap">
+      <div class="progress-label"><span>Phase 1 — Foundations</span><span id="phase1-pct">0%</span></div>
+      <div class="progress-bar"><div class="progress-fill" id="phase1-bar" style="width:0%"></div></div>
+    </div>
+    <div class="progress-wrap">
+      <div class="progress-label"><span>Phase 2 — Networking + Cloud</span><span id="phase2-pct">0%</span></div>
+      <div class="progress-bar"><div class="progress-fill" id="phase2-bar" style="width:0%"></div></div>
+    </div>
+    <div class="progress-wrap">
+      <div class="progress-label"><span>Phases 3–8 — Advanced</span><span id="phase38-pct">0%</span></div>
+      <div class="progress-bar"><div class="progress-fill" id="phase38-bar" style="width:0%"></div></div>
+    </div>
+  </div>
+  <div class="card">
+    <h3>Up Next</h3>
+    <div id="dash-next-topic" style="font-size:1rem;font-weight:500">Loading...</div>
+    <div style="margin-top:1.25rem;display:flex;gap:0.75rem;flex-wrap:wrap">
+      <button class="btn btn-primary" onclick="openSaveModal()">💾 Save Completed Session</button>
+      <button class="btn btn-ghost" onclick="showTab('topics',document.querySelectorAll('nav button')[2])">📋 View Roadmap</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── SESSION LOG TAB ── -->
+<div id="tab-log" class="tab-content">
+  <div class="card">
+    <h3>Session Log</h3>
+    <div id="sessions-list"></div>
+  </div>
+</div>
+
+<!-- ── TOPICS / ROADMAP TAB ── -->
+<div id="tab-topics" class="tab-content">
+  <div class="card" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem;margin-bottom:1.25rem">
+    <div>
+      <div style="font-weight:700;font-size:1.1rem">67-Topic DevOps Roadmap</div>
+      <div style="color:var(--muted);font-size:0.85rem;margin-top:0.2rem">Click any topic to expand teaching notes</div>
+    </div>
+    <button class="btn btn-primary" onclick="openSaveModal()">💾 Save Session</button>
+  </div>
+  <div id="topics-list"></div>
+</div>
+
+<!-- ── PORTFOLIO TAB ── -->
+<div id="tab-projects" class="tab-content">
+  <div class="card" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem;margin-bottom:1.25rem">
+    <div>
+      <div style="font-weight:700;font-size:1.1rem">Mini Project Portfolio</div>
+      <div style="color:var(--muted);font-size:0.85rem;margin-top:0.2rem">One project per topic — built to prove it, not just know it</div>
+    </div>
+    <button class="btn btn-primary" onclick="openProjectModal()">🚀 Add Project</button>
+  </div>
+  <div id="projects-list"></div>
+</div>
+
+<!-- ── MINDSET TAB ── -->
+<div id="tab-mindset" class="tab-content">
+  <div class="card" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem;margin-bottom:1.25rem">
+    <div>
+      <div style="font-weight:700;font-size:1.1rem">Mindset Moments</div>
+      <div style="color:var(--muted);font-size:0.85rem;margin-top:0.2rem">Questions and situations that reveal how you think</div>
+    </div>
+    <div style="display:flex;align-items:center;gap:1rem">
+      <div style="font-size:0.85rem;color:var(--muted)">⭐ Strong: <strong id="strong-count">—</strong></div>
+      <button class="btn btn-primary" onclick="openMindsetModal()">+ Add Moment</button>
+    </div>
+  </div>
+  <div class="card" style="margin-bottom:1.25rem">
+    <div style="display:flex;gap:0.5rem;flex-wrap:wrap;margin-bottom:1rem">
+      <button class="btn btn-ghost" onclick="filterMindset('all')">All</button>
+      <button class="btn btn-ghost" onclick="filterMindset('question')">❓ Questions</button>
+      <button class="btn btn-ghost" onclick="filterMindset('situation')">🎬 Situations</button>
+      <button class="btn btn-ghost" onclick="filterMindset('strong')">⭐ Strong</button>
+      <button class="btn btn-ghost" onclick="filterMindset('good')">👍 Good</button>
+      <button class="btn btn-ghost" onclick="filterMindset('duplicates')">🔍 Duplicates</button>
+    </div>
+    <input type="text" id="mindset-search" placeholder="Search mindset moments..." oninput="searchMindset()" style="margin-bottom:0" />
+  </div>
+  <div id="mindset-list"></div>
+</div>
+
+<!-- ── DAILY LOG TAB ── -->
+<div id="tab-notes" class="tab-content">
+  <div class="card">
+    <h3>New Journal Entry</h3>
+    <div class="form-row-2" style="margin-bottom:1rem">
+      <div class="form-row" style="margin-bottom:0">
+        <label>Date</label>
+        <input type="date" id="note-date" />
+      </div>
+      <div class="form-row" style="margin-bottom:0">
+        <label>Author</label>
+        <input type="text" id="note-author" placeholder="Sai" value="Sai" />
       </div>
     </div>
-
-    <div id="cmds-list" style="max-height: 65vh; overflow-y: auto; padding-right: 10px; padding-bottom: 2rem;"></div>
+    <div class="form-row">
+      <label>Title</label>
+      <input type="text" id="note-title" placeholder="e.g., Day 5 — Terminal Breakthrough" />
+    </div>
+    <div class="form-row">
+      <label>Entry</label>
+      <textarea id="note-text" style="min-height:150px" placeholder="Write your thoughts, progress, reflections, or blockers..."></textarea>
+    </div>
+    <button class="btn btn-save" onclick="saveNote()">Save Note</button>
+  </div>
+  <div id="notes-list"></div>
 </div>
 
-<div id="tab-setup" class="tab-content">     
-<h2 style="font-size:1.2rem;font-weight:700;margin-bottom:1.5rem">Supabase Setup</h2>     
-<div class="card">     
-<div class="setup-field">     
-<label>Supabase URL</label>     
-<input type="text" id="sb-url" placeholder="https://xxxx.supabase.co" />     
-</div>     
-<div class="setup-field" style="margin-top:1rem">     
-<label>Supabase Anon Key</label>     
-<input type="text" id="sb-key" placeholder="eyJh..." />     
-</div>     
-<button class="btn btn-primary" style="margin-top:1.25rem" onclick="saveConfig()">Save & Connect</button>     
-</div>     
-<div class="card" style="margin-top:1.25rem">     
-<h3>How to find your credentials</h3>     
-<div style="font-size:0.9rem;color:var(--muted);line-height:1.7">     
-1. Go to <strong style="color:var(--text)">supabase.com</strong> → your project<br>     
-2. Click <strong style="color:var(--text)">Project Settings</strong> (gear icon)<br>     
-3. Click <strong style="color:var(--text)">API</strong><br>     
-4. Copy the <strong style="color:var(--text)">Project URL</strong> and <strong style="color:var(--text)">anon public</strong> key     
-</div>     
-</div>     
+<!-- ── TERMINAL CMDS TAB ── -->
+<div id="tab-cmds" class="tab-content">
+  <div class="card" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem;margin-bottom:1.25rem">
+    <div>
+      <div style="font-weight:700;font-size:1.1rem">Terminal Commands Runbook 💻</div>
+      <div style="color:var(--muted);font-size:0.85rem;margin-top:0.2rem">Every command you've learned — searchable, categorized, copyable</div>
+    </div>
+    <button class="btn btn-primary" onclick="openCmdModal()">+ Add Command</button>
+  </div>
+  <div class="card" style="margin-bottom:1.25rem">
+    <div id="cmd-filters" style="display:flex;gap:0.5rem;flex-wrap:wrap;margin-bottom:1rem">
+      <button class="btn" style="background:var(--accent)" onclick="setCmdFilter('All')">All</button>
+      <button class="btn btn-ghost" onclick="setCmdFilter('Linux')">🐧 Linux</button>
+      <button class="btn btn-ghost" onclick="setCmdFilter('Git')">🔀 Git</button>
+      <button class="btn btn-ghost" onclick="setCmdFilter('Docker')">🐳 Docker</button>
+      <button class="btn btn-ghost" onclick="setCmdFilter('Kubernetes')">☸️ Kubernetes</button>
+      <button class="btn btn-ghost" onclick="setCmdFilter('Terraform')">🏗️ Terraform</button>
+      <button class="btn btn-ghost" onclick="setCmdFilter('Python')">🐍 Python</button>
+      <button class="btn btn-ghost" onclick="setCmdFilter('Cloud CLI')">☁️ Cloud CLI</button>
+      <button class="btn btn-ghost" onclick="setCmdFilter('Duplicates')">🔍 Duplicates</button>
+    </div>
+    <input type="text" id="cmd-search" placeholder="Search commands..." oninput="renderCommands()" style="margin-bottom:0" />
+  </div>
+  <div id="cmds-list"></div>
+</div>
+
+<!-- ── JARVIS TAB (original — untouched) ── -->
+<div id="tab-jarvis" class="tab-content">  
+  <div id="j-wrapper" style="height: 600px; display: flex; flex-direction: column; background: var(--card); border: 1px solid var(--border); border-radius: 12px; overflow: hidden;">  
+    <style>  
+      /* Scoped styles specifically for Jarvis to prevent breaking other tabs */  
+      #tab-jarvis .j-topbar { display: flex; align-items: center; gap: 12px; padding: 16px 20px; background: var(--card); border-bottom: 1px solid var(--border); }  
+      #tab-jarvis .j-pulse { width: 10px; height: 10px; border-radius: 50%; background: #34d399; box-shadow: 0 0 10px rgba(52, 211, 153, 0.6); }  
+      #tab-jarvis .j-title { display: flex; flex-direction: column; }  
+      #tab-jarvis .j-tname { font-size: 1.1rem; font-weight: 600; color: var(--text); }  
+      #tab-jarvis .j-tsub { font-family: monospace; font-size: 0.75rem; color: var(--muted); }  
+      #tab-jarvis .j-msgs { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 16px; }  
+      #tab-jarvis .j-msg { display: flex; gap: 12px; }  
+      #tab-jarvis .j-msg.j-user { flex-direction: row-reverse; }  
+      #tab-jarvis .j-bubble { padding: 12px 16px; border-radius: 12px; background: var(--bg); border: 1px solid var(--border); max-width: 80%; }  
+      #tab-jarvis .j-input-area { padding: 16px; background: var(--card); border-top: 1px solid var(--border); display: flex; gap: 10px; }  
+      #tab-jarvis textarea { flex: 1; background: var(--bg); border: 1px solid var(--border); color: var(--text); padding: 8px; border-radius: 6px; resize: none; }  
+    </style>
+    <div class="j-topbar">  
+      <div class="j-pulse"></div>  
+      <div class="j-title">  
+        <span class="j-tname">Jarvis</span>  
+        <span class="j-tsub">DevOps Learning Agent</span>  
+      </div>  
+    </div>  
+    <div class="j-msgs" id="j-msgs">  
+      <div class="j-msg"><div class="j-bubble">Systems initialized. What do you need help with?</div></div>  
+    </div>
+    <div class="j-input-area">  
+      <textarea id="j-input" rows="1" placeholder="Ask Jarvis..."></textarea>  
+      <button onclick="jSend()" style="padding: 0 15px; background: var(--accent); color: white; border: none; border-radius: 6px; cursor: pointer;">Send</button>  
+    </div>  
+  </div>  
+</div>
+
+<script>  
+  async function jSend() {  
+    const input = document.getElementById('j-input');  
+    const text = input.value.trim();  
+    if (!text) return;  
+    const msgs = document.getElementById('j-msgs');  
+    const msgDiv = document.createElement('div');  
+    msgDiv.className = 'j-msg j-user';  
+    msgDiv.innerHTML = `<div class="j-bubble">${text}</div>`;  
+    msgs.appendChild(msgDiv);  
+    input.value = '';  
+    setTimeout(() => {  
+        const reply = document.createElement('div');  
+        reply.className = 'j-msg';  
+        reply.innerHTML = `<div class="j-bubble">I am active! Stage 2 connection pending.</div>`;  
+        msgs.appendChild(reply);  
+        msgs.scrollTop = msgs.scrollHeight;  
+    }, 500);  
+  }  
+</script>
+
+<!-- ── SETUP TAB ── -->
+<div id="tab-setup" class="tab-content">
+  <div class="card">
+    <h3>Supabase Connection</h3>
+    <div class="form-row">
+      <label>Supabase Project URL</label>
+      <input type="text" id="sb-url" placeholder="https://your-project.supabase.co" />
+    </div>
+    <div class="form-row">
+      <label>Supabase Anon Key</label>
+      <input type="text" id="sb-key" placeholder="your-anon-key-here" />
+    </div>
+    <button class="btn btn-primary" onclick="saveConfig()">Connect to Supabase</button>
+  </div>
 </div>
 
 </main>
 
-<div class="modal-overlay" id="saveModal">     
-<div class="modal">     
-<h2>💾 Save Completed Session</h2>     
-<div class="form-row-2">     
-<div class="form-row">     
-  <label>Date</label>     
-  <input type="date" id="m-date" />     
-</div>     
-<div class="form-row">     
-  <label>Time</label>     
-  <input type="time" id="m-time" />     
-</div>     
-</div>     
-<div class="form-row-2" style="margin-bottom:1rem">     
-<div class="form-row" style="margin-bottom:0">     
- <label>Topic ID</label>     
- <input type="text" id="m-topicid" placeholder="" />     
-</div>     
-<div class="form-row" style="margin-bottom:0">     
- <label>Topic Name</label>     
- <input type="text" id="m-topicname" placeholder="" />     
-</div>     
-</div>    
-<div class="form-row">     
-<label>Full Teaching Notes</label>     
-<textarea id="m-fullnotes" style="min-height:160px" placeholder="Write complete structural notes, code blocks, analogies, or instructions covered..."></textarea>     
-</div>     
-<div class="form-row">     
-<label>Summary (2 to 3 lines max)</label>     
-<textarea id="m-summary" style="min-height:70px" placeholder="Short summary of metrics or topics achieved..."></textarea>     
-</div>     
-<div class="form-row">     
-<label>Key Concepts (comma separated)</label>     
-<input type="text" id="m-concepts" placeholder="pwd, ls, cd, absolute path" />     
-</div>     
-<div class="modal-footer">     
-<button class="btn btn-ghost" onclick="closeModal()">Cancel</button>     
-<button class="btn btn-save" onclick="saveSession()">Save Session</button>     
-</div>     
-</div>     
+<div class="modal-overlay" id="saveModal">       
+<div class="modal">       
+<h2>💾 Save Completed Session</h2>       
+<div class="form-row-2">       
+<div class="form-row">       
+  <label>Date</label>       
+  <input type="date" id="m-date" />       
+</div>       
+<div class="form-row">       
+  <label>Time</label>       
+  <input type="time" id="m-time" />       
+</div>       
+</div>       
+<div class="form-row-2" style="margin-bottom:1rem">       
+<div class="form-row" style="margin-bottom:0">       
+ <label>Topic ID</label>       
+ <input type="text" id="m-topicid" placeholder="" />       
+</div>       
+<div class="form-row" style="margin-bottom:0">       
+ <label>Topic Name</label>       
+ <input type="text" id="m-topicname" placeholder="" />       
+</div>       
+</div>      
+<div class="form-row">       
+<label>Full Teaching Notes</label>       
+<textarea id="m-fullnotes" style="min-height:160px" placeholder="Write complete structural notes, code blocks, analogies, or instructions covered..."></textarea>       
+</div>       
+<div class="form-row">       
+<label>Summary (2 to 3 lines max)</label>       
+<textarea id="m-summary" style="min-height:70px" placeholder="Short summary of metrics or topics achieved..."></textarea>       
+</div>       
+<div class="form-row">       
+<label>Key Concepts (comma separated)</label>       
+<input type="text" id="m-concepts" placeholder="pwd, ls, cd, absolute path" />       
+</div>       
+<div class="modal-footer">       
+<button class="btn btn-ghost" onclick="closeModal()">Cancel</button>       
+<button class="btn btn-save" onclick="saveSession()">Save Session</button>       
+</div>       
+</div>       
 </div>
 
-
-<div class="modal-overlay" id="projectModal">
-<div class="modal">
-  <h2>🚀 Add Portfolio Project</h2>
-  <input type="hidden" id="proj-id">
-  <div class="form-row-2">
-     <div class="form-row">
-       <label>Topic ID Reference (e.g., 1.5)</label>
-       <input type="text" id="proj-topic" placeholder="1.5" />
-     </div>
-     <div class="form-row">
-       <label>Project Title</label>
-       <input type="text" id="proj-name" placeholder="Automated Backup Script" />
-     </div>
-  </div>
-  <div class="form-row">
-    <label>The DevOps Concept / Problem Solved</label>
-    <textarea id="proj-theory" style="min-height:80px" placeholder="Explain the problem this solves..."></textarea>
-  </div>
-  <div class="form-row">
-    <label>Code Snippet (Optional)</label>
-    <textarea id="proj-code" style="font-family: var(--font-mono); min-height: 150px; font-size: 0.85rem;" placeholder="#!/bin/bash..."></textarea>
-  </div>
-  <div class="form-row">
-    <label>GitHub Source URL (Optional)</label>
-    <input type="url" id="proj-url" placeholder="https://github.com/.../backup.sh" />
-  </div>
-  <div class="modal-footer">
-    <button class="btn btn-ghost" onclick="closeProjectModal()">Cancel</button>
-    <button class="btn btn-save" onclick="saveProject()">Deploy Project</button>
-  </div>
+<div class="modal-overlay" id="projectModal">  
+<div class="modal">  
+  <h2>🚀 Add Portfolio Project</h2>  
+  <input type="hidden" id="proj-id">  
+  <div class="form-row-2">  
+     <div class="form-row">  
+       <label>Topic ID Reference (e.g., 1.5)</label>  
+       <input type="text" id="proj-topic" placeholder="1.5" />  
+     </div>  
+     <div class="form-row">  
+       <label>Project Title</label>  
+       <input type="text" id="proj-name" placeholder="Automated Backup Script" />  
+     </div>  
+  </div>  
+  <div class="form-row">  
+    <label>The DevOps Concept / Problem Solved</label>  
+    <textarea id="proj-theory" style="min-height:80px" placeholder="Explain the problem this solves..."></textarea>  
+  </div>  
+  <div class="form-row">  
+    <label>Code Snippet (Optional)</label>  
+    <textarea id="proj-code" style="font-family: var(--font-mono); min-height: 150px; font-size: 0.85rem;" placeholder="#!/bin/bash..."></textarea>  
+  </div>  
+  <div class="form-row">  
+    <label>GitHub Source URL (Optional)</label>  
+    <input type="url" id="proj-url" placeholder="https://github.com/.../backup.sh" />  
+  </div>  
+  <div class="modal-footer">  
+    <button class="btn btn-ghost" onclick="closeProjectModal()">Cancel</button>  
+    <button class="btn btn-save" onclick="saveProject()">Deploy Project</button>  
+  </div>  
+</div>  
 </div>
-</div>
 
-<div class="modal-overlay" id="mindsetModal">     
-<div class="modal">     
+<div class="modal-overlay" id="mindsetModal">       
+<div class="modal">       
 <h2>🧠 Add Mindset Moment</h2>     
 
-<div class="form-row" style="margin-bottom: 1rem;">
-  <label>Entry Type</label>
-  <div style="display: flex; gap: 1rem; margin-top: 0.5rem;">
-      <label style="cursor: pointer; display: flex; align-items: center; gap: 0.3rem; font-size: 0.9rem;">
-          <input type="radio" name="moment_type" value="Question" checked onchange="document.getElementById('label-question').innerText='The Question'; document.getElementById('label-response').innerText='The Insight / Answer';"> ❓ Question
-      </label>
-      <label style="cursor: pointer; display: flex; align-items: center; gap: 0.3rem; font-size: 0.9rem;">
-          <input type="radio" name="moment_type" value="Situation" onchange="document.getElementById('label-question').innerText='What Happened'; document.getElementById('label-response').innerText='The Response / Action Taken';"> 🎬 Situation
-      </label>
-  </div>
+<div class="form-row" style="margin-bottom: 1rem;">  
+  <label>Entry Type</label>  
+  <div style="display: flex; gap: 1rem; margin-top: 0.5rem;">  
+      <label style="cursor: pointer; display: flex; align-items: center; gap: 0.3rem; font-size: 0.9rem;">  
+          <input type="radio" name="moment_type" value="Question" checked onchange="document.getElementById('label-question').innerText='The Question'; document.getElementById('label-response').innerText='The Insight / Answer';"> ❓ Question  
+      </label>  
+      <label style="cursor: pointer; display: flex; align-items: center; gap: 0.3rem; font-size: 0.9rem;">  
+          <input type="radio" name="moment_type" value="Situation" onchange="document.getElementById('label-question').innerText='What Happened'; document.getElementById('label-response').innerText='The Response / Action Taken';"> 🎬 Situation  
+      </label>  
+  </div>  
 </div>
 
-<div class="form-row">     
-<label id="label-question">The Question</label>     
-<input type="text" id="mind-question" placeholder="e.g., Why do we use Linux instead of Windows?" />     
+<div class="form-row">       
+<label id="label-question">The Question</label>       
+<input type="text" id="mind-question" placeholder="e.g., Why do we use Linux instead of Windows?" />       
 </div>     
 
-<div class="form-row-2">     
-<div class="form-row">     
-  <label>Rating</label>     
-  <select id="mind-rating" style="width:100%; background:var(--surface2); border:1px solid var(--border); border-radius:10px; color:var(--text); padding:0.75rem; font-family:var(--font-display); outline:none;">  
-    <option value="good">Good direction</option>  
-    <option value="strong">Strong instinct</option>  
-  </select>     
-</div>     
-<div class="form-row">     
-  <label>Concept Tag</label>     
-  <input type="text" id="mind-concept" placeholder="e.g., Architecture" />     
-</div>     
+<div class="form-row-2">       
+<div class="form-row">       
+  <label>Rating</label>       
+  <select id="mind-rating" style="width:100%; background:var(--surface2); border:1px solid var(--border); border-radius:10px; color:var(--text); padding:0.75rem; font-family:var(--font-display); outline:none;">    
+    <option value="good">Good direction</option>    
+    <option value="strong">Strong instinct</option>    
+  </select>       
+</div>       
+<div class="form-row">       
+  <label>Concept Tag</label>       
+  <input type="text" id="mind-concept" placeholder="e.g., Architecture" />       
+</div>       
 </div>    
 
-<div class="form-row">     
-<label>Linked Topic (Optional)</label>     
-<input type="text" id="mind-topic" placeholder="e.g., 1.1 How computers work" />     
+<div class="form-row">       
+<label>Linked Topic (Optional)</label>       
+<input type="text" id="mind-topic" placeholder="e.g., 1.1 How computers work" />       
 </div>     
 
-<div class="form-row">     
-<label id="label-response">The Insight / Response</label>     
-<textarea id="mind-response" style="min-height:100px" placeholder="Write the realization or answer here..."></textarea>     
+<div class="form-row">       
+<label id="label-response">The Insight / Response</label>       
+<textarea id="mind-response" style="min-height:100px" placeholder="Write the realization or answer here..."></textarea>       
 </div>     
 
-<div class="form-row" style="margin-bottom: 1rem;">
-  <label>Who provided the insight?</label>
-  <div style="display: flex; gap: 1rem; margin-top: 0.5rem;">
-      <label style="cursor: pointer; display: flex; align-items: center; gap: 0.3rem; font-size: 0.9rem;">
-          <input type="radio" name="insight_source" value="Me"> 🧠 Me (I figured it out)
-      </label>
-      <label style="cursor: pointer; display: flex; align-items: center; gap: 0.3rem; font-size: 0.9rem;">
-          <input type="radio" name="insight_source" value="AI" checked> 🤖 AI helped
-      </label>
-  </div>
+<div class="form-row" style="margin-bottom: 1rem;">  
+  <label>Who provided the insight?</label>  
+  <div style="display: flex; gap: 1rem; margin-top: 0.5rem;">  
+      <label style="cursor: pointer; display: flex; align-items: center; gap: 0.3rem; font-size: 0.9rem;">  
+          <input type="radio" name="insight_source" value="Me"> 🧠 Me (I figured it out)  
+      </label>  
+      <label style="cursor: pointer; display: flex; align-items: center; gap: 0.3rem; font-size: 0.9rem;">  
+          <input type="radio" name="insight_source" value="AI" checked> 🤖 AI helped  
+      </label>  
+  </div>  
 </div>
 
-<div class="modal-footer">     
-<button class="btn btn-ghost" onclick="closeMindsetModal()">Cancel</button>     
-<button class="btn btn-save" onclick="saveMindsetMoment()">Save Moment</button>     
-</div>     
-</div>     
+<div class="modal-footer">       
+<button class="btn btn-ghost" onclick="closeMindsetModal()">Cancel</button>       
+<button class="btn btn-save" onclick="saveMindsetMoment()">Save Moment</button>       
+</div>       
+</div>       
 </div>
 
-<div class="modal-overlay" id="deleteConfirmModal">     
- <div class="modal" style="max-width: 400px; text-align: center;">     
-   <div style="font-size: 3rem; margin-bottom: 1rem;">⚠️</div>  
-   <h2>Delete Moment?</h2>     
-   <p style="color:var(--muted); font-size: 0.95rem; margin-bottom: 2rem;">Are you sure you want to permanently delete this mindset moment? This action cannot be undone.</p>     
-   <div style="display: flex; gap: 1rem; justify-content: center;">     
-     <button class="btn btn-ghost" style="flex:1" onclick="closeDeleteModal()">Cancel</button>     
-     <button class="btn" style="flex:1; background: var(--red); color: white;" onclick="confirmDeleteMindset()">Delete</button>     
-   </div>     
- </div>     
+<div class="modal-overlay" id="deleteConfirmModal">       
+ <div class="modal" style="max-width: 400px; text-align: center;">       
+   <div style="font-size: 3rem; margin-bottom: 1rem;">⚠️</div>    
+   <h2>Delete Moment?</h2>       
+   <p style="color:var(--muted); font-size: 0.95rem; margin-bottom: 2rem;">Are you sure you want to permanently delete this mindset moment? This action cannot be undone.</p>       
+   <div style="display: flex; gap: 1rem; justify-content: center;">       
+     <button class="btn btn-ghost" style="flex:1" onclick="closeDeleteModal()">Cancel</button>       
+     <button class="btn" style="flex:1; background: var(--red); color: white;" onclick="confirmDeleteMindset()">Delete</button>       
+   </div>       
+ </div>       
 </div>
 
 <div id="toast"></div>
 
-<div class="modal-overlay" id="cmdModal">
-<div class="modal">
+<div class="modal-overlay" id="cmdModal">  
+<div class="modal">  
   <h2 id="cmd-modal-title">💻 Add Command</h2>
 
-  <div class="form-row-2">
-    <div class="form-row">
-      <label>Command <span style="color:var(--red)">*</span></label>
-      <input type="text" id="cmd-text" placeholder="e.g., mkdir -p" />
-    </div>
-    <div class="form-row">
-      <label>Category <span style="color:var(--red)">*</span></label>
-      <select id="cmd-category" style="width:100%; background:var(--surface2); border:1px solid var(--border); border-radius:10px; color:var(--text); padding:0.75rem; font-family:var(--font-display); outline:none;">
-        <option value="Linux">Linux</option>
-        <option value="Git">Git</option>
-        <option value="Docker">Docker</option>
-        <option value="Kubernetes">Kubernetes</option>
-        <option value="Terraform">Terraform</option>
-        <option value="Python">Python</option>
-        <option value="Cloud CLI">Cloud CLI</option>
-      </select>
-    </div>
+  <div class="form-row-2">  
+    <div class="form-row">  
+      <label>Command <span style="color:var(--red)">*</span></label>  
+      <input type="text" id="cmd-text" placeholder="e.g., mkdir -p" />  
+    </div>  
+    <div class="form-row">  
+      <label>Category <span style="color:var(--red)">*</span></label>  
+      <select id="cmd-category" style="width:100%; background:var(--surface2); border:1px solid var(--border); border-radius:10px; color:var(--text); padding:0.75rem; font-family:var(--font-display); outline:none;">  
+        <option value="Linux">Linux</option>  
+        <option value="Git">Git</option>  
+        <option value="Docker">Docker</option>  
+        <option value="Kubernetes">Kubernetes</option>  
+        <option value="Terraform">Terraform</option>  
+        <option value="Python">Python</option>  
+        <option value="Cloud CLI">Cloud CLI</option>  
+      </select>  
+    </div>  
   </div>
 
-  <div class="form-row">
-    <label>Plain English Meaning <span style="color:var(--red)">*</span></label>
-    <input type="text" id="cmd-meaning" placeholder="e.g., Makes a directory, creates missing parent folders" />
+  <div class="form-row">  
+    <label>Plain English Meaning <span style="color:var(--red)">*</span></label>  
+    <input type="text" id="cmd-meaning" placeholder="e.g., Makes a directory, creates missing parent folders" />  
   </div>
 
-  <div class="form-row">
-    <label>Example Usage</label>
-    <input type="text" id="cmd-example" placeholder="e.g., mkdir -p /home/user/app" />
+  <div class="form-row">  
+    <label>Example Usage</label>  
+    <input type="text" id="cmd-example" placeholder="e.g., mkdir -p /home/user/app" />  
   </div>
 
-  <div class="form-row-2">
-    <div class="form-row">
-      <label>Topic Learned</label>
-      <input type="text" id="cmd-topic" placeholder="e.g., 1.3" />
-    </div>
-    <div class="form-row">
-      <label>Future Topics</label>
-      <input type="text" id="cmd-future" placeholder="e.g., 1.5, Phase 6" />
-    </div>
+  <div class="form-row-2">  
+    <div class="form-row">  
+      <label>Topic Learned</label>  
+      <input type="text" id="cmd-topic" placeholder="e.g., 1.3" />  
+    </div>  
+    <div class="form-row">  
+      <label>Future Topics</label>  
+      <input type="text" id="cmd-future" placeholder="e.g., 1.5, Phase 6" />  
+    </div>  
   </div>
 
-  <div class="form-row">
-    <label>Linked Commands (Comma separated)</label>
-    <input type="text" id="cmd-links" placeholder="e.g., cd, touch, ls" />
+  <div class="form-row">  
+    <label>Linked Commands (Comma separated)</label>  
+    <input type="text" id="cmd-links" placeholder="e.g., cd, touch, ls" />  
   </div>
 
-  <div class="form-row">
-    <label>Security Note</label>
-    <textarea id="cmd-security" style="min-height:80px; border-left: 3px solid var(--red);" placeholder="e.g., Avoid running as root — never run chmod 777 on system folders"></textarea>
+  <div class="form-row">  
+    <label>Security Note</label>  
+    <textarea id="cmd-security" style="min-height:80px; border-left: 3px solid var(--red);" placeholder="e.g., Avoid running as root — never run chmod 777 on system folders"></textarea>  
   </div>
 
-  <div class="modal-footer">
-    <button class="btn btn-ghost" onclick="closeCmdModal()">Cancel</button>
-    <button class="btn btn-save" onclick="saveCommand()">Save Command</button>
-  </div>
+  <div class="modal-footer">  
+    <button class="btn btn-ghost" onclick="closeCmdModal()">Cancel</button>  
+    <button class="btn btn-save" onclick="saveCommand()">Save Command</button>  
+  </div>  
+</div>  
 </div>
-</div>
 
-<script>     
-// ── STATE ──     
-let sb = null;     
-let allMindset = [];    
-let allProjects = []; // <-- NEW STATE ARRAY FOR PROJECTS
-let nextTopicGlobal = null;
+<script>       
+// ── STATE ──       
+let sb = null;       
+let allMindset = [];      
+let allProjects = []; // <-- NEW STATE ARRAY FOR PROJECTS  
+let nextTopicGlobal = null;  
 let editingNoteId = null;
 
-// ── UTILITIES ──
-function escapeHTML(str) {
-  if (!str) return '';
-  return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+// ── UTILITIES ──  
+function escapeHTML(str) {  
+  if (!str) return '';  
+  return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");  
 }
 
-// ── INIT ──     
-window.addEventListener('DOMContentLoaded', () => {     
-initTheme();    
-loadConfig();     
-setDefaultDate();     
+// ── INIT ──       
+window.addEventListener('DOMContentLoaded', () => {       
+initTheme();      
+loadConfig();       
+setDefaultDate();       
 });
 
-function setDefaultDate() {     
-const now = new Date();     
-const d = now.toISOString().split('T')[0];     
-const t = now.toTimeString().slice(0,5);     
-const el = document.getElementById('m-date');     
-const et = document.getElementById('m-time');     
-if(el) el.value = d;     
-if(et) et.value = t;     
+function setDefaultDate() {       
+const now = new Date();       
+const d = now.toISOString().split('T')[0];       
+const t = now.toTimeString().slice(0,5);       
+const el = document.getElementById('m-date');       
+const et = document.getElementById('m-time');       
+if(el) el.value = d;       
+if(et) et.value = t;       
 }
 
-// ── THEME ENGINE (iOS Style Switching) ──    
-function initTheme() {    
-const savedTheme = localStorage.getItem('theme') || 'dark';    
-document.documentElement.setAttribute('data-theme', savedTheme);    
-updateThemeToggleIcon(savedTheme);    
+// ── THEME ENGINE (iOS Style Switching) ──      
+function initTheme() {      
+const savedTheme = localStorage.getItem('theme') || 'dark';      
+document.documentElement.setAttribute('data-theme', savedTheme);      
+updateThemeToggleIcon(savedTheme);      
 }
 
-function toggleTheme() {    
-const currentTheme = document.documentElement.getAttribute('data-theme');    
-const nextTheme = currentTheme === 'dark' ? 'light' : 'dark';    
-document.documentElement.setAttribute('data-theme', nextTheme);    
-localStorage.setItem('theme', nextTheme);    
-updateThemeToggleIcon(nextTheme);    
+function toggleTheme() {      
+const currentTheme = document.documentElement.getAttribute('data-theme');      
+const nextTheme = currentTheme === 'dark' ? 'light' : 'dark';      
+document.documentElement.setAttribute('data-theme', nextTheme);      
+localStorage.setItem('theme', nextTheme);      
+updateThemeToggleIcon(nextTheme);      
 }
 
-function updateThemeToggleIcon(theme) {    
-const btn = document.getElementById('themeToggleBtn');    
-if(btn) btn.innerHTML = theme === 'dark' ? '☀️' : '🌙';    
+function updateThemeToggleIcon(theme) {      
+const btn = document.getElementById('themeToggleBtn');      
+if(btn) btn.innerHTML = theme === 'dark' ? '☀️' : '🌙';      
 }
 
-// ── CONFIG ──     
-function loadConfig() {     
-const url = localStorage.getItem('sb_url');     
-const key = localStorage.getItem('sb_key');     
-if(url) document.getElementById('sb-url').value = url;     
-if(key) document.getElementById('sb-key').value = key;     
-if(url && key) initSupabase(url, key);     
-else setStatus(false, 'no credentials');     
+// ── CONFIG ──       
+function loadConfig() {       
+const url = localStorage.getItem('sb_url');       
+const key = localStorage.getItem('sb_key');       
+if(url) document.getElementById('sb-url').value = url;       
+if(key) document.getElementById('sb-key').value = key;       
+if(url && key) initSupabase(url, key);       
+else setStatus(false, 'no credentials');       
 }
 
-function saveConfig() {     
-const url = document.getElementById('sb-url').value.trim();     
-const key = document.getElementById('sb-key').value.trim();     
-if(!url || !key){ toast('Please fill in both fields','error'); return; }     
-localStorage.setItem('sb_url', url);     
-localStorage.setItem('sb_key', key);     
-initSupabase(url, key);     
-toast('Credentials saved!','success');     
+function saveConfig() {       
+const url = document.getElementById('sb-url').value.trim();       
+const key = document.getElementById('sb-key').value.trim();       
+if(!url || !key){ toast('Please fill in both fields','error'); return; }       
+localStorage.setItem('sb_url', url);       
+localStorage.setItem('sb_key', key);       
+initSupabase(url, key);       
+toast('Credentials saved!','success');       
 }
 
-function initSupabase(url, key) {     
-try {     
-sb = window.supabase.createClient(url, key);     
-testConnection();     
-} catch(e) {     
-setStatus(false,'init error');     
-}     
+function initSupabase(url, key) {       
+try {       
+sb = window.supabase.createClient(url, key);       
+testConnection();       
+} catch(e) {       
+setStatus(false,'init error');       
+}       
 }
 
-async function testConnection() {     
-try {     
-const { data, error } = await sb.from('topic_status').select('id').limit(1);     
-if(error) throw error;     
-setStatus(true,'Connected to Supabase');     
-loadAll();     
-} catch(e) {     
-setStatus(false,'connection failed');     
-}     
+async function testConnection() {       
+try {       
+const { data, error } = await sb.from('topic_status').select('id').limit(1);       
+if(error) throw error;       
+setStatus(true,'Connected to Supabase');       
+loadAll();       
+} catch(e) {       
+setStatus(false,'connection failed');       
+}       
 }
 
-function setStatus(ok, msg) {     
-document.getElementById('statusDot').className = 'dot' + (ok?' connected':'');     
-document.getElementById('statusText').textContent = msg;     
+function setStatus(ok, msg) {       
+document.getElementById('statusDot').className = 'dot' + (ok?' connected':'');       
+document.getElementById('statusText').textContent = msg;       
 }
 
-// ── LOAD ALL DATA ──  
-async function loadAll() {  
- // We MUST await these so JavaScript actually waits for the data to arrive  
- await loadTopics();  
- await loadSessions();  
- await loadMindset();  
- await loadProjects(); // <-- INJECTED PROJECT SYNC
- await loadNotes();  
- await loadDashboard();  
- await loadCommands();
+// ── LOAD ALL DATA ──    
+async function loadAll() {    
+ // We MUST await these so JavaScript actually waits for the data to arrive    
+ await loadTopics();    
+ await loadSessions();    
+ await loadMindset();    
+ await loadProjects(); // <-- INJECTED PROJECT SYNC  
+ await loadNotes();    
+ await loadDashboard();    
+ await loadCommands();  
 }
 
-// ── MASTER STATE MANAGER ──  
-async function syncUI() {  
- // 1. Fetch the absolute latest data from Supabase (and wait for it!)  
- await loadAll();  
-  // 2. Force every single tab to redraw with the fresh data  
- if (typeof renderMindset === 'function' && typeof allMindset !== 'undefined') renderMindset(allMindset);  
- if (typeof renderNotes === 'function' && typeof allNotes !== 'undefined') renderNotes(allNotes);  
- if (typeof renderSessions === 'function' && typeof allSessions !== 'undefined') renderSessions(allSessions);  
- if (typeof renderProjects === 'function' && typeof allProjects !== 'undefined') renderProjects(allProjects); // <-- PROJECT REDRAW
- if (typeof renderRoadmap === 'function') renderRoadmap();  
+// ── MASTER STATE MANAGER ──    
+async function syncUI() {    
+ // 1. Fetch the absolute latest data from Supabase (and wait for it!)    
+ await loadAll();    
+  // 2. Force every single tab to redraw with the fresh data    
+ if (typeof renderMindset === 'function' && typeof allMindset !== 'undefined') renderMindset(allMindset);    
+ if (typeof renderNotes === 'function' && typeof allNotes !== 'undefined') renderNotes(allNotes);    
+ if (typeof renderSessions === 'function' && typeof allSessions !== 'undefined') renderSessions(allSessions);    
+ if (typeof renderProjects === 'function' && typeof allProjects !== 'undefined') renderProjects(allProjects); // <-- PROJECT REDRAW  
+ if (typeof renderRoadmap === 'function') renderRoadmap();    
 }
 
-// ── TABS ──     
-function showTab(name, btn) {     
-document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));     
-document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));     
-document.getElementById('tab-' + name).classList.add('active');     
-if(btn) btn.classList.add('active');     
+// ── TABS ──       
+function showTab(name, btn) {       
+document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));       
+document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));       
+document.getElementById('tab-' + name).classList.add('active');       
+if(btn) btn.classList.add('active');       
 }
 
-// ── PORTFOLIO PROJECTS (NEW ENGINE) ──
-async function loadProjects() {
-    if(!sb) return;
-    try {
-        const { data, error } = await sb.from('mini_projects').select('*').order('topic_id');
-        if(error) {
-            document.getElementById('projects-list').innerHTML = `<div style="color:var(--red)">Error loading projects: ${error.message}</div>`;
-            return;
-        }
-        allProjects = data || [];
-        document.getElementById('dash-projects').textContent = allProjects.length;
-        renderProjects(allProjects);
-    } catch(e) {
-        console.error("Projects Load Error:", e);
-    }
+// ── PORTFOLIO PROJECTS (NEW ENGINE) ──  
+async function loadProjects() {  
+    if(!sb) return;  
+    try {  
+        const { data, error } = await sb.from('mini_projects').select('*').order('topic_id');  
+        if(error) {  
+            document.getElementById('projects-list').innerHTML = `<div style="color:var(--red)">Error loading projects: ${error.message}</div>`;  
+            return;  
+        }  
+        allProjects = data || [];  
+        document.getElementById('dash-projects').textContent = allProjects.length;  
+        renderProjects(allProjects);  
+    } catch(e) {  
+        console.error("Projects Load Error:", e);  
+    }  
 }
 
-function renderProjects(data) {
-    const container = document.getElementById('projects-list');
-    if(!data || data.length === 0) {
-        container.innerHTML = '<div style="color:var(--muted);font-size:0.9rem">No projects deployed yet. Add your first build!</div>';
-        return;
-    }
-    
-    container.innerHTML = data.map(p => {
-        const codeSnippet = p.code_snippet ? `<div style="margin-top:1.25rem"><div style="font-size:0.75rem;font-weight:600;color:var(--muted);text-transform:uppercase;margin-bottom:0.5rem;letter-spacing:0.05em">Code Engine Artifact</div><pre style="background:var(--bg);padding:1rem;border-radius:10px;font-family:var(--font-mono);font-size:0.85rem;color:var(--accent);overflow-x:auto;border:1px solid var(--border)"><code>${escapeHTML(p.code_snippet)}</code></pre></div>` : '';
-        
+function renderProjects(data) {  
+    const container = document.getElementById('projects-list');  
+    if(!data || data.length === 0) {  
+        container.innerHTML = '<div style="color:var(--muted);font-size:0.9rem">No projects deployed yet. Add your first build!</div>';  
+        return;  
+    }  
+      
+    container.innerHTML = data.map(p => {  
+        const codeSnippet = p.code_snippet ? `<div style="margin-top:1.25rem"><div style="font-size:0.75rem;font-weight:600;color:var(--muted);text-transform:uppercase;margin-bottom:0.5rem;letter-spacing:0.05em">Code Engine Artifact</div><pre style="background:var(--bg);padding:1rem;border-radius:10px;font-family:var(--font-mono);font-size:0.85rem;color:var(--accent);overflow-x:auto;border:1px solid var(--border)"><code>${escapeHTML(p.code_snippet)}</code></pre></div>` : '';  
+          
         const githubBtn = p.github_url ? `<a href="${escapeHTML(p.github_url)}" target="_blank" class="btn btn-ghost" style="font-size:0.8rem;padding:0.4rem 0.85rem;text-decoration:none;color:var(--text)">🔗 View Source</a>` : '';
 
-        return `<div class="session-item" style="cursor:default; padding: 1.5rem">
-            <div class="session-header">
-                <div class="session-topic" style="color:var(--accent-blue); font-size:1.1rem">${escapeHTML(p.project_name)}</div>
-                <div class="session-date" style="font-size:0.85rem">Topic ${escapeHTML(p.topic_id)} • ${new Date(p.created_at).toLocaleDateString()}</div>
-            </div>
-            <div style="font-size:0.95rem;color:var(--text);line-height:1.6;margin-top:0.75rem">${escapeHTML(p.theory_concept)}</div>
-            ${codeSnippet}
-            <div style="margin-top:1.25rem; display:flex; justify-content:flex-end; gap:0.5rem">
-                ${githubBtn}
-                <button class="btn btn-ghost" style="color:var(--red); border:1px solid rgba(255,69,58,0.2); font-size:0.8rem; padding:0.4rem 0.85rem;" onclick="deleteProject('${p.id}')">🗑️ Delete Build</button>
-            </div>
-        </div>`;
-    }).join('');
+        return `<div class="session-item" style="cursor:default; padding: 1.5rem">  
+            <div class="session-header">  
+                <div class="session-topic" style="color:var(--accent-blue); font-size:1.1rem">${escapeHTML(p.project_name)}</div>  
+                <div class="session-date" style="font-size:0.85rem">Topic ${escapeHTML(p.topic_id)} • ${new Date(p.created_at).toLocaleDateString()}</div>  
+            </div>  
+            <div style="font-size:0.95rem;color:var(--text);line-height:1.6;margin-top:0.75rem">${escapeHTML(p.theory_concept)}</div>  
+            ${codeSnippet}  
+            <div style="margin-top:1.25rem; display:flex; justify-content:flex-end; gap:0.5rem">  
+                ${githubBtn}  
+                <button class="btn btn-ghost" style="color:var(--red); border:1px solid rgba(255,69,58,0.2); font-size:0.8rem; padding:0.4rem 0.85rem;" onclick="deleteProject('${p.id}')">🗑️ Delete Build</button>  
+            </div>  
+        </div>`;  
+    }).join('');  
 }
 
-function openProjectModal() {
-    document.getElementById('proj-id').value = '';
-    document.getElementById('proj-topic').value = '';
-    document.getElementById('proj-name').value = '';
-    document.getElementById('proj-theory').value = '';
-    document.getElementById('proj-code').value = '';
-    document.getElementById('proj-url').value = '';
-    document.getElementById('projectModal').classList.add('open');
+function openProjectModal() {  
+    document.getElementById('proj-id').value = '';  
+    document.getElementById('proj-topic').value = '';  
+    document.getElementById('proj-name').value = '';  
+    document.getElementById('proj-theory').value = '';  
+    document.getElementById('proj-code').value = '';  
+    document.getElementById('proj-url').value = '';  
+    document.getElementById('projectModal').classList.add('open');  
 }
 
-function closeProjectModal() {
-    document.getElementById('projectModal').classList.remove('open');
+function closeProjectModal() {  
+    document.getElementById('projectModal').classList.remove('open');  
 }
 
-async function saveProject() {
-    if(!sb) { toast('Not connected', 'error'); return; }
-    const payload = {
-        topic_id: document.getElementById('proj-topic').value.trim(),
-        project_name: document.getElementById('proj-name').value.trim(),
-        theory_concept: document.getElementById('proj-theory').value.trim(),
-        code_snippet: document.getElementById('proj-code').value.trim(),
-        github_url: document.getElementById('proj-url').value.trim()
-    };
-    
-    if(!payload.topic_id || !payload.project_name || !payload.theory_concept) {
-        toast('Please fill in Topic ID, Name, and Concept', 'error'); return;
-    }
-    
-    const id = document.getElementById('proj-id').value;
-    let error;
-    
-    if(id) {
-        const res = await sb.from('mini_projects').update(payload).eq('id', id);
-        error = res.error;
-    } else {
-        const res = await sb.from('mini_projects').insert([payload]);
-        error = res.error;
-    }
-    
-    if(error) { toast('Error saving project: ' + error.message, 'error'); return; }
-    
-    toast('Project Deployed! 🚀', 'success');
-    closeProjectModal();
-    await syncUI();
+async function saveProject() {  
+    if(!sb) { toast('Not connected', 'error'); return; }  
+    const payload = {  
+        topic_id: document.getElementById('proj-topic').value.trim(),  
+        project_name: document.getElementById('proj-name').value.trim(),  
+        theory_concept: document.getElementById('proj-theory').value.trim(),  
+        code_snippet: document.getElementById('proj-code').value.trim(),  
+        github_url: document.getElementById('proj-url').value.trim()  
+    };  
+      
+    if(!payload.topic_id || !payload.project_name || !payload.theory_concept) {  
+        toast('Please fill in Topic ID, Name, and Concept', 'error'); return;  
+    }  
+      
+    const id = document.getElementById('proj-id').value;  
+    let error;  
+      
+    if(id) {  
+        const res = await sb.from('mini_projects').update(payload).eq('id', id);  
+        error = res.error;  
+    } else {  
+        const res = await sb.from('mini_projects').insert([payload]);  
+        error = res.error;  
+    }  
+      
+    if(error) { toast('Error saving project: ' + error.message, 'error'); return; }  
+      
+    toast('Project Deployed! 🚀', 'success');  
+    closeProjectModal();  
+    await syncUI();  
 }
 
-async function deleteProject(id) {
-    if(!confirm("Permanently scrap this deployment record?")) return;
-    const { error } = await sb.from('mini_projects').delete().eq('id', id);
-    if(error) { toast('Error deleting project: ' + error.message, 'error'); return; }
-    toast('Project removed from ledger 🗑️', 'success');
-    await syncUI();
+async function deleteProject(id) {  
+    if(!confirm("Permanently scrap this deployment record?")) return;  
+    const { error } = await sb.from('mini_projects').delete().eq('id', id);  
+    if(error) { toast('Error deleting project: ' + error.message, 'error'); return; }  
+    toast('Project removed from ledger 🗑️', 'success');  
+    await syncUI();  
 }
 
-// ── DASHBOARD (Protected against missing data) ──     
-async function loadDashboard() {     
- if(!sb) return;  
- try {  
-   const [topicsRes, sessionsRes, mindsetRes] = await Promise.all([     
-     sb.from('topic_status').select('*'),     
-     sb.from('sessions').select('topic_id'),  
-     sb.from('mindset_moments').select('id', { count: 'exact', head: true })  
+// ── DASHBOARD (Protected against missing data) ──       
+async function loadDashboard() {       
+ if(!sb) return;    
+ try {    
+   const [topicsRes, sessionsRes, mindsetRes] = await Promise.all([       
+     sb.from('topic_status').select('*'),       
+     sb.from('sessions').select('topic_id'),    
+     sb.from('mindset_moments').select('id', { count: 'exact', head: true })    
    ]);
 
-   if (topicsRes.error) {  
-     console.error("Dashboard Topics Error:", topicsRes.error);  
-     return;  
+   if (topicsRes.error) {    
+     console.error("Dashboard Topics Error:", topicsRes.error);    
+     return;    
    }
 
-   const sessionsMap = {};     
-   if (sessionsRes.data) {     
-     sessionsRes.data.forEach(s => { if(s.topic_id) sessionsMap[s.topic_id] = true; });     
+   const sessionsMap = {};       
+   if (sessionsRes.data) {       
+     sessionsRes.data.forEach(s => { if(s.topic_id) sessionsMap[s.topic_id] = true; });       
    }
 
-   let doneCount = 0;     
-   const phase1Ids = ['1.1','1.2','1.3','1.4','1.5','1.6','1.7'];     
-   const phase2Ids = ['2.1','2.2','2.3','2.4','2.5','2.6','2.7','2.8'];    
-   let p1done = 0;     
-   let p2done = 0;    
+   let doneCount = 0;       
+   const phase1Ids = ['1.1','1.2','1.3','1.4','1.5','1.6','1.7'];       
+   const phase2Ids = ['2.1','2.2','2.3','2.4','2.5','2.6','2.7','2.8'];      
+   let p1done = 0;       
+   let p2done = 0;      
    let p38done = 0;
 
-   topicsRes.data.forEach(t => {     
-     let isDone = t.status === 'done' || !!sessionsMap[t.topic_id];     
-     if (isDone) {     
-      doneCount++;     
-      if (phase1Ids.includes(t.topic_id)) p1done++;     
-      else if (phase2Ids.includes(t.topic_id)) p2done++;    
-      else p38done++;    
-     }     
+   topicsRes.data.forEach(t => {       
+     let isDone = t.status === 'done' || !!sessionsMap[t.topic_id];       
+     if (isDone) {       
+      doneCount++;       
+      if (phase1Ids.includes(t.topic_id)) p1done++;       
+      else if (phase2Ids.includes(t.topic_id)) p2done++;      
+      else p38done++;      
+     }       
    });
 
-   const mindsetCount = mindsetRes.count || 0;  
+   const mindsetCount = mindsetRes.count || 0;    
    const pct = Math.round((doneCount / 67) * 100);
 
-   document.getElementById('dash-done').textContent = doneCount;     
-   document.getElementById('dash-pct').textContent = pct + '%';     
+   document.getElementById('dash-done').textContent = doneCount;       
+   document.getElementById('dash-pct').textContent = pct + '%';       
    document.getElementById('dash-mindset').textContent = mindsetCount;
 
-   const p1pct = Math.round((p1done / 7) * 100);     
-   document.getElementById('phase1-pct').textContent = p1pct + '%';     
+   const p1pct = Math.round((p1done / 7) * 100);       
+   document.getElementById('phase1-pct').textContent = p1pct + '%';       
    document.getElementById('phase1-bar').style.width = p1pct + '%';
 
-   // Update Phase 2 total to 10  
-   const p2pct = Math.round((p2done / 10) * 100);     
-   document.getElementById('phase2-pct').textContent = p2pct + '%';     
+   // Update Phase 2 total to 10    
+   const p2pct = Math.round((p2done / 10) * 100);       
+   document.getElementById('phase2-pct').textContent = p2pct + '%';       
    document.getElementById('phase2-bar').style.width = p2pct + '%';
 
-   // Update Phase 3-8 total to 50  
-   const p38pct = Math.round((p38done / 50) * 100);     
-   document.getElementById('phase38-pct').textContent = p38pct + '%';     
+   // Update Phase 3-8 total to 50    
+   const p38pct = Math.round((p38done / 50) * 100);       
+   document.getElementById('phase38-pct').textContent = p38pct + '%';       
    document.getElementById('phase38-bar').style.width = p38pct + '%';
 
-   const { data: nextTopics } = await sb     
-     .from('topic_status')     
-     .select('topic_id, topic_name')     
-     .eq('status', 'next')     
+   const { data: nextTopics } = await sb       
+     .from('topic_status')       
+     .select('topic_id, topic_name')       
+     .eq('status', 'next')       
      .limit(1);
 
-   if(nextTopics && nextTopics.length > 0) {     
-     const n = nextTopics[0];     
-     document.getElementById('dash-next-topic').textContent = `Next: ${n.topic_id} — ${n.topic_name}`;     
-     nextTopicGlobal = n;    
-   } else {    
-     document.getElementById('dash-next-topic').textContent = `All active streams caught up!`;    
-     nextTopicGlobal = null;    
-   }    
- } catch(e) {  
-   console.error("Dashboard Crash Protected:", e);  
- }  
+   if(nextTopics && nextTopics.length > 0) {       
+     const n = nextTopics[0];       
+     document.getElementById('dash-next-topic').textContent = `Next: ${n.topic_id} — ${n.topic_name}`;       
+     nextTopicGlobal = n;      
+   } else {      
+     document.getElementById('dash-next-topic').textContent = `All active streams caught up!`;      
+     nextTopicGlobal = null;      
+   }      
+ } catch(e) {    
+   console.error("Dashboard Crash Protected:", e);    
+ }    
 }
 
-// ── ROADMAP CONSTANTS ──     
-const PHASES = [     
-{ label:'Phase 1 — Foundations', ids:['1.1','1.2','1.3','1.4','1.5','1.6','1.7'] },     
-{ label:'Phase 2 — Networking + Cloud', ids:['2.1','2.2','2.3','2.4','2.5','2.6','2.7','2.8','2.9','2.10'] },     
-{ label:'Phase 3 — Python for DevOps', ids:['3.1','3.2','3.3','3.4','3.5','3.6','3.7'] },     
-{ label:'Phase 4 — Git', ids:['4.1','4.2','4.3','4.4','4.5'] },     
-{ label:'Phase 5 — Docker', ids:['5.1','5.2','5.3','5.4','5.5','5.6'] },     
-{ label:'Phase 6 — CI/CD', ids:['6.1','6.2','6.3','6.4','6.5','6.6','6.7','6.8','6.9'] },     
-{ label:'Phase 7 — IaC + Kubernetes', ids:['7.1','7.2','7.3','7.4','7.5','7.6','7.7','7.8','7.9','7.10'] },     
-{ label:'Phase 8 — AIOps', ids:['8.1','8.2','8.3','8.4','8.5','8.6','8.7','8.8','8.9','8.10','8.11','8.12','8.13'] },     
+// ── ROADMAP CONSTANTS ──       
+const PHASES = [       
+{ label:'Phase 1 — Foundations', ids:['1.1','1.2','1.3','1.4','1.5','1.6','1.7'] },       
+{ label:'Phase 2 — Networking + Cloud', ids:['2.1','2.2','2.3','2.4','2.5','2.6','2.7','2.8','2.9','2.10'] },       
+{ label:'Phase 3 — Python for DevOps', ids:['3.1','3.2','3.3','3.4','3.5','3.6','3.7'] },       
+{ label:'Phase 4 — Git', ids:['4.1','4.2','4.3','4.4','4.5'] },       
+{ label:'Phase 5 — Docker', ids:['5.1','5.2','5.3','5.4','5.5','5.6'] },       
+{ label:'Phase 6 — CI/CD', ids:['6.1','6.2','6.3','6.4','6.5','6.6','6.7','6.8','6.9'] },       
+{ label:'Phase 7 — IaC + Kubernetes', ids:['7.1','7.2','7.3','7.4','7.5','7.6','7.7','7.8','7.9','7.10'] },       
+{ label:'Phase 8 — AIOps', ids:['8.1','8.2','8.3','8.4','8.5','8.6','8.7','8.8','8.9','8.10','8.11','8.12','8.13'] },       
 ];
 
-// ── ROADMAP TOPICS ──   
-async function loadTopics() {     
-if(!sb) return;     
-const [topicsRes, sessionsRes] = await Promise.all([   
-  sb.from('topic_status').select('*').order('id'),   
-  sb.from('sessions').select('*')   
+// ── ROADMAP TOPICS ──     
+async function loadTopics() {       
+if(!sb) return;       
+const [topicsRes, sessionsRes] = await Promise.all([     
+  sb.from('topic_status').select('*').order('id'),     
+  sb.from('sessions').select('*')     
 ]);
 
-if(topicsRes.error || !topicsRes.data){     
-  document.getElementById('topics-list').innerHTML='<div style="color:var(--red);font-size:0.9rem">Error loading topics</div>';     
-  return;     
+if(topicsRes.error || !topicsRes.data){       
+  document.getElementById('topics-list').innerHTML='<div style="color:var(--red);font-size:0.9rem">Error loading topics</div>';       
+  return;       
 }
 
-const topicsMap = {};     
+const topicsMap = {};       
 topicsRes.data.forEach(t => topicsMap[t.topic_id] = t);
 
-const latestSessions = {};   
-if (sessionsRes.data) {   
-  sessionsRes.data.sort((a,b) => (b.date + b.time).localeCompare(a.date + a.time));   
-  sessionsRes.data.forEach(s => {   
-    if (s.topic_id && !latestSessions[s.topic_id]) {   
-      latestSessions[s.topic_id] = s;   
-    }   
-  });   
+const latestSessions = {};     
+if (sessionsRes.data) {     
+  sessionsRes.data.sort((a,b) => (b.date + b.time).localeCompare(a.date + a.time));     
+  sessionsRes.data.forEach(s => {     
+    if (s.topic_id && !latestSessions[s.topic_id]) {     
+      latestSessions[s.topic_id] = s;     
+    }     
+  });     
 }
 
-let html = '';     
-PHASES.forEach(phase => {     
-  html += `<div class="phase-header">${phase.label}</div>`;     
-  phase.ids.forEach(tid => {     
-    let t = topicsMap[tid];     
+let html = '';       
+PHASES.forEach(phase => {       
+  html += `<div class="phase-header">${phase.label}</div>`;       
+  phase.ids.forEach(tid => {       
+    let t = topicsMap[tid];       
     if(!t) return;
 
-    const matchingSession = latestSessions[tid];   
-    const displayNotes = (matchingSession && matchingSession.full_notes) ? matchingSession.full_notes : (t.full_notes || '');   
-    const displaySummary = (matchingSession && matchingSession.summary) ? matchingSession.summary : (t.session_note || '');   
+    const matchingSession = latestSessions[tid];     
+    const displayNotes = (matchingSession && matchingSession.full_notes) ? matchingSession.full_notes : (t.full_notes || '');     
+    const displaySummary = (matchingSession && matchingSession.summary) ? matchingSession.summary : (t.session_note || '');     
     const displayConcepts = (matchingSession && matchingSession.concepts) ? matchingSession.concepts : '';
 
-    const badge = t.status === 'done' ? 'badge-done' : t.status === 'next' ? 'badge-next' : 'badge-todo';     
-    const label = t.status === 'done' ? 'Done' : t.status === 'next' ? 'Next' : 'Todo';     
-      
-    const hasFullNotes = displayNotes.trim().length > 0;     
-    const hasSummary = displaySummary.trim().length > 0;   
+    const badge = t.status === 'done' ? 'badge-done' : t.status === 'next' ? 'badge-next' : 'badge-todo';       
+    const label = t.status === 'done' ? 'Done' : t.status === 'next' ? 'Next' : 'Todo';       
+        
+    const hasFullNotes = displayNotes.trim().length > 0;       
+    const hasSummary = displaySummary.trim().length > 0;     
     const hasConcepts = displayConcepts.trim().length > 0;
 
     const safeDomId = tid.replace('.', '_');
 
-    let conceptsHtml = '';   
-    if (hasConcepts) {   
-      const chips = displayConcepts.split(',').filter(c => c.trim() !== '').map(c =>   
-        `<span class="chip" style="display:inline-block; background:var(--surface, #2a2a2a); border:1px solid var(--border, #444); color:var(--text, #fff); padding:0.3rem 0.8rem; border-radius:100px; font-size:0.75rem; font-weight:500;">${c.trim()}</span>`   
-      ).join('');   
+    let conceptsHtml = '';     
+    if (hasConcepts) {     
+      const chips = displayConcepts.split(',').filter(c => c.trim() !== '').map(c =>     
+        `<span class="chip" style="display:inline-block; background:var(--surface, #2a2a2a); border:1px solid var(--border, #444); color:var(--text, #fff); padding:0.3rem 0.8rem; border-radius:100px; font-size:0.75rem; font-weight:500;">${c.trim()}</span>`     
+      ).join('');     
+          
+      conceptsHtml = `     
+        <div style="margin-top:1.2rem; padding-top:1rem; border-top:1px solid var(--border)">     
+          <div style="font-size:0.75rem;color:var(--accent2);font-weight:600;text-transform:uppercase;margin-bottom:0.75rem;letter-spacing:0.5px;">💡 Key Concepts</div>     
+          <div style="display:flex; flex-wrap:wrap; gap:0.5rem; align-items:center;">     
+            ${chips}     
+          </div>     
+        </div>`;     
+    }     
         
-      conceptsHtml = `   
-        <div style="margin-top:1.2rem; padding-top:1rem; border-top:1px solid var(--border)">   
-          <div style="font-size:0.75rem;color:var(--accent2);font-weight:600;text-transform:uppercase;margin-bottom:0.75rem;letter-spacing:0.5px;">💡 Key Concepts</div>   
-          <div style="display:flex; flex-wrap:wrap; gap:0.5rem; align-items:center;">   
-            ${chips}   
-          </div>   
-        </div>`;   
-    }   
-      
-    const notesHtml = (hasFullNotes || hasSummary || hasConcepts)     
-      ? `<div class="topic-expand" id="expand-${safeDomId}" style="display:none">     
-          <div style="margin-top:0.75rem;padding-top:0.75rem;border-top:1px solid var(--border)">     
-            ${hasFullNotes ? `     
-              <div style="font-size:0.75rem;color:var(--accent2);font-weight:600;text-transform:uppercase;margin-bottom:0.5rem">📖 Full Teaching Notes</div>     
-              <div style="font-size:0.9rem;color:var(--text);line-height:1.6;white-space:pre-wrap;margin-bottom:1rem">${displayNotes}</div>     
-            ` : ''}     
-            ${hasSummary ? `     
-              <div style="font-size:0.75rem;color:var(--accent2);font-weight:600;text-transform:uppercase;margin-bottom:0.4rem">📝 Summary</div>     
-              <div style="font-size:0.88rem;color:var(--muted);line-height:1.5">${displaySummary}</div>     
-            ` : ''}     
-            ${conceptsHtml}   
-          </div>     
-        </div>`     
-      : `<div class="topic-expand" id="expand-${safeDomId}" style="display:none">     
-          <div style="margin-top:0.75rem;padding-top:0.75rem;border-top:1px solid var(--border);font-size:0.85rem;color:var(--muted)">     
-            No teaching notes saved yet.     
-          </div>     
+    const notesHtml = (hasFullNotes || hasSummary || hasConcepts)       
+      ? `<div class="topic-expand" id="expand-${safeDomId}" style="display:none">       
+          <div style="margin-top:0.75rem;padding-top:0.75rem;border-top:1px solid var(--border)">       
+            ${hasFullNotes ? `       
+              <div style="font-size:0.75rem;color:var(--accent2);font-weight:600;text-transform:uppercase;margin-bottom:0.5rem">📖 Full Teaching Notes</div>       
+              <div style="font-size:0.9rem;color:var(--text);line-height:1.6;white-space:pre-wrap;margin-bottom:1rem">${displayNotes}</div>       
+            ` : ''}       
+            ${hasSummary ? `       
+              <div style="font-size:0.75rem;color:var(--accent2);font-weight:600;text-transform:uppercase;margin-bottom:0.4rem">📝 Summary</div>       
+              <div style="font-size:0.88rem;color:var(--muted);line-height:1.5">${displaySummary}</div>       
+            ` : ''}       
+            ${conceptsHtml}     
+          </div>       
+        </div>`       
+      : `<div class="topic-expand" id="expand-${safeDomId}" style="display:none">       
+          <div style="margin-top:0.75rem;padding-top:0.75rem;border-top:1px solid var(--border);font-size:0.85rem;color:var(--muted)">       
+            No teaching notes saved yet.       
+          </div>       
         </div>`;
 
-    html += `<div class="topic-item" onclick="toggleTopicNotes(this, '${safeDomId}')" style="flex-direction:column;align-items:stretch">     
-      <div style="display:flex;align-items:center;gap:1rem">     
-        <div class="topic-id">${t.topic_id || tid}</div>     
-        <div style="flex:1"><div class="topic-name">${t.topic_name}</div></div>     
-        <span class="badge ${badge}">${label}</span>     
-        <span class="arrow-indicator" style="font-size:0.75rem;color:var(--muted)">▼</span>     
-      </div>     
-      ${notesHtml}     
-    </div>`;     
-  });     
+    html += `<div class="topic-item" onclick="toggleTopicNotes(this, '${safeDomId}')" style="flex-direction:column;align-items:stretch">       
+      <div style="display:flex;align-items:center;gap:1rem">       
+        <div class="topic-id">${t.topic_id || tid}</div>       
+        <div style="flex:1"><div class="topic-name">${t.topic_name}</div></div>       
+        <span class="badge ${badge}">${label}</span>       
+        <span class="arrow-indicator" style="font-size:0.75rem;color:var(--muted)">▼</span>       
+      </div>       
+      ${notesHtml}       
+    </div>`;       
+  });       
 });
 
-document.getElementById('topics-list').innerHTML = html;     
+document.getElementById('topics-list').innerHTML = html;       
 }
 
-function toggleTopicNotes(el, safeId) {     
-const expand = document.getElementById('expand-' + safeId);     
-const arrow = el.querySelector('.arrow-indicator');     
-const isOpen = expand.style.display !== 'none';     
-expand.style.display = isOpen ? 'none' : 'block';     
-if(arrow) arrow.textContent = isOpen ? '▼' : '▲';     
+function toggleTopicNotes(el, safeId) {       
+const expand = document.getElementById('expand-' + safeId);       
+const arrow = el.querySelector('.arrow-indicator');       
+const isOpen = expand.style.display !== 'none';       
+expand.style.display = isOpen ? 'none' : 'block';       
+if(arrow) arrow.textContent = isOpen ? '▼' : '▲';       
 }
 
-// ── SESSIONS ENGINE ──     
-async function loadSessions() {     
-if(!sb) return;     
-const { data, error } = await sb.from('sessions').select('*');     
-const list = document.getElementById('sessions-list');     
-if(error || !data || data.length===0){     
-list.innerHTML='<div style="color:var(--muted);font-size:0.9rem">No sessions saved yet. Use the action button above to record your first entry.</div>';     
-return;     
-}     
-data.sort((a, b) => {     
-const idA = a.topic_id || '';     
-const idB = b.topic_id || '';     
-return idA.localeCompare(idB, undefined, { numeric: true, sensitivity: 'base' });     
+// ── SESSIONS ENGINE ──       
+async function loadSessions() {       
+if(!sb) return;       
+const { data, error } = await sb.from('sessions').select('*');       
+const list = document.getElementById('sessions-list');       
+if(error || !data || data.length===0){       
+list.innerHTML='<div style="color:var(--muted);font-size:0.9rem">No sessions saved yet. Use the action button above to record your first entry.</div>';       
+return;       
+}       
+data.sort((a, b) => {       
+const idA = a.topic_id || '';       
+const idB = b.topic_id || '';       
+return idA.localeCompare(idB, undefined, { numeric: true, sensitivity: 'base' });       
 });
 
-list.innerHTML = data.map((s, i) => {     
-const concepts = s.concepts ? s.concepts.split(',').map(c=>`<span class="concept-chip">${c.trim()}</span>`).join('') : '';     
-const sid = 'sess-' + i;     
-return `<div class="session-item" onclick="toggleSession(this, '${sid}')">     
-<div class="session-header">     
-  <div class="session-topic">${s.topic_id ? s.topic_id+' — ' : ''}${s.topic_name || 'Session'}</div>     
-  <div style="display:flex;align-items:center;gap:0.75rem">     
-    <div class="session-date">${s.date || ''} ${s.time || ''}</div>     
-    <span id="arrow-${sid}" style="font-size:0.75rem;color:var(--muted)">▼</span>     
+list.innerHTML = data.map((s, i) => {       
+const concepts = s.concepts ? s.concepts.split(',').map(c=>`<span class="concept-chip">${c.trim()}</span>`).join('') : '';       
+const sid = 'sess-' + i;       
+return `<div class="session-item" onclick="toggleSession(this, '${sid}')">       
+<div class="session-header">       
+  <div class="session-topic">${s.topic_id ? s.topic_id+' — ' : ''}${s.topic_name || 'Session'}</div>       
+  <div style="display:flex;align-items:center;gap:0.75rem">       
+    <div class="session-date">${s.date || ''} ${s.time || ''}</div>       
+    <span id="arrow-${sid}" style="font-size:0.75rem;color:var(--muted)">▼</span>       
+  </div>       
+</div>       
+<div class="session-summary">${s.summary || ''}</div>       
+     
+<div class="session-body" id="${sid}">       
+  ${s.full_notes ? `<div style="font-size:0.9rem;color:var(--text);line-height:1.6;white-space:pre-wrap;margin-top:1rem;padding:1rem;background:var(--bg);border-radius:10px;border:1px solid var(--border)">${s.full_notes}</div>` : ''}       
+  ${concepts ? `<div class="session-concepts">${concepts}</div>` : ''}       
+  <div style="margin-top:1rem; display:flex; justify-content:flex-end;">     
+    <button class="btn btn-ghost" style="color:var(--red); border:1px solid rgba(255,69,58,0.2); font-size:0.78rem; padding:0.35rem 0.75rem;" onclick="event.stopPropagation(); deleteSession('${s.id || ''}', '${s.topic_id || ''}')">🗑️ Delete Entry</button>     
   </div>     
-</div>     
-<div class="session-summary">${s.summary || ''}</div>     
-   
-<div class="session-body" id="${sid}">     
-  ${s.full_notes ? `<div style="font-size:0.9rem;color:var(--text);line-height:1.6;white-space:pre-wrap;margin-top:1rem;padding:1rem;background:var(--bg);border-radius:10px;border:1px solid var(--border)">${s.full_notes}</div>` : ''}     
-  ${concepts ? `<div class="session-concepts">${concepts}</div>` : ''}     
-  <div style="margin-top:1rem; display:flex; justify-content:flex-end;">   
-    <button class="btn btn-ghost" style="color:var(--red); border:1px solid rgba(255,69,58,0.2); font-size:0.78rem; padding:0.35rem 0.75rem;" onclick="event.stopPropagation(); deleteSession('${s.id || ''}', '${s.topic_id || ''}')">🗑️ Delete Entry</button>   
-  </div>   
-</div>     
-</div>`;     
-}).join('');     
+</div>       
+</div>`;       
+}).join('');       
 }
 
-function toggleSession(cardElement, sid) {     
-const body = document.getElementById(sid);     
-const arrow = document.getElementById('arrow-' + sid);     
+function toggleSession(cardElement, sid) {       
+const body = document.getElementById(sid);       
+const arrow = document.getElementById('arrow-' + sid);       
 const isExpanding = !cardElement.classList.contains('expanded');
 
-cardElement.classList.toggle('expanded');     
-if(body) body.style.display = isExpanding ? 'block' : 'none';     
-if(arrow) arrow.textContent = isExpanding ? '▲' : '▼';     
+cardElement.classList.toggle('expanded');       
+if(body) body.style.display = isExpanding ? 'block' : 'none';       
+if(arrow) arrow.textContent = isExpanding ? '▲' : '▼';       
 }
 
-async function deleteSession(id, topicId) {   
-if(!sb) return;   
+async function deleteSession(id, topicId) {     
+if(!sb) return;     
 if(!confirm("Are you sure you want to completely delete this session log?")) return;
 
-const numericId = parseInt(id, 10);   
-if (isNaN(numericId)) {   
-  toast('Error: Invalid Session ID tracking format.', 'error');   
-  return;   
+const numericId = parseInt(id, 10);     
+if (isNaN(numericId)) {     
+  toast('Error: Invalid Session ID tracking format.', 'error');     
+  return;     
 }
 
 const { data, error: delErr } = await sb.from('sessions').delete().eq('id', numericId).select();
 
-if(delErr) {   
-  alert('Supabase Database Error: ' + delErr.message);   
-  toast('Delete failed', 'error');   
-  return;   
+if(delErr) {     
+  alert('Supabase Database Error: ' + delErr.message);     
+  toast('Delete failed', 'error');     
+  return;     
 }
 
-if (!data || data.length === 0) {   
-  alert("Warning: The database accepted the command but removed 0 rows. Check RLS policies.");   
-  return;   
+if (!data || data.length === 0) {     
+  alert("Warning: The database accepted the command but removed 0 rows. Check RLS policies.");     
+  return;     
 }
 
-if(topicId) {   
-  const { data: remainingLogs, error: countErr } = await sb.from('sessions').select('id').eq('topic_id', topicId);   
-  if (!countErr && (!remainingLogs || remainingLogs.length === 0)) {   
-    await sb.from('topic_status').update({   
-      status: 'next', session_note: null, full_notes: null   
+if(topicId) {     
+  const { data: remainingLogs, error: countErr } = await sb.from('sessions').select('id').eq('topic_id', topicId);     
+  if (!countErr && (!remainingLogs || remainingLogs.length === 0)) {     
+    await sb.from('topic_status').update({     
+      status: 'next', session_note: null, full_notes: null     
     }).eq('topic_id', topicId);
 
-    const parts = topicId.split('.');   
-    if(parts.length === 2) {   
-      const nextId = parts[0] + '.' + (parseInt(parts[1], 10) + 1);   
-      const { data: nextTopic } = await sb.from('topic_status').select('status').eq('topic_id', nextId).single();   
-      if(nextTopic && nextTopic.status === 'next') {   
-        await sb.from('topic_status').update({ status: 'todo' }).eq('topic_id', nextId);   
-      }   
-    }   
-  }   
+    const parts = topicId.split('.');     
+    if(parts.length === 2) {     
+      const nextId = parts[0] + '.' + (parseInt(parts[1], 10) + 1);     
+      const { data: nextTopic } = await sb.from('topic_status').select('status').eq('topic_id', nextId).single();     
+      if(nextTopic && nextTopic.status === 'next') {     
+        await sb.from('topic_status').update({ status: 'todo' }).eq('topic_id', nextId);     
+      }     
+    }     
+  }     
 }
 
-toast('Session deleted successfully! 🧹', 'success');   
-await syncUI(); // <-- Updated!  
+toast('Session deleted successfully! 🧹', 'success');     
+await syncUI(); // <-- Updated!    
 }
 
-// ── MINDSET (With Duplicates & Protected) ──     
-async function loadMindset() {     
- if(!sb) return;     
- try {  
-   const { data, error } = await sb.from('mindset_moments').select('*').order('created_at', {ascending:false});     
-   if(error || !data){  
-     document.getElementById('mindset-list').innerHTML='<div style="color:var(--red);font-size:0.9rem">Error loading snapshots</div>';  
-     return;  
-   }     
-   allMindset = data;     
-   const strong = data.filter(m => m.rating === 'strong').length;     
-   document.getElementById('strong-count').textContent = strong;     
-   renderMindset(data);  
- } catch(e) {  
-   console.error("Mindset Load Error:", e);  
- }     
+// ── MINDSET (With Duplicates & Protected) ──       
+async function loadMindset() {       
+ if(!sb) return;       
+ try {    
+   const { data, error } = await sb.from('mindset_moments').select('*').order('created_at', {ascending:false});       
+   if(error || !data){    
+     document.getElementById('mindset-list').innerHTML='<div style="color:var(--red);font-size:0.9rem">Error loading snapshots</div>';    
+     return;    
+   }       
+   allMindset = data;       
+   const strong = data.filter(m => m.rating === 'strong').length;       
+   document.getElementById('strong-count').textContent = strong;       
+   renderMindset(data);    
+ } catch(e) {    
+   console.error("Mindset Load Error:", e);    
+ }       
 }
 
 function filterMindset(f) {     
 
 document.getElementById('mindset-search').value = '';
 
- let filtered = [];  
- 
- if (f === 'all') {  
-   filtered = allMindset;  
+ let filtered = [];    
    
- } else if (f === 'duplicates') {  
-   const groups = {};  
-   allMindset.forEach(m => {  
-     const textToCheck = m.situation || m.question; 
-     if(!textToCheck) return;  
-     const q = textToCheck.toLowerCase().trim();  
-     if(!groups[q]) groups[q] = [];  
-     groups[q].push(m);  
-   });  
-    
-   Object.keys(groups).forEach(q => {  
-     if(groups[q].length > 1) {  
-       const sortedGroup = groups[q].sort((a,b) => new Date(a.created_at) - new Date(b.created_at));  
-       const taggedGroup = sortedGroup.map((item, index) => ({  
-         ...item,  
-         duplicateTag: index === 0 ? 'Original' : 'Duplicate'  
-       }));  
-       filtered = filtered.concat(taggedGroup);  
-     }  
-   });  
-    
-   if(filtered.length === 0) {  
-     toast('No duplicates found! 🎉', 'success');  
-     filtered = allMindset;  
-   } else {  
-     toast(`Found ${filtered.length} duplicate entries. Grouping them now.`, 'success');  
-   }  
+ if (f === 'all') {    
+   filtered = allMindset;    
+     
+ } else if (f === 'duplicates') {    
+   const groups = {};    
+   allMindset.forEach(m => {    
+     const textToCheck = m.situation || m.question;   
+     if(!textToCheck) return;    
+     const q = textToCheck.toLowerCase().trim();    
+     if(!groups[q]) groups[q] = [];    
+     groups[q].push(m);    
+   });    
+      
+   Object.keys(groups).forEach(q => {    
+     if(groups[q].length > 1) {    
+       const sortedGroup = groups[q].sort((a,b) => new Date(a.created_at) - new Date(b.created_at));    
+       const taggedGroup = sortedGroup.map((item, index) => ({    
+         ...item,    
+         duplicateTag: index === 0 ? 'Original' : 'Duplicate'    
+       }));    
+       filtered = filtered.concat(taggedGroup);    
+     }    
+   });    
+      
+   if(filtered.length === 0) {    
+     toast('No duplicates found! 🎉', 'success');    
+     filtered = allMindset;    
+   } else {    
+     toast(`Found ${filtered.length} duplicate entries. Grouping them now.`, 'success');    
+   }    
+     
+ }   
+ // --- STRICT QUESTION & SITUATION FILTERS ---  
+ else if (f === 'question') {  
+   filtered = allMindset.filter(m => m.moment_type === 'Question');  
+ }   
+ else if (f === 'situation') {  
+   filtered = allMindset.filter(m => m.moment_type === 'Situation');  
+ }   
+ // --- BULLETPROOF RATING FILTERS ---  
+ else if (f === 'strong') {  
+   // Converts data to lowercase so "strong" and "Strong Instinct" both match perfectly  
+   filtered = allMindset.filter(m => m.rating && m.rating.toLowerCase().includes('strong'));  
+ }   
+ else if (f === 'good') {  
+   // Converts data to lowercase so "good" and "Good Direction" both match perfectly  
+   filtered = allMindset.filter(m => m.rating && m.rating.toLowerCase().includes('good'));  
+ }   
+ else {    
+   filtered = allMindset;    
+ }    
    
- } 
- // --- STRICT QUESTION & SITUATION FILTERS ---
- else if (f === 'question') {
-   filtered = allMindset.filter(m => m.moment_type === 'Question');
- } 
- else if (f === 'situation') {
-   filtered = allMindset.filter(m => m.moment_type === 'Situation');
- } 
- // --- BULLETPROOF RATING FILTERS ---
- else if (f === 'strong') {
-   // Converts data to lowercase so "strong" and "Strong Instinct" both match perfectly
-   filtered = allMindset.filter(m => m.rating && m.rating.toLowerCase().includes('strong'));
- } 
- else if (f === 'good') {
-   // Converts data to lowercase so "good" and "Good Direction" both match perfectly
-   filtered = allMindset.filter(m => m.rating && m.rating.toLowerCase().includes('good'));
- } 
- else {  
-   filtered = allMindset;  
- }  
- 
- renderMindset(filtered);     
+ renderMindset(filtered);       
 }
 
-function renderMindset(data) {     
- if(!data || data.length === 0) {     
-   document.getElementById('mindset-list').innerHTML = '<div style="color:var(--muted);font-size:0.9rem">No custom data match this filter template.</div>';     
-   return;     
+function renderMindset(data) {       
+ if(!data || data.length === 0) {       
+   document.getElementById('mindset-list').innerHTML = '<div style="color:var(--muted);font-size:0.9rem">No custom data match this filter template.</div>';       
+   return;       
  }     
 
- document.getElementById('mindset-list').innerHTML = data.map((m, i) => {     
-   const mid = 'mindset-' + i;     
-   
-   // Handle legacy and new rating formats safely
-   const isStrong = m.rating && m.rating.toLowerCase().includes('strong');
-   const ratingClass = isStrong ? 'rating-strong' : 'rating-good';     
-   const ratingLabel = isStrong ? 'Strong instinct' : 'Good direction';     
-    
-   // Add visual badges for the Duplicate Finder  
-   let dupBadge = '';  
-   if (m.duplicateTag === 'Original') {  
-     dupBadge = `<span class="concept-tag" style="background:rgba(48,209,88,0.15);color:var(--green);border:1px solid var(--green)">✓ Keep (Original)</span>`;  
-   } else if (m.duplicateTag === 'Duplicate') {  
-     dupBadge = `<span class="concept-tag" style="background:rgba(255,69,58,0.15);color:var(--red);border:1px solid var(--red)">🗑️ Trash (Duplicate)</span>`;  
+ document.getElementById('mindset-list').innerHTML = data.map((m, i) => {       
+   const mid = 'mindset-' + i;       
+     
+   // Handle legacy and new rating formats safely  
+   const isStrong = m.rating && m.rating.toLowerCase().includes('strong');  
+   const ratingClass = isStrong ? 'rating-strong' : 'rating-good';       
+   const ratingLabel = isStrong ? 'Strong instinct' : 'Good direction';       
+      
+   // Add visual badges for the Duplicate Finder    
+   let dupBadge = '';    
+   if (m.duplicateTag === 'Original') {    
+     dupBadge = `<span class="concept-tag" style="background:rgba(48,209,88,0.15);color:var(--green);border:1px solid var(--green)">✓ Keep (Original)</span>`;    
+   } else if (m.duplicateTag === 'Duplicate') {    
+     dupBadge = `<span class="concept-tag" style="background:rgba(255,69,58,0.15);color:var(--red);border:1px solid var(--red)">🗑️ Trash (Duplicate)</span>`;    
    }
 
-   // --- NEW: THE COLORED BADGES ---
-   const mType = m.moment_type || 'Question';
-   const mSource = m.insight_source || 'AI';
-   
-   const typeBadge = mType === 'Question' 
-        ? '<span class="badge-question">❓ Question</span>' 
-        : '<span class="badge-situation">🎬 Situation</span>';
-        
-   const sourceBadge = mSource === 'Me' 
-        ? '<span class="badge-me">🧠 Me</span>' 
+   // --- NEW: THE COLORED BADGES ---  
+   const mType = m.moment_type || 'Question';  
+   const mSource = m.insight_source || 'AI';  
+     
+   const typeBadge = mType === 'Question'   
+        ? '<span class="badge-question">❓ Question</span>'   
+        : '<span class="badge-situation">🎬 Situation</span>';  
+          
+   const sourceBadge = mSource === 'Me'   
+        ? '<span class="badge-me">🧠 Me</span>'   
         : '<span class="badge-ai">🤖 AI</span>';
 
-   return `<div class="mindset-item" onclick="toggleMindset('${mid}')">     
-    
-    <div style="margin-bottom: 8px; display: flex; gap: 8px;">
-        ${typeBadge}
-        ${sourceBadge}
-    </div>
-    
-    <div class="mindset-q">${m.question || m.situation || 'Untitled Question'}</div>     
-    
-    <div class="mindset-meta">     
-      <span class="${ratingClass}">★ ${ratingLabel}</span>     
-      ${m.tag || m.concept ? `<span class="concept-tag">${m.tag || m.concept}</span>` : ''}     
-      ${m.topic || m.linked_topic_name ? `<span class="concept-tag" style="background:transparent; border-color:var(--border); color:var(--muted)">→ ${m.topic || m.linked_topic_name}</span>` : ''}     
-      ${dupBadge}  
-    </div>     
-    
-    <div id="${mid}" style="display:none;margin-top:0.75rem;padding-top:0.75rem;border-top:1px solid var(--border);font-size:0.9rem;color:var(--muted);line-height:1.6">     
-      <strong>Insight/Action Taken:</strong><br>
-      ${m.insight || m.response || ''}  
-      <div style="margin-top:1rem; display:flex; justify-content:flex-end; gap:0.5rem;">  
-        <button class="btn btn-ghost" style="font-size:0.78rem; padding:0.35rem 0.75rem;" onclick="event.stopPropagation(); editMindsetMoment('${m.id}')">✏️ Edit</button>  
-        <button class="btn btn-ghost" style="color:var(--red); border:1px solid rgba(255,69,58,0.2); font-size:0.78rem; padding:0.35rem 0.75rem;" onclick="event.stopPropagation(); deleteMindsetMoment('${m.id}')">🗑️ Delete</button>  
-      </div>  
-    </div>     
-   </div>`;     
- }).join('');     
+   return `<div class="mindset-item" onclick="toggleMindset('${mid}')">       
+      
+    <div style="margin-bottom: 8px; display: flex; gap: 8px;">  
+        ${typeBadge}  
+        ${sourceBadge}  
+    </div>  
+      
+    <div class="mindset-q">${m.question || m.situation || 'Untitled Question'}</div>       
+      
+    <div class="mindset-meta">       
+      <span class="${ratingClass}">★ ${ratingLabel}</span>       
+      ${m.tag || m.concept ? `<span class="concept-tag">${m.tag || m.concept}</span>` : ''}       
+      ${m.topic || m.linked_topic_name ? `<span class="concept-tag" style="background:transparent; border-color:var(--border); color:var(--muted)">→ ${m.topic || m.linked_topic_name}</span>` : ''}       
+      ${dupBadge}    
+    </div>       
+      
+    <div id="${mid}" style="display:none;margin-top:0.75rem;padding-top:0.75rem;border-top:1px solid var(--border);font-size:0.9rem;color:var(--muted);line-height:1.6">       
+      <strong>Insight/Action Taken:</strong><br>  
+      ${m.insight || m.response || ''}    
+      <div style="margin-top:1rem; display:flex; justify-content:flex-end; gap:0.5rem;">    
+        <button class="btn btn-ghost" style="font-size:0.78rem; padding:0.35rem 0.75rem;" onclick="event.stopPropagation(); editMindsetMoment('${m.id}')">✏️ Edit</button>    
+        <button class="btn btn-ghost" style="color:var(--red); border:1px solid rgba(255,69,58,0.2); font-size:0.78rem; padding:0.35rem 0.75rem;" onclick="event.stopPropagation(); deleteMindsetMoment('${m.id}')">🗑️ Delete</button>    
+      </div>    
+    </div>       
+   </div>`;       
+ }).join('');       
 }
 
-function toggleMindset(mid) {     
-const el = document.getElementById(mid);     
-if(!el) return;     
-el.style.display = el.style.display === 'block' ? 'none' : 'block';     
+function toggleMindset(mid) {       
+const el = document.getElementById(mid);       
+if(!el) return;       
+el.style.display = el.style.display === 'block' ? 'none' : 'block';       
 }
 
-// Variable to remember which moment we are trying to delete  
+// Variable to remember which moment we are trying to delete    
 let mindsetToDeleteId = null;
 
-// Opens the beautiful custom modal instead of the browser alert  
-function deleteMindsetMoment(id) {  
- mindsetToDeleteId = id;  
- document.getElementById('deleteConfirmModal').classList.add('open');  
+// Opens the beautiful custom modal instead of the browser alert    
+function deleteMindsetMoment(id) {    
+ mindsetToDeleteId = id;    
+ document.getElementById('deleteConfirmModal').classList.add('open');    
 }
 
-// Closes the modal if you click Cancel  
-function closeDeleteModal() {  
- mindsetToDeleteId = null;  
- document.getElementById('deleteConfirmModal').classList.remove('open');  
+// Closes the modal if you click Cancel    
+function closeDeleteModal() {    
+ mindsetToDeleteId = null;    
+ document.getElementById('deleteConfirmModal').classList.remove('open');    
 }
 
-// Actually deletes the data from Supabase when you click the red button  
-async function confirmDeleteMindset() {  
+// Actually deletes the data from Supabase when you click the red button    
+async function confirmDeleteMindset() {    
  if(!sb || !mindsetToDeleteId) return;
 
  const { error } = await sb.from('mindset_moments').delete().eq('id', mindsetToDeleteId);
 
- if(error) {  
-   toast('Delete failed: ' + error.message, 'error');  
-   closeDeleteModal();  
-   return;  
+ if(error) {    
+   toast('Delete failed: ' + error.message, 'error');    
+   closeDeleteModal();    
+   return;    
  }
 
- toast('Moment deleted successfully! 🧹', 'success');  
- closeDeleteModal();  
- await syncUI(); // <-- Fixed typo and updated!  
+ toast('Moment deleted successfully! 🧹', 'success');    
+ closeDeleteModal();    
+ await syncUI(); // <-- Fixed typo and updated!    
 }
 
-// Add this line to the ── EVENT LISTENERS ── section at the bottom so clicking the background closes the modal  
+// Add this line to the ── EVENT LISTENERS ── section at the bottom so clicking the background closes the modal    
 document.getElementById('deleteConfirmModal').addEventListener('click', function(e){ if(e.target===this) closeDeleteModal(); });
 
-
-// ── NOTES (Protected and Ordered + X-Ray) ──     
-async function saveNote() {     
-    if(!sb){ toast('Not connected to database.'); return; }     
-    let dateVal = document.getElementById('note-date').value;   
+// ── NOTES (Protected and Ordered + X-Ray) ──       
+async function saveNote() {       
+    if(!sb){ toast('Not connected to database.'); return; }       
+    let dateVal = document.getElementById('note-date').value;     
     if (!dateVal) dateVal = new Date().toISOString().split('T')[0];
 
-    const author = document.getElementById('note-author').value.trim() || 'DevOps Log';     
-    const title = document.getElementById('note-title').value.trim() || 'Daily Log';  
-    const content = document.getElementById('note-text').value.trim();     
+    const author = document.getElementById('note-author').value.trim() || 'DevOps Log';       
+    const title = document.getElementById('note-title').value.trim() || 'Daily Log';    
+    const content = document.getElementById('note-text').value.trim();       
     if(!content){ toast('Please write an entry first.'); return; }     
 
-    if (editingNoteId) {
-        // === UPDATE PATH ===
-        // Added .select() to force Supabase to return the row it just updated
-        const { data, error } = await sb.from('notes').update({   
-            date: dateVal,   
-            author: author,   
-            title: title,        
-            note_text: content   
+    if (editingNoteId) {  
+        // === UPDATE PATH ===  
+        // Added .select() to force Supabase to return the row it just updated  
+        const { data, error } = await sb.from('notes').update({     
+            date: dateVal,     
+            author: author,     
+            title: title,          
+            note_text: content     
         }).eq('id', editingNoteId).select();     
 
-        if(error){ toast('Error: ' + error.message); return; }     
-        
-        // THE X-RAY: Look in your browser's Developer Tools Console (Right Click -> Inspect -> Console)
-        console.log("Supabase Update Result:", data);
-        if (data.length === 0) {
-            toast('❌ Update blocked by Supabase RLS Policies!');
-            return;
+        if(error){ toast('Error: ' + error.message); return; }       
+          
+        // THE X-RAY: Look in your browser's Developer Tools Console (Right Click -> Inspect \-> Console)  
+        console.log("Supabase Update Result:", data);  
+        if (data.length === 0) {  
+            toast('❌ Update blocked by Supabase RLS Policies!');  
+            return;  
         }
 
-        // Reset the tracker and button
-        editingNoteId = null;
-        document.querySelector('.btn-save').innerText = 'Save Note';
+        // Reset the tracker and button  
+        editingNoteId = null;  
+        document.querySelector('.btn-save').innerText = 'Save Note';  
         toast('Note Updated! ✏️');
 
-    } else {
-        // === INSERT PATH ===
-        const { error } = await sb.from('notes').insert({   
-            date: dateVal,   
-            author: author,   
-            title: title,        
-            note_text: content   
+    } else {  
+        // === INSERT PATH ===  
+        const { error } = await sb.from('notes').insert({     
+            date: dateVal,     
+            author: author,     
+            title: title,          
+            note_text: content     
         });     
 
-        if(error){ toast('Error: ' + error.message); return; }   
-        toast('Note Saved! 🎉');  
+        if(error){ toast('Error: ' + error.message); return; }     
+        toast('Note Saved! 🎉');    
     }
 
-    // Clear the boxes and reload the UI
-    document.getElementById('note-title').value = '';     
-    document.getElementById('note-text').value = '';       
-    await syncUI();   
+    // Clear the boxes and reload the UI  
+    document.getElementById('note-title').value = '';       
+    document.getElementById('note-text').value = '';         
+    await syncUI();     
 }
 
-// ── DELETE NOTE ──  
-async function deleteNote(id) {  
- if (!confirm("Are you sure you want to delete this note?")) return;  
-  const { error } = await sb.from('notes').delete().eq('id', id);  
-  if (error) {  
-   toast('Error deleting: ' + error.message, 'error');  
-   return;  
- }  
-  toast('Note deleted 🗑️', 'success');  
- await syncUI(); // Instantly redraws the UI!  
+// ── DELETE NOTE ──    
+async function deleteNote(id) {    
+ if (!confirm("Are you sure you want to delete this note?")) return;    
+  const { error } = await sb.from('notes').delete().eq('id', id);    
+  if (error) {    
+   toast('Error deleting: ' + error.message, 'error');    
+   return;    
+ }    
+  toast('Note deleted 🗑️', 'success');    
+ await syncUI(); // Instantly redraws the UI!    
 }
 
-// ── NOTES (Protected and Ordered) ──     
-async function loadNotes() {     
- if(!sb) return;    
- try {  
-   // 1. Ask Supabase to explicitly sort by newest first  
-   const { data, error } = await sb.from('notes').select('*').order('created_at', { ascending: false });     
-   const container = document.getElementById('notes-list');   
-   
-   if(error){   
-     console.error("Notes DB Error:", error);  
-     container.innerHTML = `<div style="color:var(--red);font-size:0.9rem;">Error connecting: ${error.message}</div>`;   
-     return;   
+// ── NOTES (Protected and Ordered) ──       
+async function loadNotes() {       
+ if(!sb) return;      
+ try {    
+   // 1. Ask Supabase to explicitly sort by newest first    
+   const { data, error } = await sb.from('notes').select('*').order('created_at', { ascending: false });       
+   const container = document.getElementById('notes-list');     
+     
+   if(error){     
+     console.error("Notes DB Error:", error);    
+     container.innerHTML = `<div style="color:var(--red);font-size:0.9rem;">Error connecting: ${error.message}</div>`;     
+     return;     
    }
 
-   // 2. X-RAY: Print the downloaded data to the browser console  
+   // 2. X-RAY: Print the downloaded data to the browser console    
    console.log("Notes downloaded from Supabase:", data);
 
-   if(!data || data.length === 0){   
-     container.innerHTML = '<div style="color:var(--muted);font-size:0.9rem;">No journal entries yet.</div>';   
-     return;   
+   if(!data || data.length === 0){     
+     container.innerHTML = '<div style="color:var(--muted);font-size:0.9rem;">No journal entries yet.</div>';     
+     return;     
    }   
 
-   // Set today's date in the input field  
-   document.getElementById('note-date').value = new Date().toISOString().split('T')[0];   
-   
-   // 3. Build the HTML safely  
-   container.innerHTML = data.map((n, i) => {  
-      
-     // SANITIZE FOR DISPLAY (Prevents HTML Injection)
-     const safeTitle = (n.title || 'Daily Log').replace(/</g, '&lt;').replace(/>/g, '&gt;');  
-     const safeText = (n.note_text || '').replace(/</g, '&lt;').replace(/>/g, '&gt;');  
-      
-     // SANITIZE FOR BUTTON (Prevents quotes and newlines from breaking the Javascript click function)
-     const btnTitle = (n.title || 'Daily Log').replace(/'/g, "\\'").replace(/"/g, "&quot;").replace(/[\r\n]+/g, "\\n");
+   // Set today's date in the input field    
+   document.getElementById('note-date').value = new Date().toISOString().split('T')[0];     
+     
+   // 3. Build the HTML safely    
+   container.innerHTML = data.map((n, i) => {    
+        
+     // SANITIZE FOR DISPLAY (Prevents HTML Injection)  
+     const safeTitle = (n.title || 'Daily Log').replace(/</g, '&lt;').replace(/>/g, '&gt;');    
+     const safeText = (n.note_text || '').replace(/</g, '&lt;').replace(/>/g, '&gt;');    
+        
+     // SANITIZE FOR BUTTON (Prevents quotes and newlines from breaking the Javascript click function)  
+     const btnTitle = (n.title || 'Daily Log').replace(/'/g, "\\'").replace(/"/g, "&quot;").replace(/[\r\n]+/g, "\\n");  
      const btnText = (n.note_text || '').replace(/'/g, "\\'").replace(/"/g, "&quot;").replace(/[\r\n]+/g, "\\n");
 
-     return `   
-     <div class="session-item" style="cursor:default; margin-bottom:1rem; padding:1.2rem;">     
-       <div class="session-header" style="display:flex; justify-content:space-between; align-items:center; width:100%">     
-         <div style="font-size:0.85rem; font-weight:600; color:var(--accent2); text-transform:uppercase;">👤 ${n.author || 'DevOps Log'}</div>     
-         <div class="session-date" style="font-size:0.85rem; color:var(--muted);">${n.date || (n.created_at ? n.created_at.split('T')[0] : '')}</div>     
+     return `     
+     <div class="session-item" style="cursor:default; margin-bottom:1rem; padding:1.2rem;">       
+       <div class="session-header" style="display:flex; justify-content:space-between; align-items:center; width:100%">       
+         <div style="font-size:0.85rem; font-weight:600; color:var(--accent2); text-transform:uppercase;">👤 ${n.author || 'DevOps Log'}</div>       
+         <div class="session-date" style="font-size:0.85rem; color:var(--muted);">${n.date || (n.created_at ? n.created_at.split('T')[0] : '')}</div>       
+       </div>       
+          
+       <div style="font-size:1.1rem; font-weight:700; color:var(--text); margin-top:0.6rem; margin-bottom:0.4rem;">     
+         ${safeTitle}     
        </div>     
-        
-       <div style="font-size:1.1rem; font-weight:700; color:var(--text); margin-top:0.6rem; margin-bottom:0.4rem;">   
-         ${safeTitle}   
-       </div>   
-        
+          
        <div style="font-size:0.9rem; line-height:1.6; color:var(--muted); white-space:pre-wrap;">${safeText}</div>   
 
-       <div style="margin-top:1.5rem; display:flex; justify-content:flex-end;">   
-         <button class="btn" style="background: #eab308; margin-right: 10px;" onclick="triggerEdit('${n.id}', '${btnTitle}', '${btnText}', '${n.date || ''}', '${n.author || ''}')">Edit ✏️</button>
-         <button class="btn btn-ghost" style="color:var(--red); border:1px solid rgba(255,69,58,0.2); font-size:0.78rem; padding:0.35rem 0.75rem;" onclick="deleteNote('${n.id}')">🗑️ Delete Note</button>   
-       </div>  
-     </div>`;  
-   }).join('');  
- } catch (e) {  
-   console.error("Notes Crash Protected:", e);  
- }   
-}
-
-// ── SAVE SESSION MODAL CONTROLS ──     
-async function openSaveModal() {     
-setDefaultDate();     
-document.getElementById('m-topicid').value   = '';     
-document.getElementById('m-topicname').value = '';     
-document.getElementById('m-fullnotes').value = '';     
-document.getElementById('m-summary').value   = '';     
-document.getElementById('m-concepts').value  = '';
-
-if (sb) {     
- try {     const { data: nextTopics, error } = await sb     
-     .from('topic_status')     
-     .select('topic_id, topic_name')     
-     .eq('status', 'next')     
-     .limit(1);
-
-   if (!error && nextTopics && nextTopics.length > 0) {     
-     document.getElementById('m-topicid').value = nextTopics[0].topic_id || '';     
-     document.getElementById('m-topicname').value = nextTopics[0].topic_name || '';     
-   }     
- } catch (e) {     
-   console.error("Error loading current next topic into modal:", e);     
+       <div style="margin-top:1.5rem; display:flex; justify-content:flex-end;">     
+         <button class="btn" style="background: #eab308; margin-right: 10px;" onclick="triggerEdit('${n.id}', '${btnTitle}', '${btnText}', '${n.date || ''}', '${n.author || ''}')">Edit ✏️</button>  
+         <button class="btn btn-ghost" style="color:var(--red); border:1px solid rgba(255,69,58,0.2); font-size:0.78rem; padding:0.35rem 0.75rem;" onclick="deleteNote('${n.id}')">🗑️ Delete Note</button>     
+       </div>    
+     </div>`;    
+   }).join('');    
+ } catch (e) {    
+   console.error("Notes Crash Protected:", e);    
  }     
 }
 
-document.getElementById('saveModal').classList.add('open');     
+// ── SAVE SESSION MODAL CONTROLS ──       
+async function openSaveModal() {       
+setDefaultDate();       
+document.getElementById('m-topicid').value   = '';       
+document.getElementById('m-topicname').value = '';       
+document.getElementById('m-fullnotes').value = '';       
+document.getElementById('m-summary').value   = '';       
+document.getElementById('m-concepts').value  = '';
+
+if (sb) {       
+ try {     const { data: nextTopics, error } = await sb       
+     .from('topic_status')       
+     .select('topic_id, topic_name')       
+     .eq('status', 'next')       
+     .limit(1);
+
+   if (!error && nextTopics && nextTopics.length > 0) {       
+     document.getElementById('m-topicid').value = nextTopics[0].topic_id || '';       
+     document.getElementById('m-topicname').value = nextTopics[0].topic_name || '';       
+   }       
+ } catch (e) {       
+   console.error("Error loading current next topic into modal:", e);       
+ }       
 }
 
-function closeModal() {     
-document.getElementById('saveModal').classList.remove('open');     
+document.getElementById('saveModal').classList.add('open');       
 }
 
-async function saveSession() {     
-if(!sb){ toast('Not connected to Supabase','error'); return; }     
-const date      = document.getElementById('m-date').value;     
-const time      = document.getElementById('m-time').value;     
-const topicId   = document.getElementById('m-topicid').value.trim();     
-const topicName = document.getElementById('m-topicname').value.trim();     
-const fullNotes = document.getElementById('m-fullnotes').value.trim();     
-const summary   = document.getElementById('m-summary').value.trim();     
-const concepts  = document.getElementById('m-concepts').value.trim();     
-if(!topicName || !summary){ toast('Please fill in topic name and summary','error'); return; }     
-const { error: sessErr } = await sb.from('sessions').insert({     
-date, time, topic_id: topicId, topic_name: topicName,     
-full_notes: fullNotes, summary, concepts     
-});     
-if(sessErr){ toast('Error saving session: '+sessErr.message,'error'); return; }     
-if(topicId) {     
-const { error: updateErr } = await sb.from('topic_status')     
-.update({ status: 'done', session_note: summary, full_notes: fullNotes })     
-.eq('topic_id', topicId);     
-if(updateErr) { toast('Session saved but tracker synchronization errored: '+updateErr.message,'error'); }     
-const parts = topicId.split('.');     
-if(parts.length === 2) {     
-const nextId = parts[0] + '.' + (parseInt(parts[1], 10) + 1);     
-const { data: nextTopic } = await sb.from('topic_status')     
-  .select('status')     
-  .eq('topic_id', nextId)     
-  .single();     
-if(nextTopic && nextTopic.status !== 'done') {     
-  await sb.from('topic_status').update({ status: 'next' }).eq('topic_id', nextId);     
-}     
-}     
-}     
-toast('Session saved! 🎉','success');     
-closeModal();     
-await syncUI(); // <-- Updated!    
-document.getElementById('m-fullnotes').value = '';     
-document.getElementById('m-topicid').value   = '';     
-document.getElementById('m-topicname').value = '';     
-document.getElementById('m-summary').value   = '';     
-document.getElementById('m-concepts').value  = '';     
+function closeModal() {       
+document.getElementById('saveModal').classList.remove('open');       
 }
 
-// ── MINDSET MODAL CONTROLS (Add & Edit) ──     
+async function saveSession() {       
+if(!sb){ toast('Not connected to Supabase','error'); return; }       
+const date      = document.getElementById('m-date').value;       
+const time      = document.getElementById('m-time').value;       
+const topicId   = document.getElementById('m-topicid').value.trim();       
+const topicName = document.getElementById('m-topicname').value.trim();       
+const fullNotes = document.getElementById('m-fullnotes').value.trim();       
+const summary   = document.getElementById('m-summary').value.trim();       
+const concepts  = document.getElementById('m-concepts').value.trim();       
+if(!topicName || !summary){ toast('Please fill in topic name and summary','error'); return; }       
+const { error: sessErr } = await sb.from('sessions').insert({       
+date, time, topic_id: topicId, topic_name: topicName,       
+full_notes: fullNotes, summary, concepts       
+});       
+if(sessErr){ toast('Error saving session: '+sessErr.message,'error'); return; }       
+if(topicId) {       
+const { error: updateErr } = await sb.from('topic_status')       
+.update({ status: 'done', session_note: summary, full_notes: fullNotes })       
+.eq('topic_id', topicId);       
+if(updateErr) { toast('Session saved but tracker synchronization errored: '+updateErr.message,'error'); }       
+const parts = topicId.split('.');       
+if(parts.length === 2) {       
+const nextId = parts[0] + '.' + (parseInt(parts[1], 10) + 1);       
+const { data: nextTopic } = await sb.from('topic_status')       
+  .select('status')       
+  .eq('topic_id', nextId)       
+  .single();       
+if(nextTopic && nextTopic.status !== 'done') {       
+  await sb.from('topic_status').update({ status: 'next' }).eq('topic_id', nextId);       
+}       
+}       
+}       
+toast('Session saved! 🎉','success');       
+closeModal();       
+await syncUI(); // <-- Updated!      
+document.getElementById('m-fullnotes').value = '';       
+document.getElementById('m-topicid').value   = '';       
+document.getElementById('m-topicname').value = '';       
+document.getElementById('m-summary').value   = '';       
+document.getElementById('m-concepts').value  = '';       
+}
+
+// ── MINDSET MODAL CONTROLS (Add & Edit) ──       
 let currentMindsetEditId = null;
 
-function openMindsetModal() {     
- currentMindsetEditId = null;  
- document.querySelector('#mindsetModal h2').innerHTML = '🧠 Add Mindset Moment';  
- document.getElementById('mind-question').value = '';     
- document.getElementById('mind-concept').value = '';     
- document.getElementById('mind-topic').value = '';     
- document.getElementById('mind-response').value = '';     
- document.getElementById('mind-rating').value = 'good';     
- document.getElementById('mindsetModal').classList.add('open');     
+function openMindsetModal() {       
+ currentMindsetEditId = null;    
+ document.querySelector('#mindsetModal h2').innerHTML = '🧠 Add Mindset Moment';    
+ document.getElementById('mind-question').value = '';       
+ document.getElementById('mind-concept').value = '';       
+ document.getElementById('mind-topic').value = '';       
+ document.getElementById('mind-response').value = '';       
+ document.getElementById('mind-rating').value = 'good';       
+ document.getElementById('mindsetModal').classList.add('open');       
 }
 
-function editMindsetMoment(id) {  
- // Find the specific data for the moment you clicked  
- const m = allMindset.find(x => x.id === id || x.id === parseInt(id));  
- if(!m) return;  
-  // Set the global state so the save function knows we are editing  
- currentMindsetEditId = m.id;  
-  // Change the title and fill the inputs with your existing data  
- document.querySelector('#mindsetModal h2').innerHTML = '✏️ Edit Mindset Moment';  
- document.getElementById('mind-question').value = m.question || '';  
- document.getElementById('mind-concept').value = m.concept || '';  
- document.getElementById('mind-topic').value = m.linked_topic_name || '';  
- document.getElementById('mind-response').value = m.response || '';  
- document.getElementById('mind-rating').value = m.rating || 'good';  
-  document.getElementById('mindsetModal').classList.add('open');  
+function editMindsetMoment(id) {    
+ // Find the specific data for the moment you clicked    
+ const m = allMindset.find(x => x.id === id || x.id === parseInt(id));    
+ if(!m) return;    
+  // Set the global state so the save function knows we are editing    
+ currentMindsetEditId = m.id;    
+  // Change the title and fill the inputs with your existing data    
+ document.querySelector('#mindsetModal h2').innerHTML = '✏️ Edit Mindset Moment';    
+ document.getElementById('mind-question').value = m.question || '';    
+ document.getElementById('mind-concept').value = m.concept || '';    
+ document.getElementById('mind-topic').value = m.linked_topic_name || '';    
+ document.getElementById('mind-response').value = m.response || '';    
+ document.getElementById('mind-rating').value = m.rating || 'good';    
+  document.getElementById('mindsetModal').classList.add('open');    
 }
 
-function closeMindsetModal() {     
- currentMindsetEditId = null;  
- document.getElementById('mindsetModal').classList.remove('open');     
+function closeMindsetModal() {       
+ currentMindsetEditId = null;    
+ document.getElementById('mindsetModal').classList.remove('open');       
 }
 
-async function saveMindsetMoment() {
+async function saveMindsetMoment() {  
     console.log("1. Save button clicked! Starting process...");
 
-    try {
-        // Grab the values from the toggles safely (with fallbacks just in case)
-        const typeNode = document.querySelector('input[name="moment_type"]:checked');
-        const sourceNode = document.querySelector('input[name="insight_source"]:checked');
-        
-        const momentType = typeNode ? typeNode.value : 'Question';
-        const insightSource = sourceNode ? sourceNode.value : 'AI';
-        
+    try {  
+        // Grab the values from the toggles safely (with fallbacks just in case)  
+        const typeNode = document.querySelector('input[name="moment_type"]:checked');  
+        const sourceNode = document.querySelector('input[name="insight_source"]:checked');  
+          
+        const momentType = typeNode ? typeNode.value : 'Question';  
+        const insightSource = sourceNode ? sourceNode.value : 'AI';  
+          
         console.log("2. Toggles grabbed:", momentType, insightSource);
 
-        // Grab the text from the inputs
-        const questionText = document.getElementById('mind-question').value.trim();
-        const ratingValue = document.getElementById('mind-rating').value; 
-        const conceptTag = document.getElementById('mind-concept').value.trim();
-        const linkedTopic = document.getElementById('mind-topic').value.trim();
+        // Grab the text from the inputs  
+        const questionText = document.getElementById('mind-question').value.trim();  
+        const ratingValue = document.getElementById('mind-rating').value;   
+        const conceptTag = document.getElementById('mind-concept').value.trim();  
+        const linkedTopic = document.getElementById('mind-topic').value.trim();  
         const responseText = document.getElementById('mind-response').value.trim();
 
-        // Validation
-        if (!questionText || !responseText) {
-            toast("Please fill in both the Question/Situation and the Insight!", "error");
-            console.log("❌ Stopped: Fields were empty.");
-            return;
+        // Validation  
+        if (!questionText || !responseText) {  
+            toast("Please fill in both the Question/Situation and the Insight!", "error");  
+            console.log("❌ Stopped: Fields were empty.");  
+            return;  
         }
 
         const formattedRating = ratingValue === 'strong' ? 'Strong Instinct' : 'Good Direction';
 
-        // Prepare the exact package of data we are sending
-        const payload = 
-        {
-          moment_type: momentType,
-          insight_source: insightSource,
-          question: questionText, 
-          rating: ratingValue,             // 🚨 CHANGED: Send the raw 'strong' or 'good' value!
-          concept: conceptTag,             
-          linked_topic_name: linkedTopic,  
-          response: responseText           
+        // Prepare the exact package of data we are sending  
+        const payload =   
+        {  
+          moment_type: momentType,  
+          insight_source: insightSource,  
+          question: questionText,   
+          rating: ratingValue,             // 🚨 CHANGED: Send the raw 'strong' or 'good' value!  
+          concept: conceptTag,               
+          linked_topic_name: linkedTopic,    
+          response: responseText             
         }
 
         let dbError = null;
 
-        // 🚨 THE FIX: Destructuring the error safely so JS never crashes
-        if (currentMindsetEditId) {
-            console.log("4. UPDATING existing moment...");
-            const { error } = await sb.from('mindset_moments').update(payload).eq('id', currentMindsetEditId);
-            dbError = error;
-        } else {
-            console.log("4. INSERTING new moment...");
-            const { error } = await sb.from('mindset_moments').insert([payload]);
-            dbError = error;
+        // 🚨 THE FIX: Destructuring the error safely so JS never crashes  
+        if (currentMindsetEditId) {  
+            console.log("4. UPDATING existing moment...");  
+            const { error } = await sb.from('mindset_moments').update(payload).eq('id', currentMindsetEditId);  
+            dbError = error;  
+        } else {  
+            console.log("4. INSERTING new moment...");  
+            const { error } = await sb.from('mindset_moments').insert([payload]);  
+            dbError = error;  
         }
 
-        if (dbError) {
-            console.error("❌ Supabase rejected the save!", dbError);
-            toast("Database Error: Check the Console!", "error");
-       } else {
-            console.log("✅ Successfully saved!");
-            toast("Mindset Moment saved successfully! 🧠", "success");
-            
-            closeMindsetModal();
-            loadMindset(); // 🪄 Silently fetches the new data and redraws the list!
+        if (dbError) {  
+            console.error("❌ Supabase rejected the save!", dbError);  
+            toast("Database Error: Check the Console!", "error");  
+       } else {  
+            console.log("✅ Successfully saved!");  
+            toast("Mindset Moment saved successfully! 🧠", "success");  
+              
+            closeMindsetModal();  
+            loadMindset(); // 🪄 Silently fetches the new data and redraws the list!  
         }
 
-    } catch (err) {
-        console.error("❌ CRITICAL JAVASCRIPT CRASH:", err);
-    }
+    } catch (err) {  
+        console.error("❌ CRITICAL JAVASCRIPT CRASH:", err);  
+    }  
 }
 
-
-// ── EVENT LISTENERS ──  
-document.getElementById('saveModal').addEventListener('click', function(e){ if(e.target===this) closeModal(); });     
-document.getElementById('projectModal').addEventListener('click', function(e){ if(e.target===this) closeProjectModal(); });
-document.getElementById('mindsetModal').addEventListener('click', function(e){ if(e.target===this) closeMindsetModal(); });
+// ── EVENT LISTENERS ──    
+document.getElementById('saveModal').addEventListener('click', function(e){ if(e.target===this) closeModal(); });       
+document.getElementById('projectModal').addEventListener('click', function(e){ if(e.target===this) closeProjectModal(); });  
+document.getElementById('mindsetModal').addEventListener('click', function(e){ if(e.target===this) closeMindsetModal(); });  
 document.getElementById('cmdModal').addEventListener('click', function(e){ if(e.target===this) closeCmdModal(); });
 
-// ── TOAST ──     
-function toast(msg, type='success') {     
-const el = document.getElementById('toast');     
-el.textContent = msg;     
-el.className = 'show ' + type;     
-setTimeout(() => el.className = '', 3000);     
+// ── TOAST ──       
+function toast(msg, type='success') {       
+const el = document.getElementById('toast');       
+el.textContent = msg;       
+el.className = 'show ' + type;       
+setTimeout(() => el.className = '', 3000);       
 }  
 
-// ── TRIGGER EDIT MODE ──
-function triggerEdit(id, title, content, date, author) {
-    document.getElementById('note-title').value = title;
-    document.getElementById('note-text').value = content;
-    
-    // Safely set date and author if they exist
-    if(date) document.getElementById('note-date').value = date;
-    if(author) document.getElementById('note-author').value = author;
-    
-    // Change the button text so the user knows they are editing
-    document.querySelector('.btn-save').innerText = 'Update Note';
-    
-    // Remember the ID and scroll to top
-    editingNoteId = id;
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+// ── TRIGGER EDIT MODE ──  
+function triggerEdit(id, title, content, date, author) {  
+    document.getElementById('note-title').value = title;  
+    document.getElementById('note-text').value = content;  
+      
+    // Safely set date and author if they exist  
+    if(date) document.getElementById('note-date').value = date;  
+    if(author) document.getElementById('note-author').value = author;  
+      
+    // Change the button text so the user knows they are editing  
+    document.querySelector('.btn-save').innerText = 'Update Note';  
+      
+    // Remember the ID and scroll to top  
+    editingNoteId = id;  
+    window.scrollTo({ top: 0, behavior: 'smooth' });  
 }
 
-function searchMindset() {
-    // Grab what the user typed and make it lowercase
-    const term = document.getElementById('mindset-search').value.toLowerCase().trim();
-    
-    // If the search bar is empty, just show everything
-    if (!term) {
-        filterMindset('all'); 
-        return;
+function searchMindset() {  
+    // Grab what the user typed and make it lowercase  
+    const term = document.getElementById('mindset-search').value.toLowerCase().trim();  
+      
+    // If the search bar is empty, just show everything  
+    if (!term) {  
+        filterMindset('all');   
+        return;  
     }
 
-    // Filter the database by checking every field
-    const filtered = allMindset.filter(m => {
-        // Safely grab text (using fallback '' so it doesn't crash on missing data)
-        const q = (m.situation || m.question || '').toLowerCase();
-        const a = (m.insight || '').toLowerCase();
-        const tag = (m.tag || '').toLowerCase();
-        const top = (m.topic || '').toLowerCase();
-        
-        // Return true if the search term exists in ANY of these fields
-        return q.includes(term) || a.includes(term) || tag.includes(term) || top.includes(term);
+    // Filter the database by checking every field  
+    const filtered = allMindset.filter(m => {  
+        // Safely grab text (using fallback '' so it doesn't crash on missing data)  
+        const q = (m.situation || m.question || '').toLowerCase();  
+        const a = (m.insight || '').toLowerCase();  
+        const tag = (m.tag || '').toLowerCase();  
+        const top = (m.topic || '').toLowerCase();  
+          
+        // Return true if the search term exists in ANY of these fields  
+        return q.includes(term) || a.includes(term) || tag.includes(term) || top.includes(term);  
     });
 
-    // Draw the filtered cards on the screen
-    renderMindset(filtered);
+    // Draw the filtered cards on the screen  
+    renderMindset(filtered);  
 }
 
-
-
-// ==========================================
-// ── TERMINAL COMMANDS RUNBOOK ENGINE ──
+// ==========================================  
+// ── TERMINAL COMMANDS RUNBOOK ENGINE ──  
 // ==========================================
 
-let allCommands = [];
-let currentCmdFilter = 'All';
+let allCommands = [];  
+let currentCmdFilter = 'All';  
 let currentCmdEditId = null;
 
-async function loadCommands() {
-    if(!sb) return;
-    try {
-        const { data, error } = await sb.from('commands').select('*').order('created_at', { ascending: false });
-        if (error) throw error;
-        allCommands = data || [];
-        renderCommands();
-    } catch (e) {
-        console.error("Commands DB Error:", e);
-    }
+async function loadCommands() {  
+    if(!sb) return;  
+    try {  
+        const { data, error } = await sb.from('commands').select('*').order('created_at', { ascending: false });  
+        if (error) throw error;  
+        allCommands = data || [];  
+        renderCommands();  
+    } catch (e) {  
+        console.error("Commands DB Error:", e);  
+    }  
 }
 
-// ── 2. RENDER & FILTER COMMANDS ──
-function renderCommands() {
-    const container = document.getElementById('cmds-list');
+// ── 2. RENDER & FILTER COMMANDS ──  
+function renderCommands() {  
+    const container = document.getElementById('cmds-list');  
     if (!container) return; 
 
-    const searchInput = document.getElementById('cmd-search');
-    const searchTerm = searchInput ? searchInput.value.toLowerCase() : '';
-    
+    const searchInput = document.getElementById('cmd-search');  
+    const searchTerm = searchInput ? searchInput.value.toLowerCase() : '';  
+      
     let filtered = [];
 
-    // --- NEW DUPLICATE FINDER LOGIC ---
-    if (currentCmdFilter === 'Duplicates') {
-        const groups = {};
-        
-        // Group all commands by their exact text
-        allCommands.forEach(cmd => {
-            if (!cmd.command_text) return;
-            const text = cmd.command_text.trim();
-            if (!groups[text]) groups[text] = [];
-            groups[text].push(cmd);
+    // --- NEW DUPLICATE FINDER LOGIC ---  
+    if (currentCmdFilter === 'Duplicates') {  
+        const groups = {};  
+          
+        // Group all commands by their exact text  
+        allCommands.forEach(cmd => {  
+            if (!cmd.command_text) return;  
+            const text = cmd.command_text.trim();  
+            if (!groups[text]) groups[text] = [];  
+            groups[text].push(cmd);  
         });
 
-        // Filter out single items, keep only ones with 2+ identical commands
-        Object.keys(groups).forEach(text => {
-            if (groups[text].length > 1) {
-                // Sort by date so the oldest one comes first
-                const sortedGroup = groups[text].sort((a,b) => new Date(a.created_at) - new Date(b.created_at));
-                
-                // Tag them so the UI knows which is the original
-                const taggedGroup = sortedGroup.map((item, index) => ({
-                    ...item,
-                    duplicateTag: index === 0 ? 'Original' : 'Duplicate'
-                }));
-                filtered = filtered.concat(taggedGroup);
-            }
+        // Filter out single items, keep only ones with 2+ identical commands  
+        Object.keys(groups).forEach(text => {  
+            if (groups[text].length > 1) {  
+                // Sort by date so the oldest one comes first  
+                const sortedGroup = groups[text].sort((a,b) => new Date(a.created_at) - new Date(b.created_at));  
+                  
+                // Tag them so the UI knows which is the original  
+                const taggedGroup = sortedGroup.map((item, index) => ({  
+                    ...item,  
+                    duplicateTag: index === 0 ? 'Original' : 'Duplicate'  
+                }));  
+                filtered = filtered.concat(taggedGroup);  
+            }  
         });
 
-        if (filtered.length === 0) {
-            toast('Your runbook is clean! No duplicates found. 🎉', 'success');
-            filtered = allCommands; // Reset back to showing everything
-            currentCmdFilter = 'All'; // Reset filter button state
-            setCmdFilter('All');
-            return;
-        } else {
-            toast(`Found ${filtered.length} duplicate entries!`, 'success');
+        if (filtered.length === 0) {  
+            toast('Your runbook is clean! No duplicates found. 🎉', 'success');  
+            filtered = allCommands; // Reset back to showing everything  
+            currentCmdFilter = 'All'; // Reset filter button state  
+            setCmdFilter('All');  
+            return;  
+        } else {  
+            toast(`Found ${filtered.length} duplicate entries!`, 'success');  
         }
 
-    } else {
-        // --- NORMAL CATEGORY FILTERING ---
-        filtered = allCommands.filter(cmd => {
-            const matchesCategory = currentCmdFilter === 'All' || cmd.category === currentCmdFilter;
-            const matchesSearch = (cmd.command_text || '').toLowerCase().includes(searchTerm) || 
-                                  (cmd.meaning || '').toLowerCase().includes(searchTerm) ||
-                                  (cmd.topic_learned || '').toLowerCase().includes(searchTerm);
-            return matchesCategory && matchesSearch;
-        });
+    } else {  
+        // --- NORMAL CATEGORY FILTERING ---  
+        filtered = allCommands.filter(cmd => {  
+            const matchesCategory = currentCmdFilter === 'All' || cmd.category === currentCmdFilter;  
+            const matchesSearch = (cmd.command_text || '').toLowerCase().includes(searchTerm) ||   
+                                  (cmd.meaning || '').toLowerCase().includes(searchTerm) ||  
+                                  (cmd.topic_learned || '').toLowerCase().includes(searchTerm);  
+            return matchesCategory && matchesSearch;  
+        });  
     }
 
-    if (filtered.length === 0) {
-        container.innerHTML = '<div style="color:var(--muted); padding: 1rem;">No commands found. Add your first one!</div>';
-        return;
+    if (filtered.length === 0) {  
+        container.innerHTML = '<div style="color:var(--muted); padding: 1rem;">No commands found. Add your first one!</div>';  
+        return;  
     }
 
-    container.innerHTML = filtered.map(cmd => {
-        const safeCmdForButton = (cmd.command_text || '').replace(/'/g, "\\'").replace(/"/g, "&quot;");
-        
-        const linkedPills = (cmd.linked_cmds && cmd.linked_cmds.length > 0)
-            ? cmd.linked_cmds.map(c => `<span style="display:inline-block; font-size:0.75rem; background:rgba(255,255,255,0.1); border:1px solid rgba(255,255,255,0.2); padding:0.2rem 0.5rem; border-radius:4px; margin-right:6px; color:var(--accent-blue);">🔗 ${c}</span>`).join('')
+    container.innerHTML = filtered.map(cmd => {  
+        const safeCmdForButton = (cmd.command_text || '').replace(/'/g, "\\'").replace(/"/g, "&quot;");  
+          
+        const linkedPills = (cmd.linked_cmds && cmd.linked_cmds.length > 0)  
+            ? cmd.linked_cmds.map(c => `<span style="display:inline-block; font-size:0.75rem; background:rgba(255,255,255,0.1); border:1px solid rgba(255,255,255,0.2); padding:0.2rem 0.5rem; border-radius:4px; margin-right:6px; color:var(--accent-blue);">🔗 ${c}</span>`).join('')  
             : '';
 
-        // --- NEW BADGE RENDERER ---
-        let dupBadge = '';
-        if (cmd.duplicateTag === 'Original') {
-            dupBadge = `<span style="font-size:0.7rem; background:rgba(48,209,88,0.15); color:var(--green); border:1px solid var(--green); padding:0.2rem 0.5rem; border-radius:4px; margin-left:8px;">✓ Keep (Original)</span>`;
-        } else if (cmd.duplicateTag === 'Duplicate') {
-            dupBadge = `<span style="font-size:0.7rem; background:rgba(255,69,58,0.15); color:var(--red); border:1px solid var(--red); padding:0.2rem 0.5rem; border-radius:4px; margin-left:8px;">🗑️ Trash (Duplicate)</span>`;
+        // --- NEW BADGE RENDERER ---  
+        let dupBadge = '';  
+        if (cmd.duplicateTag === 'Original') {  
+            dupBadge = `<span style="font-size:0.7rem; background:rgba(48,209,88,0.15); color:var(--green); border:1px solid var(--green); padding:0.2rem 0.5rem; border-radius:4px; margin-left:8px;">✓ Keep (Original)</span>`;  
+        } else if (cmd.duplicateTag === 'Duplicate') {  
+            dupBadge = `<span style="font-size:0.7rem; background:rgba(255,69,58,0.15); color:var(--red); border:1px solid var(--red); padding:0.2rem 0.5rem; border-radius:4px; margin-left:8px;">🗑️ Trash (Duplicate)</span>`;  
         }
 
-        return `
-        <div class="session-item" style="margin-bottom:1rem; padding:1.2rem; cursor: default;">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 0.8rem; flex-wrap: wrap; gap: 10px;">
-                <div style="display:flex; gap:10px; align-items:center;">
-                    <span style="font-size:0.75rem; font-weight:700; color:var(--accent2); background: rgba(0,255,170,0.1); padding: 0.3rem 0.6rem; border-radius: 4px; text-transform: uppercase;">${cmd.category || 'Uncategorized'}</span>
-                    <span style="font-size:0.75rem; color:var(--muted);">Learned: ${cmd.topic_learned || 'N/A'}</span>
-                    ${cmd.future_topics ? `<span style="font-size:0.75rem; color:var(--muted);">Future: ${cmd.future_topics}</span>` : ''}
-                    ${dupBadge}
-                </div>
-                
-                <div style="display:flex; gap: 0.5rem;">
-                    <button class="btn btn-ghost" style="font-size:0.75rem; padding:0.3rem 0.6rem;" onclick="editCommand('${cmd.id}')">✏️ Edit</button>
-                    <button class="btn btn-ghost" style="color:var(--red); font-size:0.75rem; padding:0.3rem 0.6rem; border:1px solid rgba(255,69,58,0.2);" onclick="deleteCommand('${cmd.id}')">🗑️ Delete</button>
-                </div>
-            </div>
-            
-            <div style="display:flex; justify-content:space-between; align-items:center; background: rgba(0,0,0,0.5); padding: 0.8rem 1rem; border-radius: 6px; border: 1px solid rgba(255,255,255,0.1); margin-bottom: 0.8rem;">
-                <code style="font-size: 1.1rem; color: #fff; font-family: monospace; word-break: break-all;">${cmd.command_text || ''}</code>
-                <button class="btn btn-ghost" onclick="copyCmd('${safeCmdForButton}')" style="padding: 0.4rem; font-size: 1.1rem; min-width: auto; margin-left: 10px;" title="Copy to clipboard">📋</button>
+        return `  
+        <div class="session-item" style="margin-bottom:1rem; padding:1.2rem; cursor: default;">  
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 0.8rem; flex-wrap: wrap; gap: 10px;">  
+                <div style="display:flex; gap:10px; align-items:center;">  
+                    <span style="font-size:0.75rem; font-weight:700; color:var(--accent2); background: rgba(0,255,170,0.1); padding: 0.3rem 0.6rem; border-radius: 4px; text-transform: uppercase;">${cmd.category || 'Uncategorized'}</span>  
+                    <span style="font-size:0.75rem; color:var(--muted);">Learned: ${cmd.topic_learned || 'N/A'}</span>  
+                    ${cmd.future_topics ? `<span style="font-size:0.75rem; color:var(--muted);">Future: ${cmd.future_topics}</span>` : ''}  
+                    ${dupBadge}  
+                </div>  
+                  
+                <div style="display:flex; gap: 0.5rem;">  
+                    <button class="btn btn-ghost" style="font-size:0.75rem; padding:0.3rem 0.6rem;" onclick="editCommand('${cmd.id}')">✏️ Edit</button>  
+                    <button class="btn btn-ghost" style="color:var(--red); font-size:0.75rem; padding:0.3rem 0.6rem; border:1px solid rgba(255,69,58,0.2);" onclick="deleteCommand('${cmd.id}')">🗑️ Delete</button>  
+                </div>  
+            </div>  
+              
+            <div style="display:flex; justify-content:space-between; align-items:center; background: rgba(0,0,0,0.5); padding: 0.8rem 1rem; border-radius: 6px; border: 1px solid rgba(255,255,255,0.1); margin-bottom: 0.8rem;">  
+                <code style="font-size: 1.1rem; color: #fff; font-family: monospace; word-break: break-all;">${cmd.command_text || ''}</code>  
+                <button class="btn btn-ghost" onclick="copyCmd('${safeCmdForButton}')" style="padding: 0.4rem; font-size: 1.1rem; min-width: auto; margin-left: 10px;" title="Copy to clipboard">📋</button>  
             </div>
 
-            <div style="font-size:1rem; font-weight:600; color:var(--text); margin-bottom:0.4rem;">${cmd.meaning || ''}</div>
-            
-            ${cmd.example ? `<div style="font-size:0.85rem; color:var(--muted); margin-bottom:0.4rem; margin-top: 0.8rem;"><b>Example:</b> <br><code style="background: rgba(255,255,255,0.05); padding: 4px 6px; border-radius: 4px; display: inline-block; margin-top: 4px;">${cmd.example}</code></div>` : ''}
-            
+            <div style="font-size:1rem; font-weight:600; color:var(--text); margin-bottom:0.4rem;">${cmd.meaning || ''}</div>  
+              
+            ${cmd.example ? `<div style="font-size:0.85rem; color:var(--muted); margin-bottom:0.4rem; margin-top: 0.8rem;"><b>Example:</b> <br><code style="background: rgba(255,255,255,0.05); padding: 4px 6px; border-radius: 4px; display: inline-block; margin-top: 4px;">${cmd.example}</code></div>` : ''}  
+              
             ${linkedPills ? `<div style="margin-top: 1rem; margin-bottom: 0.5rem;">${linkedPills}</div>` : ''}
 
-            ${cmd.security_note ? `<div style="font-size:0.85rem; color: #ff6b6b; margin-top:1rem; padding-top: 0.8rem; border-top: 1px solid rgba(255,69,58,0.2);">🔒 <b>Security Note:</b> ${cmd.security_note}</div>` : ''}
-        </div>
-    `}).join('');
+            ${cmd.security_note ? `<div style="font-size:0.85rem; color: #ff6b6b; margin-top:1rem; padding-top: 0.8rem; border-top: 1px solid rgba(255,69,58,0.2);">🔒 <b>Security Note:</b> ${cmd.security_note}</div>` : ''}  
+        </div>  
+    `}).join('');  
 }
 
-// ── 3. FILTER BUTTON CLICK HANDLER ──
-function setCmdFilter(category) {
-    currentCmdFilter = category;
-    const filterContainer = document.getElementById('cmd-filters');
-    if (filterContainer) {
-        const buttons = filterContainer.querySelectorAll('button');
-        buttons.forEach(btn => {
-            // Using .includes() so the emoji in "🔍 Duplicates" doesn't break the matching logic
-            if (btn.innerText.includes(category)) {
-                btn.className = 'btn';
-                btn.style.background = 'var(--accent)';
-            } else {
-                btn.className = 'btn btn-ghost';
-                btn.style.background = 'transparent';
-            }
-        });
-    }
-    renderCommands();
+// ── 3. FILTER BUTTON CLICK HANDLER ──  
+function setCmdFilter(category) {  
+    currentCmdFilter = category;  
+    const filterContainer = document.getElementById('cmd-filters');  
+    if (filterContainer) {  
+        const buttons = filterContainer.querySelectorAll('button');  
+        buttons.forEach(btn => {  
+            // Using .includes() so the emoji in "🔍 Duplicates" doesn't break the matching logic  
+            if (btn.innerText.includes(category)) {  
+                btn.className = 'btn';  
+                btn.style.background = 'var(--accent)';  
+            } else {  
+                btn.className = 'btn btn-ghost';  
+                btn.style.background = 'transparent';  
+            }  
+        });  
+    }  
+    renderCommands();  
 }
 
 // ── CRUD OPERATIONS (ADD, EDIT, DELETE) ──
 
-function openCmdModal() {
-    currentCmdEditId = null;
-    document.getElementById('cmd-modal-title').innerText = '💻 Add Command';
-    document.getElementById('cmd-text').value = '';
-    document.getElementById('cmd-category').value = 'Linux';
-    document.getElementById('cmd-meaning').value = '';
-    document.getElementById('cmd-example').value = '';
-    document.getElementById('cmd-topic').value = '';
-    document.getElementById('cmd-future').value = '';
-    document.getElementById('cmd-links').value = '';
-    document.getElementById('cmd-security').value = '';
-    
-    // Fallback display toggles
-    const modal = document.getElementById('cmdModal');
-    modal.classList.add('open');
-    modal.style.display = 'flex'; 
+function openCmdModal() {  
+    currentCmdEditId = null;  
+    document.getElementById('cmd-modal-title').innerText = '💻 Add Command';  
+    document.getElementById('cmd-text').value = '';  
+    document.getElementById('cmd-category').value = 'Linux';  
+    document.getElementById('cmd-meaning').value = '';  
+    document.getElementById('cmd-example').value = '';  
+    document.getElementById('cmd-topic').value = '';  
+    document.getElementById('cmd-future').value = '';  
+    document.getElementById('cmd-links').value = '';  
+    document.getElementById('cmd-security').value = '';  
+      
+    // Fallback display toggles  
+    const modal = document.getElementById('cmdModal');  
+    modal.classList.add('open');  
+    modal.style.display = 'flex';   
 }
 
-function closeCmdModal() {
-    const modal = document.getElementById('cmdModal');
-    modal.classList.remove('open');
-    modal.style.display = 'none';
+function closeCmdModal() {  
+    const modal = document.getElementById('cmdModal');  
+    modal.classList.remove('open');  
+    modal.style.display = 'none';  
 }
 
-function editCommand(id) {
-    const cmd = allCommands.find(c => c.id === id);
-    if (!cmd) return;
-    
-    currentCmdEditId = cmd.id;
-    document.getElementById('cmd-modal-title').innerText = '✏️ Edit Command';
-    
-    document.getElementById('cmd-text').value = cmd.command_text || '';
-    document.getElementById('cmd-category').value = cmd.category || 'Linux';
-    document.getElementById('cmd-meaning').value = cmd.meaning || '';
-    document.getElementById('cmd-example').value = cmd.example || '';
-    document.getElementById('cmd-topic').value = cmd.topic_learned || '';
-    document.getElementById('cmd-future').value = cmd.future_topics || '';
-    document.getElementById('cmd-security').value = cmd.security_note || '';
-    
-    document.getElementById('cmd-links').value = (cmd.linked_cmds && cmd.linked_cmds.length > 0) ? cmd.linked_cmds.join(', ') : '';
-    
-    // Fallback display toggles
-    const modal = document.getElementById('cmdModal');
-    modal.classList.add('open');
-    modal.style.display = 'flex';
+function editCommand(id) {  
+    const cmd = allCommands.find(c => c.id === id);  
+    if (!cmd) return;  
+      
+    currentCmdEditId = cmd.id;  
+    document.getElementById('cmd-modal-title').innerText = '✏️ Edit Command';  
+      
+    document.getElementById('cmd-text').value = cmd.command_text || '';  
+    document.getElementById('cmd-category').value = cmd.category || 'Linux';  
+    document.getElementById('cmd-meaning').value = cmd.meaning || '';  
+    document.getElementById('cmd-example').value = cmd.example || '';  
+    document.getElementById('cmd-topic').value = cmd.topic_learned || '';  
+    document.getElementById('cmd-future').value = cmd.future_topics || '';  
+    document.getElementById('cmd-security').value = cmd.security_note || '';  
+      
+    document.getElementById('cmd-links').value = (cmd.linked_cmds && cmd.linked_cmds.length > 0) ? cmd.linked_cmds.join(', ') : '';  
+      
+    // Fallback display toggles  
+    const modal = document.getElementById('cmdModal');  
+    modal.classList.add('open');  
+    modal.style.display = 'flex';  
 }
 
-async function saveCommand() {
-    if(!sb) { toast('Database not connected', 'error'); return; }
-    
-    const text = document.getElementById('cmd-text').value.trim();
-    const meaning = document.getElementById('cmd-meaning').value.trim();
-    
+async function saveCommand() {  
+    if(!sb) { toast('Database not connected', 'error'); return; }  
+      
+    const text = document.getElementById('cmd-text').value.trim();  
+    const meaning = document.getElementById('cmd-meaning').value.trim();  
+      
     if(!text || !meaning) { toast('Command and Meaning are required!', 'error'); return; }
 
-    // This perfectly converts your comma separated text into the Postgres Array!
-    const rawLinks = document.getElementById('cmd-links').value;
+    // This perfectly converts your comma separated text into the Postgres Array!  
+    const rawLinks = document.getElementById('cmd-links').value;  
     const linksArray = rawLinks ? rawLinks.split(',').map(s => s.trim()).filter(Boolean) : [];
 
-    const payload = {
-        command_text: text,
-        category: document.getElementById('cmd-category').value,
-        meaning: meaning,
-        example: document.getElementById('cmd-example').value.trim(),
-        topic_learned: document.getElementById('cmd-topic').value.trim(),
-        future_topics: document.getElementById('cmd-future').value.trim(),
-        linked_cmds: linksArray,
-        security_note: document.getElementById('cmd-security').value.trim()
+    const payload = {  
+        command_text: text,  
+        category: document.getElementById('cmd-category').value,  
+        meaning: meaning,  
+        example: document.getElementById('cmd-example').value.trim(),  
+        topic_learned: document.getElementById('cmd-topic').value.trim(),  
+        future_topics: document.getElementById('cmd-future').value.trim(),  
+        linked_cmds: linksArray,  
+        security_note: document.getElementById('cmd-security').value.trim()  
     };
 
-    let error;
-    if (currentCmdEditId) {
-        const res = await sb.from('commands').update(payload).eq('id', currentCmdEditId);
-        error = res.error;
-    } else {
-        const res = await sb.from('commands').insert([payload]);
-        error = res.error;
+    let error;  
+    if (currentCmdEditId) {  
+        const res = await sb.from('commands').update(payload).eq('id', currentCmdEditId);  
+        error = res.error;  
+    } else {  
+        const res = await sb.from('commands').insert([payload]);  
+        error = res.error;  
     }
 
-    if (error) { toast('Error saving command: ' + error.message, 'error'); return; }
-    
-    toast('Command saved to Runbook! 💻', 'success');
-    closeCmdModal();
-    await syncUI(); // Reload everything seamlessly
+    if (error) { toast('Error saving command: ' + error.message, 'error'); return; }  
+      
+    toast('Command saved to Runbook! 💻', 'success');  
+    closeCmdModal();  
+    await syncUI(); // Reload everything seamlessly  
 }
 
-async function deleteCommand(id) {
-    if (!confirm("Remove this command from your runbook?")) return;
-    const { error } = await sb.from('commands').delete().eq('id', id);
-    if (error) { toast('Error deleting: ' + error.message, 'error'); return; }
-    toast('Command removed 🗑️', 'success');
-    await syncUI();
+async function deleteCommand(id) {  
+    if (!confirm("Remove this command from your runbook?")) return;  
+    const { error } = await sb.from('commands').delete().eq('id', id);  
+    if (error) { toast('Error deleting: ' + error.message, 'error'); return; }  
+    toast('Command removed 🗑️', 'success');  
+    await syncUI();  
 }
 
-function setCmdFilter(category) {
-    currentCmdFilter = category;
-    const filterContainer = document.getElementById('cmd-filters');
-    if (filterContainer) {
-        const buttons = filterContainer.querySelectorAll('button');
-        buttons.forEach(btn => {
-            if (btn.innerText === category) {
-                btn.className = 'btn';
-                btn.style.background = 'var(--accent)';
-            } else {
-                btn.className = 'btn btn-ghost';
-                btn.style.background = 'transparent';
-            }
-        });
-    }
-    renderCommands();
+function setCmdFilter(category) {  
+    currentCmdFilter = category;  
+    const filterContainer = document.getElementById('cmd-filters');  
+    if (filterContainer) {  
+        const buttons = filterContainer.querySelectorAll('button');  
+        buttons.forEach(btn => {  
+            if (btn.innerText === category) {  
+                btn.className = 'btn';  
+                btn.style.background = 'var(--accent)';  
+            } else {  
+                btn.className = 'btn btn-ghost';  
+                btn.style.background = 'transparent';  
+            }  
+        });  
+    }  
+    renderCommands();  
 }
 
-function copyCmd(text) {
-    navigator.clipboard.writeText(text).then(() => {
-        toast('Command copied! 📋');
-    }).catch(err => {
-        console.error('Failed to copy text: ', err);
-        toast('Failed to copy command.', 'error');
-    });
-}
+function copyCmd(text) {  
+    navigator.clipboard.writeText(text).then(() => {  
+        toast('Command copied! 📋');  
+    }).catch(err => {  
+        console.error('Failed to copy text: ', err);  
+        toast('Failed to copy command.', 'error');  
+    });  
+}  
 // ==========================================
 
-
-
-</script>   
-</body>     
+</script>     
+</body>       
 </html>
