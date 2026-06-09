@@ -607,7 +607,7 @@ select {
         });
 
         const data = await response.json();
-        console.log('Gemini response:', JSON.stringify(data));
+        console.log('Jarvis response:', JSON.stringify(data));
         document.getElementById('j-thinking').remove();
 
         const reply = data.reply || 'No response received.';
