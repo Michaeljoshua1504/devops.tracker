@@ -957,8 +957,19 @@ if(error) throw error;
 setStatus(true,'Connected to Supabase');       
 loadAll();       
 } catch(e) {       
-setStatus(false,'connection failed');       
+setStatus(false,'connection failed');
+console.warn('Supabase connection error:', e.message || JSON.stringify(e));
+// Show a retry button in the status area so user doesn't have to hard-refresh
+const statusEl = document.getElementById('statusText');
+if(statusEl) statusEl.innerHTML = 'connection failed &nbsp;<span onclick="retryConnection()" style="cursor:pointer;color:var(--accent-blue);text-decoration:underline;font-size:0.75rem">retry</span>';
 }       
+}
+
+function retryConnection() {
+  const statusEl = document.getElementById('statusText');
+  if(statusEl) statusEl.textContent = 'retrying…';
+  document.getElementById('statusDot').className = 'dot';
+  initSupabase(SUPABASE_URL, SUPABASE_KEY);
 }
 
 function setStatus(ok, msg) {       
@@ -1321,7 +1332,7 @@ if(arrow) arrow.textContent = isOpen ? '▼' : '▲';
 async function loadSessions() {       
 if(!sb) return;       
 const { data, error } = await sb.from('sessions').select('*');       
-if(error) { console.error('Sessions load error:', error); return; }
+if(error) { console.error('Sessions load error:', error.message || JSON.stringify(error)); return; }
 allSessions = data || [];
 allSessions.sort((a, b) => {       
 const idA = a.topic_id || '';       
