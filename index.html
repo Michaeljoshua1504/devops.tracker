@@ -430,10 +430,10 @@ select {
 
 <!-- ── SESSION LOG TAB ── -->
 <div id="tab-log" class="tab-content">
-  <div class="card">
-    <h3>Session Log</h3>
-    <div id="sessions-list"></div>
+  <div class="card" style="margin-bottom:1.25rem">
+    <input type="text" id="session-search" placeholder="Search by topic, date, concepts, notes..." oninput="searchSessions()" style="margin-bottom:0" />
   </div>
+  <div id="sessions-list"></div>
 </div>
 
 <!-- ── TOPICS / ROADMAP TAB ── -->
@@ -524,15 +524,15 @@ select {
   </div>
   <div class="card" style="margin-bottom:1.25rem">
     <div id="cmd-filters" style="display:flex;gap:0.5rem;flex-wrap:wrap;margin-bottom:1rem">
-      <button class="btn" style="background:var(--accent)" onclick="setCmdFilter('All')">All</button>
-      <button class="btn btn-ghost" onclick="setCmdFilter('Linux')">🐧 Linux</button>
-      <button class="btn btn-ghost" onclick="setCmdFilter('Git')">🔀 Git</button>
-      <button class="btn btn-ghost" onclick="setCmdFilter('Docker')">🐳 Docker</button>
-      <button class="btn btn-ghost" onclick="setCmdFilter('Kubernetes')">☸️ Kubernetes</button>
-      <button class="btn btn-ghost" onclick="setCmdFilter('Terraform')">🏗️ Terraform</button>
-      <button class="btn btn-ghost" onclick="setCmdFilter('Python')">🐍 Python</button>
-      <button class="btn btn-ghost" onclick="setCmdFilter('Cloud CLI')">☁️ Cloud CLI</button>
-      <button class="btn btn-ghost" onclick="setCmdFilter('Duplicates')">🔍 Duplicates</button>
+      <button class="btn" data-filter="All" style="background:var(--accent)" onclick="setCmdFilter('All')">All</button>
+      <button class="btn btn-ghost" data-filter="Linux" onclick="setCmdFilter('Linux')">🐧 Linux</button>
+      <button class="btn btn-ghost" data-filter="Git" onclick="setCmdFilter('Git')">🔀 Git</button>
+      <button class="btn btn-ghost" data-filter="Docker" onclick="setCmdFilter('Docker')">🐳 Docker</button>
+      <button class="btn btn-ghost" data-filter="Kubernetes" onclick="setCmdFilter('Kubernetes')">☸️ Kubernetes</button>
+      <button class="btn btn-ghost" data-filter="Terraform" onclick="setCmdFilter('Terraform')">🏗️ Terraform</button>
+      <button class="btn btn-ghost" data-filter="Python" onclick="setCmdFilter('Python')">🐍 Python</button>
+      <button class="btn btn-ghost" data-filter="Cloud CLI" onclick="setCmdFilter('Cloud CLI')">☁️ Cloud CLI</button>
+      <button class="btn btn-ghost" data-filter="Duplicates" onclick="setCmdFilter('Duplicates')">🔍 Duplicates</button>
     </div>
     <input type="text" id="cmd-search" placeholder="Search commands..." oninput="renderCommands()" style="margin-bottom:0" />
   </div>
@@ -876,7 +876,9 @@ const SUPABASE_KEY = 'sb_publishable_HgG7jZWwCaliP50xjQyY5w_xLLl2D4o';
 // ── STATE ──       
 let sb = null;       
 let allMindset = [];      
-let allProjects = []; // <-- NEW STATE ARRAY FOR PROJECTS  
+let allProjects = [];
+let allSessions = [];
+let allNotes = [];
 let nextTopicGlobal = null;  
 let editingNoteId = null;
 
@@ -1025,19 +1027,45 @@ function renderProjects(data) {
           
         const githubBtn = p.github_url ? `<a href="${escapeHTML(p.github_url)}" target="_blank" class="btn btn-ghost" style="font-size:0.8rem;padding:0.4rem 0.85rem;text-decoration:none;color:var(--text)">🔗 View Source</a>` : '';
 
+        // Time log — always visible, small
+        const createdDate = p.created_at ? new Date(p.created_at).toLocaleString() : 'Unknown';
+        const editedDate = p.extra_data && p.extra_data.edited_at ? new Date(p.extra_data.edited_at).toLocaleString() : null;
+        const timeLogId = 'proj-timelog-' + p.id;
+        const timeLogBtn = `<button class="btn btn-ghost" style="font-size:0.72rem;padding:0.25rem 0.6rem;color:var(--muted);" onclick="event.stopPropagation();document.getElementById('${timeLogId}').style.display=document.getElementById('${timeLogId}').style.display==='none'?'block':'none'">🕒 Log</button>`;
+        const timeLogPanel = `<div id="${timeLogId}" style="display:none;margin-top:0.75rem;padding:0.6rem 0.85rem;background:var(--bg);border-radius:8px;border:1px solid var(--border);font-size:0.78rem;color:var(--muted)">
+          <div>📅 Created: ${createdDate}</div>
+          ${editedDate ? `<div style="margin-top:0.25rem">✏️ Last edited: ${editedDate}</div>` : ''}
+        </div>`;
+
         return `<div class="session-item" style="cursor:default; padding: 1.5rem">  
             <div class="session-header">  
                 <div class="session-topic" style="color:var(--accent-blue); font-size:1.1rem">${escapeHTML(p.project_name)}</div>  
                 <div class="session-date" style="font-size:0.85rem">Topic ${escapeHTML(p.topic_id)} • ${new Date(p.created_at).toLocaleDateString()}</div>  
             </div>  
             <div style="font-size:0.95rem;color:var(--text);line-height:1.6;margin-top:0.75rem">${escapeHTML(p.theory_concept)}</div>  
-            ${codeSnippet}  
-            <div style="margin-top:1.25rem; display:flex; justify-content:flex-end; gap:0.5rem">  
+            ${codeSnippet}
+            ${timeLogPanel}
+            <div style="margin-top:1.25rem; display:flex; justify-content:flex-end; gap:0.5rem; align-items:center; flex-wrap:wrap">  
+                ${timeLogBtn}
                 ${githubBtn}  
+                ${isAdmin ? `<button class="btn btn-ghost" style="font-size:0.8rem;padding:0.4rem 0.85rem;" onclick="openEditProject('${p.id}')">✏️ Edit</button>` : ''}
                 ${isAdmin ? `<button class="btn btn-ghost" style="color:var(--red); border:1px solid rgba(255,69,58,0.2); font-size:0.8rem; padding:0.4rem 0.85rem;" onclick="deleteProject('${p.id}')">🗑️ Delete Build</button>` : ''}
             </div>  
         </div>`;  
     }).join('');  
+}
+
+function openEditProject(id) {
+    const p = allProjects.find(x => String(x.id) === String(id));
+    if (!p) return;
+    document.getElementById('proj-id').value = p.id;
+    document.getElementById('proj-topic').value = p.topic_id || '';
+    document.getElementById('proj-name').value = p.project_name || '';
+    document.getElementById('proj-theory').value = p.theory_concept || '';
+    document.getElementById('proj-code').value = p.code_snippet || '';
+    document.getElementById('proj-url').value = p.github_url || '';
+    document.querySelector('#projectModal h2').textContent = '✏️ Edit Project';
+    document.getElementById('projectModal').classList.add('open');
 }
 
 function openProjectModal() {  
@@ -1046,7 +1074,8 @@ function openProjectModal() {
     document.getElementById('proj-name').value = '';  
     document.getElementById('proj-theory').value = '';  
     document.getElementById('proj-code').value = '';  
-    document.getElementById('proj-url').value = '';  
+    document.getElementById('proj-url').value = '';
+    document.querySelector('#projectModal h2').textContent = '🚀 Add Portfolio Project';
     document.getElementById('projectModal').classList.add('open');  
 }
 
@@ -1072,7 +1101,7 @@ async function saveProject() {
     let error;  
       
     if(id) {  
-        const res = await sb.from('mini_projects').update(payload).eq('id', id);  
+        const res = await sb.from('mini_projects').update({...payload, extra_data: { edited_at: new Date().toISOString() }}).eq('id', id);  
         error = res.error;  
     } else {  
         const res = await sb.from('mini_projects').insert([payload]);  
@@ -1292,39 +1321,76 @@ if(arrow) arrow.textContent = isOpen ? '▼' : '▲';
 async function loadSessions() {       
 if(!sb) return;       
 const { data, error } = await sb.from('sessions').select('*');       
-const list = document.getElementById('sessions-list');       
-if(error || !data || data.length===0){       
-list.innerHTML='<div style="color:var(--muted);font-size:0.9rem">No sessions saved yet. Use the action button above to record your first entry.</div>';       
-return;       
-}       
-data.sort((a, b) => {       
+if(error) { console.error('Sessions load error:', error); return; }
+allSessions = data || [];
+allSessions.sort((a, b) => {       
 const idA = a.topic_id || '';       
 const idB = b.topic_id || '';       
 return idA.localeCompare(idB, undefined, { numeric: true, sensitivity: 'base' });       
 });
+renderSessions(allSessions);
+}
 
+function renderSessions(data) {
+const list = document.getElementById('sessions-list');
+if(!list) return;
+if(!data || data.length === 0){       
+list.innerHTML='<div style="color:var(--muted);font-size:0.9rem">No sessions saved yet. Use the action button above to record your first entry.</div>';       
+return;       
+}
 list.innerHTML = data.map((s, i) => {       
 const concepts = s.concepts ? s.concepts.split(',').map(c=>`<span class="concept-chip">${c.trim()}</span>`).join('') : '';       
-const sid = 'sess-' + i;       
+const sid = 'sess-' + i;
+const editedAt = s.extra_data && s.extra_data.edited_at ? `<span style="font-size:0.75rem;color:var(--muted);margin-left:0.5rem">· edited ${new Date(s.extra_data.edited_at).toLocaleDateString()}</span>` : '';
 return `<div class="session-item" onclick="toggleSession(this, '${sid}')">       
 <div class="session-header">       
-  <div class="session-topic">${s.topic_id ? s.topic_id+' — ' : ''}${s.topic_name || 'Session'}</div>       
+  <div class="session-topic">${s.topic_id ? s.topic_id+' — ' : ''}${s.topic_name || 'Session'}${editedAt}</div>       
   <div style="display:flex;align-items:center;gap:0.75rem">       
     <div class="session-date">${s.date || ''} ${s.time || ''}</div>       
     <span id="arrow-${sid}" style="font-size:0.75rem;color:var(--muted)">▼</span>       
   </div>       
 </div>       
 <div class="session-summary">${s.summary || ''}</div>       
-     
 <div class="session-body" id="${sid}">       
   ${s.full_notes ? `<div style="font-size:0.9rem;color:var(--text);line-height:1.6;white-space:pre-wrap;margin-top:1rem;padding:1rem;background:var(--bg);border-radius:10px;border:1px solid var(--border)">${s.full_notes}</div>` : ''}       
   ${concepts ? `<div class="session-concepts">${concepts}</div>` : ''}       
-  <div style="margin-top:1rem; display:flex; justify-content:flex-end;">     
+  <div style="margin-top:1rem; display:flex; justify-content:flex-end; gap:0.5rem;">     
+    ${isAdmin ? `<button class="btn btn-ghost" style="font-size:0.78rem; padding:0.35rem 0.75rem;" onclick="event.stopPropagation(); openEditSessionModal('${s.id}')">✏️ Edit</button>` : ''}
     ${isAdmin ? `<button class="btn btn-ghost" style="color:var(--red); border:1px solid rgba(255,69,58,0.2); font-size:0.78rem; padding:0.35rem 0.75rem;" onclick="event.stopPropagation(); deleteSession('${s.id || ''}', '${s.topic_id || ''}')">🗑️ Delete Entry</button>` : ''}
   </div>     
 </div>       
 </div>`;       
 }).join('');       
+}
+
+function searchSessions() {
+const term = document.getElementById('session-search').value.toLowerCase().trim();
+if (!term) { renderSessions(allSessions); return; }
+const filtered = allSessions.filter(s => {
+  return (s.topic_id || '').toLowerCase().includes(term) ||
+         (s.topic_name || '').toLowerCase().includes(term) ||
+         (s.date || '').toLowerCase().includes(term) ||
+         (s.summary || '').toLowerCase().includes(term) ||
+         (s.concepts || '').toLowerCase().includes(term) ||
+         (s.full_notes || '').toLowerCase().includes(term);
+});
+renderSessions(filtered);
+}
+
+function openEditSessionModal(id) {
+const s = allSessions.find(x => String(x.id) === String(id));
+if (!s) return;
+// Fill the save modal in edit mode
+document.getElementById('m-date').value = s.date || '';
+document.getElementById('m-time').value = s.time || '';
+document.getElementById('m-topicid').value = s.topic_id || '';
+document.getElementById('m-topicname').value = s.topic_name || '';
+document.getElementById('m-fullnotes').value = s.full_notes || '';
+document.getElementById('m-summary').value = s.summary || '';
+document.getElementById('m-concepts').value = s.concepts || '';
+document.getElementById('saveModal').dataset.editId = id;
+document.querySelector('#saveModal h2').textContent = '✏️ Edit Session';
+document.getElementById('saveModal').classList.add('open');
 }
 
 function toggleSession(cardElement, sid) {       
@@ -1634,65 +1700,54 @@ async function deleteNote(id) {
 async function loadNotes() {       
  if(!sb) return;      
  try {    
-   // 1. Ask Supabase to explicitly sort by newest first    
    const { data, error } = await sb.from('notes').select('*').order('created_at', { ascending: false });       
-   const container = document.getElementById('notes-list');     
-     
    if(error){     
-     console.error("Notes DB Error:", error);    
-     container.innerHTML = `<div style="color:var(--red);font-size:0.9rem;">Error connecting: ${error.message}</div>`;     
+     console.error("Notes DB Error:", error);
+     const container = document.getElementById('notes-list');
+     if(container) container.innerHTML = `<div style="color:var(--red);font-size:0.9rem;">Error connecting: ${error.message}</div>`;     
      return;     
    }
-
-   // 2. X-RAY: Print the downloaded data to the browser console    
-   console.log("Notes downloaded from Supabase:", data);
-
-   if(!data || data.length === 0){     
-     container.innerHTML = '<div style="color:var(--muted);font-size:0.9rem;">No journal entries yet.</div>';     
-     return;     
-   }   
-
-   // Set today's date in the input field    
-   document.getElementById('note-date').value = new Date().toISOString().split('T')[0];     
-     
-   // 3. Build the HTML safely    
-   container.innerHTML = data.map((n, i) => {    
-        
-     // SANITIZE FOR DISPLAY (Prevents HTML Injection)  
-     const safeTitle = (n.title || 'Daily Log').replace(/</g, '&lt;').replace(/>/g, '&gt;');    
-     const safeText = (n.note_text || '').replace(/</g, '&lt;').replace(/>/g, '&gt;');    
-        
-     // SANITIZE FOR BUTTON (Prevents quotes and newlines from breaking the Javascript click function)  
-     const btnTitle = (n.title || 'Daily Log').replace(/'/g, "\\'").replace(/"/g, "&quot;").replace(/[\r\n]+/g, "\\n");  
-     const btnText = (n.note_text || '').replace(/'/g, "\\'").replace(/"/g, "&quot;").replace(/[\r\n]+/g, "\\n");
-
-     return `     
-     <div class="session-item" style="cursor:default; margin-bottom:1rem; padding:1.2rem;">       
-       <div class="session-header" style="display:flex; justify-content:space-between; align-items:center; width:100%">       
-         <div style="font-size:0.85rem; font-weight:600; color:var(--accent2); text-transform:uppercase;">👤 ${n.author || 'DevOps Log'}</div>       
-         <div class="session-date" style="font-size:0.85rem; color:var(--muted);">${n.date || (n.created_at ? n.created_at.split('T')[0] : '')}</div>       
-       </div>       
-          
-       <div style="font-size:1.1rem; font-weight:700; color:var(--text); margin-top:0.6rem; margin-bottom:0.4rem;">     
-         ${safeTitle}     
-       </div>     
-          
-       <div style="font-size:0.9rem; line-height:1.6; color:var(--muted); white-space:pre-wrap;">${safeText}</div>   
-
-       <div style="margin-top:1.5rem; display:flex; justify-content:flex-end;">     
-         ${isAdmin ? `<button class="btn" style="background: #eab308; margin-right: 10px;" onclick="triggerEdit('${n.id}', '${btnTitle}', '${btnText}', '${n.date || ''}', '${n.author || ''}')">Edit ✏️</button>` : ''}
-         ${isAdmin ? `<button class="btn btn-ghost" style="color:var(--red); border:1px solid rgba(255,69,58,0.2); font-size:0.78rem; padding:0.35rem 0.75rem;" onclick="deleteNote('${n.id}')">🗑️ Delete Note</button>` : ''}
-       </div>    
-     </div>`;    
-   }).join('');    
+   allNotes = data || [];
+   document.getElementById('note-date').value = new Date().toISOString().split('T')[0];
+   renderNotes(allNotes);
  } catch (e) {    
    console.error("Notes Crash Protected:", e);    
  }     
 }
 
+function renderNotes(data) {
+ const container = document.getElementById('notes-list');
+ if (!container) return;
+ if (!data || data.length === 0) {
+   container.innerHTML = '<div style="color:var(--muted);font-size:0.9rem;">No journal entries yet.</div>';
+   return;
+ }
+ container.innerHTML = data.map((n) => {    
+   const safeTitle = (n.title || 'Daily Log').replace(/</g, '&lt;').replace(/>/g, '&gt;');    
+   const safeText = (n.note_text || '').replace(/</g, '&lt;').replace(/>/g, '&gt;');    
+   const btnTitle = (n.title || 'Daily Log').replace(/'/g, "\\'").replace(/"/g, "&quot;").replace(/[\r\n]+/g, "\\n");  
+   const btnText = (n.note_text || '').replace(/'/g, "\\'").replace(/"/g, "&quot;").replace(/[\r\n]+/g, "\\n");
+   return `     
+   <div class="session-item" style="cursor:default; margin-bottom:1rem; padding:1.2rem;">       
+     <div class="session-header" style="display:flex; justify-content:space-between; align-items:center; width:100%">       
+       <div style="font-size:0.85rem; font-weight:600; color:var(--accent2); text-transform:uppercase;">👤 ${n.author || 'DevOps Log'}</div>       
+       <div class="session-date" style="font-size:0.85rem; color:var(--muted);">${n.date || (n.created_at ? n.created_at.split('T')[0] : '')}</div>       
+     </div>       
+     <div style="font-size:1.1rem; font-weight:700; color:var(--text); margin-top:0.6rem; margin-bottom:0.4rem;">${safeTitle}</div>     
+     <div style="font-size:0.9rem; line-height:1.6; color:var(--muted); white-space:pre-wrap;">${safeText}</div>   
+     <div style="margin-top:1.5rem; display:flex; justify-content:flex-end; gap:0.5rem;">     
+       ${isAdmin ? `<button class="btn" style="background: #eab308;" onclick="triggerEdit('${n.id}', '${btnTitle}', '${btnText}', '${n.date || ''}', '${n.author || ''}')">Edit ✏️</button>` : ''}
+       ${isAdmin ? `<button class="btn btn-ghost" style="color:var(--red); border:1px solid rgba(255,69,58,0.2); font-size:0.78rem; padding:0.35rem 0.75rem;" onclick="deleteNote('${n.id}')">🗑️ Delete Note</button>` : ''}
+     </div>    
+   </div>`;    
+ }).join('');    
+}
+
 // ── SAVE SESSION MODAL CONTROLS ──       
 async function openSaveModal() {       
-setDefaultDate();       
+setDefaultDate();
+document.getElementById('saveModal').dataset.editId = '';
+document.querySelector('#saveModal h2').textContent = '💾 Save Completed Session';
 document.getElementById('m-topicid').value   = '';       
 document.getElementById('m-topicname').value = '';       
 document.getElementById('m-fullnotes').value = '';       
@@ -1719,7 +1774,9 @@ document.getElementById('saveModal').classList.add('open');
 }
 
 function closeModal() {       
-document.getElementById('saveModal').classList.remove('open');       
+document.getElementById('saveModal').classList.remove('open');
+document.getElementById('saveModal').dataset.editId = '';
+document.querySelector('#saveModal h2').textContent = '💾 Save Completed Session';
 }
 
 async function saveSession() {       
@@ -1731,37 +1788,46 @@ const topicName = document.getElementById('m-topicname').value.trim();
 const fullNotes = document.getElementById('m-fullnotes').value.trim();       
 const summary   = document.getElementById('m-summary').value.trim();       
 const concepts  = document.getElementById('m-concepts').value.trim();       
-if(!topicName || !summary){ toast('Please fill in topic name and summary','error'); return; }       
-const { error: sessErr } = await sb.from('sessions').insert({       
-date, time, topic_id: topicId, topic_name: topicName,       
-full_notes: fullNotes, summary, concepts       
-});       
-if(sessErr){ toast('Error saving session: '+sessErr.message,'error'); return; }       
-if(topicId) {       
-const { error: updateErr } = await sb.from('topic_status')       
-.update({ status: 'done', session_note: summary, full_notes: fullNotes })       
-.eq('topic_id', topicId);       
-if(updateErr) { toast('Session saved but tracker synchronization errored: '+updateErr.message,'error'); }       
-const parts = topicId.split('.');       
-if(parts.length === 2) {       
-const nextId = parts[0] + '.' + (parseInt(parts[1], 10) + 1);       
-const { data: nextTopic } = await sb.from('topic_status')       
-  .select('status')       
-  .eq('topic_id', nextId)       
-  .single();       
-if(nextTopic && nextTopic.status !== 'done') {       
-  await sb.from('topic_status').update({ status: 'next' }).eq('topic_id', nextId);       
-}       
-}       
-}       
-toast('Session saved! 🎉','success');       
+if(!topicName || !summary){ toast('Please fill in topic name and summary','error'); return; }
+
+const editId = document.getElementById('saveModal').dataset.editId;
+
+if (editId) {
+  // EDIT MODE — update existing session
+  const { error: updateErr } = await sb.from('sessions').update({
+    date, time, topic_id: topicId, topic_name: topicName,
+    full_notes: fullNotes, summary, concepts,
+    extra_data: { edited_at: new Date().toISOString() }
+  }).eq('id', editId);
+  if(updateErr){ toast('Error updating session: '+updateErr.message,'error'); return; }
+  toast('Session updated! ✏️','success');
+} else {
+  // INSERT MODE — new session
+  const { error: sessErr } = await sb.from('sessions').insert({       
+    date, time, topic_id: topicId, topic_name: topicName,       
+    full_notes: fullNotes, summary, concepts       
+  });       
+  if(sessErr){ toast('Error saving session: '+sessErr.message,'error'); return; }       
+  if(topicId) {       
+    const { error: statusErr } = await sb.from('topic_status')       
+      .update({ status: 'done', session_note: summary, full_notes: fullNotes })       
+      .eq('topic_id', topicId);       
+    if(statusErr) { toast('Session saved but tracker sync errored: '+statusErr.message,'error'); }       
+    const parts = topicId.split('.');       
+    if(parts.length === 2) {       
+      const nextId = parts[0] + '.' + (parseInt(parts[1], 10) + 1);       
+      const { data: nextTopic } = await sb.from('topic_status')       
+        .select('status').eq('topic_id', nextId).single();       
+      if(nextTopic && nextTopic.status !== 'done') {       
+        await sb.from('topic_status').update({ status: 'next' }).eq('topic_id', nextId);       
+      }       
+    }       
+  }
+  toast('Session saved! 🎉','success');       
+}
+
 closeModal();       
-await syncUI(); // <-- Updated!      
-document.getElementById('m-fullnotes').value = '';       
-document.getElementById('m-topicid').value   = '';       
-document.getElementById('m-topicname').value = '';       
-document.getElementById('m-summary').value   = '';       
-document.getElementById('m-concepts').value  = '';       
+await syncUI();
 }
 
 // ── MINDSET MODAL CONTROLS (Add & Edit) ──       
@@ -2178,7 +2244,7 @@ function setCmdFilter(category) {
     if (filterContainer) {  
         const buttons = filterContainer.querySelectorAll('button');  
         buttons.forEach(btn => {  
-            if (btn.innerText === category) {  
+            if (btn.dataset.filter === category) {
                 btn.className = 'btn';  
                 btn.style.background = 'var(--accent)';  
             } else {  
@@ -2214,7 +2280,7 @@ function copyCmd(text) {
         
         <div class="form-row" style="text-align: left; margin-bottom: 1.5rem;">
             <label>Password</label>
-            <input type="password" id="login-pwd" placeholder="••••••••" style="width:100%; background:var(--surface2); border:1px solid var(--border); border-radius:10px; color:var(--text); padding:0.75rem; font-family:var(--font-display); outline:none; transition:border-color 0.2s;" onfocus="this.style.borderColor='var(--accent-blue)'" onblur="this.style.borderColor='var(--border)'" />
+            <input type="password" id="login-pwd" placeholder="••••••••" style="width:100%; background:var(--surface2); border:1px solid var(--border); border-radius:10px; color:var(--text); padding:0.75rem; font-family:var(--font-display); outline:none; transition:border-color 0.2s;" onfocus="this.style.borderColor='var(--accent-blue)'" onblur="this.style.borderColor='var(--border)'" onkeydown="if(event.key==='Enter') adminLogin()" />
         </div>
         
         <button class="btn btn-primary" onclick="adminLogin()" style="width:100%; margin-bottom: 0.75rem;">Login</button>
