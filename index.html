@@ -2279,6 +2279,18 @@ function copyCmd(text) {
 
 </script>    
 
+<div class="modal-overlay" id="logout-modal">
+    <div class="modal" style="max-width: 360px; text-align: center;">
+        <div style="font-size: 2rem; margin-bottom: 1rem;">🔒</div>
+        <h2 style="margin-bottom: 0.5rem;">Log out?</h2>
+        <p style="color: var(--muted); margin-bottom: 1.75rem; font-size: 0.9rem;">You'll return to visitor mode.</p>
+        <div style="display: flex; gap: 0.75rem;">
+            <button class="btn btn-ghost" onclick="document.getElementById('logout-modal').classList.remove('open')" style="flex:1;">Cancel</button>
+            <button class="btn btn-primary" onclick="document.getElementById('logout-modal').classList.remove('open'); adminLogout();" style="flex:1; background: var(--red);">Log out</button>
+        </div>
+    </div>
+</div>
+
 <div class="modal-overlay" id="login-modal">
     <div class="modal" style="max-width: 400px; text-align: center;">
         <h2>🔓 Admin Login</h2>
@@ -2347,11 +2359,9 @@ function adminLogout() {
 
 function handleLogoClick() {
     if (isAdmin) {
-        if (confirm('You are logged in as Admin. Do you want to log out?')) {
-            adminLogout();
-        }
+        document.getElementById('logout-modal').classList.add('open');
     } else {
-       document.getElementById('login-modal').classList.add('open');
+        document.getElementById('login-modal').classList.add('open');
     }
 }
 
