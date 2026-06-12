@@ -349,6 +349,10 @@ select {
 .badge-me { background: rgba(16, 185, 129, 0.2); color: #34d399; border: 1px solid #10b981; padding: 4px 8px; border-radius: 12px; font-size: 0.75em; font-weight: bold; }  
 .badge-ai { background: rgba(245, 158, 11, 0.2); color: #fbbf24; border: 1px solid #f59e0b; padding: 4px 8px; border-radius: 12px; font-size: 0.75em; font-weight: bold; }
 
+/* Admin-only buttons: hidden by default, shown only when admin */
+.admin-only { display: none !important; }
+.admin-mode .admin-only { display: inline-flex !important; }
+
 </style>       
 </head>       
 <body>
@@ -418,7 +422,7 @@ select {
     <h3>Up Next</h3>
     <div id="dash-next-topic" style="font-size:1rem;font-weight:500">Loading...</div>
     <div style="margin-top:1.25rem;display:flex;gap:0.75rem;flex-wrap:wrap">
-      <button class="btn btn-primary" onclick="openSaveModal()">💾 Save Completed Session</button>
+      <button class="btn btn-primary admin-only" onclick="openSaveModal()">💾 Save Completed Session</button>
       <button class="btn btn-ghost" onclick="showTab('topics',document.querySelectorAll('nav button')[2])">📋 View Roadmap</button>
     </div>
   </div>
@@ -439,7 +443,7 @@ select {
       <div style="font-weight:700;font-size:1.1rem">67-Topic DevOps Roadmap</div>
       <div style="color:var(--muted);font-size:0.85rem;margin-top:0.2rem">Click any topic to expand teaching notes</div>
     </div>
-    <button class="btn btn-primary" onclick="openSaveModal()">💾 Save Session</button>
+    <button class="btn btn-primary admin-only" onclick="openSaveModal()">💾 Save Session</button>
   </div>
   <div id="topics-list"></div>
 </div>
@@ -451,7 +455,7 @@ select {
       <div style="font-weight:700;font-size:1.1rem">Mini Project Portfolio</div>
       <div style="color:var(--muted);font-size:0.85rem;margin-top:0.2rem">One project per topic — built to prove it, not just know it</div>
     </div>
-    <button class="btn btn-primary" onclick="openProjectModal()">🚀 Add Project</button>
+    <button class="btn btn-primary admin-only" onclick="openProjectModal()">🚀 Add Project</button>
   </div>
   <div id="projects-list"></div>
 </div>
@@ -465,7 +469,7 @@ select {
     </div>
     <div style="display:flex;align-items:center;gap:1rem">
       <div style="font-size:0.85rem;color:var(--muted)">⭐ Strong: <strong id="strong-count">—</strong></div>
-      <button class="btn btn-primary" onclick="openMindsetModal()">+ Add Moment</button>
+      <button class="btn btn-primary admin-only" onclick="openMindsetModal()">+ Add Moment</button>
     </div>
   </div>
   <div class="card" style="margin-bottom:1.25rem">
@@ -504,7 +508,7 @@ select {
       <label>Entry</label>
       <textarea id="note-text" style="min-height:150px" placeholder="Write your thoughts, progress, reflections, or blockers..."></textarea>
     </div>
-    <button class="btn btn-save" onclick="saveNote()">Save Note</button>
+    <button class="btn btn-save admin-only" onclick="saveNote()">Save Note</button>
   </div>
   <div id="notes-list"></div>
 </div>
@@ -516,7 +520,7 @@ select {
       <div style="font-weight:700;font-size:1.1rem">Terminal Commands Runbook 💻</div>
       <div style="color:var(--muted);font-size:0.85rem;margin-top:0.2rem">Every command you've learned — searchable, categorized, copyable</div>
     </div>
-    <button class="btn btn-primary" onclick="openCmdModal()">+ Add Command</button>
+    <button class="btn btn-primary admin-only" onclick="openCmdModal()">+ Add Command</button>
   </div>
   <div class="card" style="margin-bottom:1.25rem">
     <div id="cmd-filters" style="display:flex;gap:0.5rem;flex-wrap:wrap;margin-bottom:1rem">
@@ -1030,7 +1034,7 @@ function renderProjects(data) {
             ${codeSnippet}  
             <div style="margin-top:1.25rem; display:flex; justify-content:flex-end; gap:0.5rem">  
                 ${githubBtn}  
-                <button class="btn btn-ghost" style="color:var(--red); border:1px solid rgba(255,69,58,0.2); font-size:0.8rem; padding:0.4rem 0.85rem;" onclick="deleteProject('${p.id}')">🗑️ Delete Build</button>  
+                ${isAdmin ? `<button class="btn btn-ghost" style="color:var(--red); border:1px solid rgba(255,69,58,0.2); font-size:0.8rem; padding:0.4rem 0.85rem;" onclick="deleteProject('${p.id}')">🗑️ Delete Build</button>` : ''}
             </div>  
         </div>`;  
     }).join('');  
@@ -1316,7 +1320,7 @@ return `<div class="session-item" onclick="toggleSession(this, '${sid}')">
   ${s.full_notes ? `<div style="font-size:0.9rem;color:var(--text);line-height:1.6;white-space:pre-wrap;margin-top:1rem;padding:1rem;background:var(--bg);border-radius:10px;border:1px solid var(--border)">${s.full_notes}</div>` : ''}       
   ${concepts ? `<div class="session-concepts">${concepts}</div>` : ''}       
   <div style="margin-top:1rem; display:flex; justify-content:flex-end;">     
-    <button class="btn btn-ghost" style="color:var(--red); border:1px solid rgba(255,69,58,0.2); font-size:0.78rem; padding:0.35rem 0.75rem;" onclick="event.stopPropagation(); deleteSession('${s.id || ''}', '${s.topic_id || ''}')">🗑️ Delete Entry</button>     
+    ${isAdmin ? `<button class="btn btn-ghost" style="color:var(--red); border:1px solid rgba(255,69,58,0.2); font-size:0.78rem; padding:0.35rem 0.75rem;" onclick="event.stopPropagation(); deleteSession('${s.id || ''}', '${s.topic_id || ''}')">🗑️ Delete Entry</button>` : ''}
   </div>     
 </div>       
 </div>`;       
@@ -1511,8 +1515,8 @@ function renderMindset(data) {
       <strong>Insight/Action Taken:</strong><br>  
       ${m.insight || m.response || ''}    
       <div style="margin-top:1rem; display:flex; justify-content:flex-end; gap:0.5rem;">    
-        <button class="btn btn-ghost" style="font-size:0.78rem; padding:0.35rem 0.75rem;" onclick="event.stopPropagation(); editMindsetMoment('${m.id}')">✏️ Edit</button>    
-        <button class="btn btn-ghost" style="color:var(--red); border:1px solid rgba(255,69,58,0.2); font-size:0.78rem; padding:0.35rem 0.75rem;" onclick="event.stopPropagation(); deleteMindsetMoment('${m.id}')">🗑️ Delete</button>    
+        ${isAdmin ? `<button class="btn btn-ghost" style="font-size:0.78rem; padding:0.35rem 0.75rem;" onclick="event.stopPropagation(); editMindsetMoment('${m.id}')">✏️ Edit</button>` : ''}
+        ${isAdmin ? `<button class="btn btn-ghost" style="color:var(--red); border:1px solid rgba(255,69,58,0.2); font-size:0.78rem; padding:0.35rem 0.75rem;" onclick="event.stopPropagation(); deleteMindsetMoment('${m.id}')">🗑️ Delete</button>` : ''}
       </div>    
     </div>       
    </div>`;       
@@ -1676,8 +1680,8 @@ async function loadNotes() {
        <div style="font-size:0.9rem; line-height:1.6; color:var(--muted); white-space:pre-wrap;">${safeText}</div>   
 
        <div style="margin-top:1.5rem; display:flex; justify-content:flex-end;">     
-         <button class="btn" style="background: #eab308; margin-right: 10px;" onclick="triggerEdit('${n.id}', '${btnTitle}', '${btnText}', '${n.date || ''}', '${n.author || ''}')">Edit ✏️</button>  
-         <button class="btn btn-ghost" style="color:var(--red); border:1px solid rgba(255,69,58,0.2); font-size:0.78rem; padding:0.35rem 0.75rem;" onclick="deleteNote('${n.id}')">🗑️ Delete Note</button>     
+         ${isAdmin ? `<button class="btn" style="background: #eab308; margin-right: 10px;" onclick="triggerEdit('${n.id}', '${btnTitle}', '${btnText}', '${n.date || ''}', '${n.author || ''}')">Edit ✏️</button>` : ''}
+         ${isAdmin ? `<button class="btn btn-ghost" style="color:var(--red); border:1px solid rgba(255,69,58,0.2); font-size:0.78rem; padding:0.35rem 0.75rem;" onclick="deleteNote('${n.id}')">🗑️ Delete Note</button>` : ''}
        </div>    
      </div>`;    
    }).join('');    
@@ -2031,8 +2035,8 @@ function renderCommands() {
                 </div>  
                   
                 <div style="display:flex; gap: 0.5rem;">  
-                    <button class="btn btn-ghost" style="font-size:0.75rem; padding:0.3rem 0.6rem;" onclick="editCommand('${cmd.id}')">✏️ Edit</button>  
-                    <button class="btn btn-ghost" style="color:var(--red); font-size:0.75rem; padding:0.3rem 0.6rem; border:1px solid rgba(255,69,58,0.2);" onclick="deleteCommand('${cmd.id}')">🗑️ Delete</button>  
+                    ${isAdmin ? `<button class="btn btn-ghost" style="font-size:0.75rem; padding:0.3rem 0.6rem;" onclick="editCommand('${cmd.id}')">✏️ Edit</button>` : ''}
+                    ${isAdmin ? `<button class="btn btn-ghost" style="color:var(--red); font-size:0.75rem; padding:0.3rem 0.6rem; border:1px solid rgba(255,69,58,0.2);" onclick="deleteCommand('${cmd.id}')">🗑️ Delete</button>` : ''}
                 </div>  
             </div>  
               
@@ -2286,49 +2290,25 @@ function checkAdminStatus() {
 }
 
 function applyVisitorUI() {
-    // Hide Setup tab always — keys are hardcoded, nobody needs it
-    const setupBtn = document.querySelector('button[onclick*="setup"]');
-    if (setupBtn) setupBtn.style.display = 'none';
-
-    const allButtons = document.querySelectorAll('button');
-    allButtons.forEach(btn => {
-        const oc = btn.getAttribute('onclick') || '';
-        if (
-            oc.includes('openSaveModal') ||
-            oc.includes('openProjectModal') ||
-            oc.includes('openMindsetModal') ||
-            oc.includes('openCmdModal') ||
-            oc.includes('saveNote') ||
-            oc.includes('deleteNote') ||
-            oc.includes('deleteProject') ||
-            oc.includes('deleteCommand')
-        ) {
-            btn.style.display = 'none';
-        }
-    });
+    // Remove admin-mode class — CSS hides all .admin-only buttons automatically
+    document.body.classList.remove('admin-mode');
+    // Force all dynamic tabs to redraw without edit/delete buttons
+    if (typeof renderMindset === 'function' && typeof allMindset !== 'undefined') renderMindset(allMindset);
+    if (typeof renderNotes === 'function' && typeof allNotes !== 'undefined') renderNotes(allNotes);
+    if (typeof loadSessions === 'function') loadSessions();
+    if (typeof renderProjects === 'function' && typeof allProjects !== 'undefined') renderProjects(allProjects);
+    if (typeof renderCommands === 'function') renderCommands();
 }
 
 function applyAdminUI() {
-    // Keep Setup tab hidden even for admin — hardcoded keys mean it's not needed
-    const setupBtn = document.querySelector('button[onclick*="setup"]');
-    if (setupBtn) setupBtn.style.display = 'none';
-
-    const allButtons = document.querySelectorAll('button');
-    allButtons.forEach(btn => {
-        const oc = btn.getAttribute('onclick') || '';
-        if (
-            oc.includes('openSaveModal') ||
-            oc.includes('openProjectModal') ||
-            oc.includes('openMindsetModal') ||
-            oc.includes('openCmdModal') ||
-            oc.includes('saveNote') ||
-            oc.includes('deleteNote') ||
-            oc.includes('deleteProject') ||
-            oc.includes('deleteCommand')
-        ) {
-            btn.style.display = '';
-        }
-    });
+    // Add admin-mode class — CSS shows all .admin-only buttons automatically
+    document.body.classList.add('admin-mode');
+    // Force all dynamic tabs to redraw with edit/delete buttons
+    if (typeof renderMindset === 'function' && typeof allMindset !== 'undefined') renderMindset(allMindset);
+    if (typeof renderNotes === 'function' && typeof allNotes !== 'undefined') renderNotes(allNotes);
+    if (typeof loadSessions === 'function') loadSessions();
+    if (typeof renderProjects === 'function' && typeof allProjects !== 'undefined') renderProjects(allProjects);
+    if (typeof renderCommands === 'function') renderCommands();
 }
 setTimeout(checkAdminStatus, 1000);
 
