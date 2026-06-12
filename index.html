@@ -354,14 +354,14 @@ select {
 <body>
 
 <header>       
-<div class="logo">devops<span>.</span>tracker</div>       
-<div class="header-actions">      
-<button class="theme-toggle" id="themeToggleBtn" onclick="toggleTheme()" title="Toggle appearance">☀️</button>      
-<div class="status-dot">       
-<div class="dot" id="statusDot"></div>       
-<span id="statusText">connecting…</span>       
-</div>       
-</div>      
+    <div class="logo" onclick="handleLogoClick()" style="cursor: pointer;">devops<span>.</span>tracker</div>
+    <div class="header-actions">      
+        <button class="theme-toggle" id="themeToggleBtn" onclick="toggleTheme()" title="Toggle appearance">☀️</button>      
+        <div class="status-dot">       
+            <div class="dot" id="statusDot"></div>       
+            <span id="statusText">connecting…</span>       
+        </div>       
+    </div>      
 </header>
 
 <div class="nav-container">      
@@ -373,8 +373,7 @@ select {
     <button onclick="showTab('mindset',this)">Mindset</button>       
     <button onclick="showTab('notes',this)">Daily Log</button>       
     <button onclick="showTab('cmds',this)">Terminal Cmds 💻</button>  
-    <button onclick="showTab('jarvis',this)">⚡ Jarvis</button>  
-    <button onclick="showTab('setup',this)">Setup</button>       
+    <button onclick="showTab('jarvis',this)">⚡ Jarvis</button>      
   </nav>      
 </div>
 
@@ -865,7 +864,11 @@ select {
 </div>  
 </div>
 
-<script>       
+<script>      
+
+const SUPABASE_URL = 'https://btzyjrscjmxrcyllzwic.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_HgG7jZWwCaliP50xjQyY5w_xLLl2D4o';
+
 // ── STATE ──       
 let sb = null;       
 let allMindset = [];      
@@ -916,14 +919,10 @@ const btn = document.getElementById('themeToggleBtn');
 if(btn) btn.innerHTML = theme === 'dark' ? '☀️' : '🌙';      
 }
 
-// ── CONFIG ──       
-function loadConfig() {       
-const url = localStorage.getItem('sb_url');       
-const key = localStorage.getItem('sb_key');       
-if(url) document.getElementById('sb-url').value = url;       
-if(key) document.getElementById('sb-key').value = key;       
-if(url && key) initSupabase(url, key);       
-else setStatus(false, 'no credentials');       
+// ── CONFIG ──             
+function loadConfig() {        
+  // Always use the hardcoded keys — no localStorage needed
+  initSupabase(SUPABASE_URL, SUPABASE_KEY);        
 }
 
 function saveConfig() {       
@@ -2197,6 +2196,141 @@ function copyCmd(text) {
 }  
 // ==========================================
 
-</script>     
-</body>       
-</html>ƒ
+</script>    
+
+<div class="modal-overlay" id="login-modal">
+    <div class="modal" style="max-width: 400px; text-align: center;">
+        <h2>🔓 Admin Login</h2>
+        <p style="color: var(--muted); margin-bottom: 1.5rem; font-size: 0.9rem;">Sign in to unlock editing features.</p>
+        
+        <div class="form-row" style="text-align: left;">
+            <label>Email</label>
+            <input type="email" id="login-email" placeholder="admin@example.com" style="width:100%; background:var(--surface2); border:1px solid var(--border); border-radius:10px; color:var(--text); padding:0.75rem; font-family:var(--font-display); outline:none; transition:border-color 0.2s;" onfocus="this.style.borderColor='var(--accent-blue)'" onblur="this.style.borderColor='var(--border)'" />
+        </div>
+        
+        <div class="form-row" style="text-align: left; margin-bottom: 1.5rem;">
+            <label>Password</label>
+            <input type="password" id="login-pwd" placeholder="••••••••" style="width:100%; background:var(--surface2); border:1px solid var(--border); border-radius:10px; color:var(--text); padding:0.75rem; font-family:var(--font-display); outline:none; transition:border-color 0.2s;" onfocus="this.style.borderColor='var(--accent-blue)'" onblur="this.style.borderColor='var(--border)'" />
+        </div>
+        
+        <button class="btn btn-primary" onclick="adminLogin()" style="width:100%; margin-bottom: 0.75rem;">Login</button>
+        <button class="btn btn-ghost" onclick="document.getElementById('login-modal').classList.remove('open')" style="width:100%;">Cancel</button>
+        
+        <div id="login-error" style="color: var(--red); margin-top: 1rem; font-size: 0.85rem; font-weight: 600;"></div>
+    </div>
+</div>
+
+
+</body>   
+<script>
+let isAdmin = false;
+
+async function adminLogin() {
+    const email = document.getElementById('login-email').value;
+    const pwd = document.getElementById('login-pwd').value;
+    const errDiv = document.getElementById('login-error');
+    errDiv.textContent = 'Logging in...';
+
+    try {
+        const response = await fetch(`${SUPABASE_URL}/auth/v1/token?grant_type=password`, {
+            method: 'POST',
+            headers: {
+                'apikey': SUPABASE_KEY,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ email: email, password: pwd })
+        });
+
+        const data = await response.json();
+
+        if (response.ok && data.access_token) {
+            localStorage.setItem('sb_access_token', data.access_token);
+            isAdmin = true;
+           document.getElementById('login-modal').classList.remove('open');
+            applyAdminUI();
+            toast('Admin mode enabled! 🔓', 'success');
+        } else {
+            errDiv.textContent = data.error_description || 'Login failed.';
+        }
+    } catch (e) {
+        errDiv.textContent = 'Network error during login.';
+    }
+}
+
+function adminLogout() {
+    localStorage.removeItem('sb_access_token');
+    isAdmin = false;
+    applyVisitorUI();
+    toast('Logged out. Visitor mode active. 🔒', 'success');
+}
+
+function handleLogoClick() {
+    if (isAdmin) {
+        if (confirm('You are logged in as Admin. Do you want to log out?')) {
+            adminLogout();
+        }
+    } else {
+       document.getElementById('login-modal').classList.add('open');
+    }
+}
+
+function checkAdminStatus() {
+    const token = localStorage.getItem('sb_access_token');
+    if (token) {
+        isAdmin = true;
+        applyAdminUI();
+    } else {
+        isAdmin = false;
+        applyVisitorUI();
+    }
+}
+
+function applyVisitorUI() {
+    // Hide Setup tab always — keys are hardcoded, nobody needs it
+    const setupBtn = document.querySelector('button[onclick*="setup"]');
+    if (setupBtn) setupBtn.style.display = 'none';
+
+    const allButtons = document.querySelectorAll('button');
+    allButtons.forEach(btn => {
+        const oc = btn.getAttribute('onclick') || '';
+        if (
+            oc.includes('openSaveModal') ||
+            oc.includes('openProjectModal') ||
+            oc.includes('openMindsetModal') ||
+            oc.includes('openCmdModal') ||
+            oc.includes('saveNote') ||
+            oc.includes('deleteNote') ||
+            oc.includes('deleteProject') ||
+            oc.includes('deleteCommand')
+        ) {
+            btn.style.display = 'none';
+        }
+    });
+}
+
+function applyAdminUI() {
+    // Keep Setup tab hidden even for admin — hardcoded keys mean it's not needed
+    const setupBtn = document.querySelector('button[onclick*="setup"]');
+    if (setupBtn) setupBtn.style.display = 'none';
+
+    const allButtons = document.querySelectorAll('button');
+    allButtons.forEach(btn => {
+        const oc = btn.getAttribute('onclick') || '';
+        if (
+            oc.includes('openSaveModal') ||
+            oc.includes('openProjectModal') ||
+            oc.includes('openMindsetModal') ||
+            oc.includes('openCmdModal') ||
+            oc.includes('saveNote') ||
+            oc.includes('deleteNote') ||
+            oc.includes('deleteProject') ||
+            oc.includes('deleteCommand')
+        ) {
+            btn.style.display = '';
+        }
+    });
+}
+setTimeout(checkAdminStatus, 1000);
+
+</script>    
+</html>
