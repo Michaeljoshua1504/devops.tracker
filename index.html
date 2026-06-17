@@ -1,2878 +1,619 @@
 <!DOCTYPE html>       
 <html lang="en" data-theme="dark">       
 <head>       
-<meta charset="UTF-8" />       
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />       
-<title>DevOps Tracker</title>       
-<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32' fill='none'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='2' y1='16' x2='30' y2='16' gradientUnits='userSpaceOnUse'%3E%3Cstop offset='0%25' stop-color='%2300e5ff'/%3E%3Cstop offset='100%25' stop-color='%237c3aed'/%3E%3C/linearGradient%3E%3C/defs%3E%3Cpath d='M9.5 10C5.35 10 2 12.68 2 16s3.35 6 7.5 6c3.37 0 5.11-1.91 6-2.88.89.97 2.63 2.88 6 2.88 4.15 0 7.5-2.68 7.5-6s-3.35-6-7.5-6c-3.37 0-5.11 1.91-6 2.88-.89-.97-2.63-2.88-6-2.88z' stroke='url(%23g)' stroke-width='2.5'/%3E%3Ccircle cx='16' cy='16' r='1.5' fill='%2300e5ff'/%3E%3C/svg%3E">       
-<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=SF+Pro+Display:wght@400;500;600;700&display=swap" rel="stylesheet" />       
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>       
-<style>       
-:root[data-theme="dark"] {       
---bg: #090a0f;       
---surface: rgba(22, 24, 35, 0.75);       
---surface2: rgba(32, 37, 54, 0.6);       
---border: rgba(255, 255, 255, 0.08);       
---accent: #30d158;       
---accent2: #bf5af2;       
---accent-blue: #0a84ff;      
---green: #30d158;       
---yellow: #ffd60a;       
---red: #ff453a;       
---text: #ffffff;       
---muted: #8e8e93;       
---font-mono: 'JetBrains Mono', monospace;       
---font-display: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Helvetica Neue", sans-serif;       
---card-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);      
-}
-
-:root[data-theme="light"] {       
---bg: #f2f2f7;       
---surface: rgba(255, 255, 255, 0.8);       
---surface2: rgba(242, 242, 247, 0.9);       
---border: rgba(0, 0, 0, 0.06);       
---accent: #34c759;       
---accent2: #af52de;       
---accent-blue: #007aff;      
---green: #34c759;       
---yellow: #ffcc00;       
---red: #ff3b30;       
---text: #000000;       
---muted: #8e8e93;       
---font-mono: 'JetBrains Mono', monospace;       
---font-display: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Helvetica Neue", sans-serif;       
---card-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.04);      
-}
-
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }       
-html { scroll-behavior: smooth; }       
-body {       
-background: var(--bg);       
-color: var(--text);       
-font-family: var(--font-display);       
-min-height: 100vh;       
-overflow-x: hidden;       
-transition: background 0.3s, color 0.3s;      
-}
-
-header {       
-display: flex;       
-align-items: center;       
-justify-content: space-between;       
-padding: 1.25rem 2rem;       
-border-bottom: 1px solid var(--border);       
-background: var(--surface);       
-position: sticky; top: 0; z-index: 100;       
-backdrop-filter: blur(20px);       
--webkit-backdrop-filter: blur(20px);      
-}       
-.logo { font-size: 1.25rem; font-weight: 700; letter-spacing: -0.03em; }       
-.logo span { color: var(--accent-blue); }
-
-.header-actions {      
-display: flex;      
-align-items: center;      
-gap: 1.5rem;      
-}
-
-.theme-toggle {      
-background: none;      
-border: none;      
-font-size: 1.25rem;      
-cursor: pointer;      
-color: var(--text);      
-display: flex;      
-align-items: center;      
-justify-content: center;      
-width: 36px;      
-height: 36px;      
-border-radius: 50%;      
-transition: background 0.2s;      
-}      
-.theme-toggle:hover {      
-background: var(--border);      
-}
-
-.status-dot {       
-display: flex; align-items: center; gap: 0.5rem;       
-font-family: var(--font-mono); font-size: 0.75rem; color: var(--muted);       
-}       
-.dot {       
-width: 8px; height: 8px; border-radius: 50%;       
-background: var(--muted);       
-transition: background 0.3s, box-shadow 0.3s;       
-}       
-.dot.connected { background: var(--green); box-shadow: 0 0 10px var(--green); animation: pulse 2s infinite; }       
-@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.5} }
-
-.nav-container {      
-display: flex;      
-justify-content: center;      
-padding: 0.75rem 1rem;      
-background: var(--bg);      
-position: sticky;      
-top: 69px;      
-z-index: 90;      
-backdrop-filter: blur(20px);      
--webkit-backdrop-filter: blur(20px);      
-border-bottom: 1px solid var(--border);      
-}
-
-nav {       
-display: flex;      
-background: rgba(120, 120, 128, 0.12);       
-border-radius: 9px;      
-padding: 2px;      
-overflow-x: auto;       
-max-width: 100%;      
--webkit-overflow-scrolling: touch;      
-}       
-nav::-webkit-scrollbar { display: none; }      
-nav button {       
-background: none; border: none; color: var(--text);       
-font-family: var(--font-display); font-size: 0.85rem; font-weight: 500;       
-padding: 0.5rem 1.25rem; cursor: pointer;       
-border-radius: 7px;      
-white-space: nowrap; transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);       
-}       
-nav button:hover { opacity: 0.8; }       
-nav button.active {      
- background: var(--surface2);      
- color: var(--accent-blue);      
- border: 1px solid var(--border);    
- box-shadow: 0px 4px 12px rgba(0,0,0,0.3);      
-}
-
-main { max-width: 1100px; margin: 0 auto; padding: 2rem 1.5rem; }       
-.tab-content {    
- display: none;    
- /* Force the computer's GPU to handle the animation to prevent lag */    
- will-change: opacity, transform;    
-}       
-.tab-content.active {    
- display: block;    
- /* Apple's signature snappy tab transition */    
- animation: iosTab 0.4s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;    
-}       
-@keyframes iosTab {    
- /* Starts slightly shrunken and faded */    
- 0% { opacity: 0; transform: scale(0.97) translateY(10px); }    
- /* Snaps into full size and full opacity */    
- 100% { opacity: 1; transform: scale(1) translateY(0); }    
-}
-
-.card {       
-background: var(--surface);       
-border: 1px solid var(--border);       
-border-radius: 14px;       
-padding: 1.5rem;       
-margin-bottom: 1.25rem;       
-box-shadow: var(--card-shadow);      
-backdrop-filter: blur(10px);      
--webkit-backdrop-filter: blur(10px);      
-}       
-.card h3 {       
-font-size: 0.75rem; font-family: var(--font-display); font-weight: 600;      
-letter-spacing: 0.05em; text-transform: uppercase;       
-color: var(--muted); margin-bottom: 0.75rem;       
-}       
-.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; }       
-.grid-3 { display: grid; grid-template-columns: repeat(3,1fr); gap: 1.25rem; }       
-.grid-4 { display: grid; grid-template-columns: repeat(4,1fr); gap: 1.25rem; }   
-@media(max-width:900px){ .grid-4{ grid-template-columns: 1fr 1fr; } }  
-@media(max-width:700px){ .grid-2,.grid-3,.grid-4{ grid-template-columns:1fr; } }
-
-.stat-big { font-size: 3rem; font-weight: 700; line-height: 1.1; letter-spacing: -0.02em; }       
-.stat-label { font-size: 0.8rem; color: var(--muted); margin-top: 0.35rem; font-weight: 500; }
-
-.progress-wrap { margin: 1.25rem 0; }       
-.progress-label { display: flex; justify-content: space-between; font-size: 0.85rem; font-weight: 500; color: var(--text); margin-bottom: 0.5rem; }       
-.progress-bar { height: 7px; background: rgba(120, 120, 128, 0.16); border-radius: 4px; overflow: hidden; }       
-.progress-fill { height: 100%; border-radius: 4px; background: var(--accent-blue); transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1); }
-
-.badge {       
-display: inline-block; padding: 0.25rem 0.6rem;       
-border-radius: 6px; font-size: 0.75rem; font-weight: 600;       
-}       
-.badge-done { background: rgba(48,209,88,0.15); color: var(--green); }       
-.badge-next { background: rgba(10,132,255,0.15); color: var(--accent-blue); }       
-.badge-todo { background: rgba(142,142,147,0.15); color: var(--muted); }
-
-.topic-item {       
-display: flex; align-items: flex-start; gap: 1rem;       
-padding: 1rem 1.25rem; border-radius: 12px;       
-border: 1px solid var(--border); margin-bottom: 0.6rem;       
-background: var(--surface2); cursor: pointer;       
-transition: all 0.2s;       
-}       
-.topic-item:hover { border-color: var(--accent-blue); transform: translateY(-1px); }       
-.topic-id { font-family: var(--font-mono); font-size: 0.8rem; font-weight: 600; color: var(--accent2); min-width: 2.5rem; }       
-.topic-name { font-size: 0.95rem; font-weight: 500; flex: 1; }
-
-.phase-header {       
-font-size: 0.85rem; font-weight: 600;       
-color: var(--text); margin: 2rem 0 0.75rem; padding-left: 0.25rem;      
-}
-
-.mindset-item {       
-background: var(--surface2); border: 1px solid var(--border);       
-border-radius: 12px; padding: 1.25rem; margin-bottom: 0.6rem;       
-cursor: pointer; transition: border-color 0.2s;      
-}       
-.mindset-item:hover { border-color: var(--accent2); }      
-.mindset-q { font-size: 1rem; font-weight: 500; margin-bottom: 0.6rem; }       
-.mindset-meta { display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap; }       
-.rating-strong { color: var(--green); font-size: 0.75rem; font-weight: 600; }       
-.rating-good { color: var(--yellow); font-size: 0.75rem; font-weight: 600; }       
-.concept-tag {       
-font-size: 0.72rem; background: rgba(191,90,242,0.12);       
-color: var(--accent2); padding: 0.2rem 0.5rem; border-radius: 6px; font-weight: 500;       
-}
-
-.session-item {       
-background: var(--surface2); border: 1px solid var(--border);       
-border-radius: 12px; padding: 1.25rem; margin-bottom: 0.75rem;       
-cursor: pointer; transition: all 0.2s;      
-}       
-.session-item:hover { border-color: var(--border); }      
-.session-header { display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 0.5rem; }       
-.session-topic { font-weight: 600; font-size: 1rem; }       
-.session-date { font-family: var(--font-display); font-size: 0.8rem; color: var(--muted); }       
-.session-concepts { display: flex; gap: 0.4rem; flex-wrap: wrap; margin-top: 0.75rem; }       
-.concept-chip {       
-font-size: 0.7rem; font-family: var(--font-mono);       
-background: var(--surface); border: 1px solid var(--border);       
-padding: 0.2rem 0.5rem; border-radius: 6px; color: var(--text);       
-}
-
-textarea, input[type="text"], input[type="date"], input[type="time"], input[type="url"] {       
-width: 100%; background: var(--surface2); border: 1px solid var(--border);       
-border-radius: 10px; color: var(--text); font-family: var(--font-display);       
-font-size: 0.9rem; padding: 0.75rem; outline: none; transition: border-color 0.2s;       
-}       
-textarea:focus, input:focus { border-color: var(--accent-blue); }       
-textarea { min-height: 120px; resize: vertical; }
-
-.btn {       
-display: inline-flex; align-items: center; justify-content: center; gap: 0.4rem;       
-padding: 0.75rem 1.25rem; border-radius: 10px; border: none;       
-font-family: var(--font-display); font-size: 0.88rem; font-weight: 600;       
-cursor: pointer; transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);       
-}       
-.btn-primary { background: var(--accent-blue); color: #fff; }       
-.btn-primary:hover { opacity: 0.9; transform: translateY(-1px); }       
-.btn-ghost { background: rgba(120, 120, 128, 0.16); color: var(--text); }       
-.btn-ghost:hover { background: rgba(120, 120, 128, 0.24); }       
-.btn-save { background: var(--green); color: #fff; }       
-.btn-save:hover { opacity: 0.9; }
-
-.modal-overlay {       
-display: none; position: fixed; inset: 0;       
-background: rgba(0,0,0,0.4); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);       
-z-index: 200; align-items: center; justify-content: center;       
-padding: 1rem;       
-}       
-.modal-overlay.open { display: flex; }       
-.modal {       
-background: var(--surface); border: 1px solid var(--border);       
-border-radius: 20px; padding: 2rem; width: 100%; max-width: 560px;       
-max-height: 90vh; overflow-y: auto; box-shadow: 0 20px 40px rgba(0,0,0,0.3);      
-}       
-.modal h2 { font-size: 1.3rem; font-weight: 700; margin-bottom: 1.5rem; letter-spacing: -0.02em; }       
-.form-row { margin-bottom: 1.25rem; }       
-.form-row label { display: block; font-size: 0.75rem; font-weight: 600; color: var(--muted); margin-bottom: 0.4rem; text-transform: uppercase; letter-spacing: 0.03em; }       
-.form-row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }       
-.modal-footer { display: flex; gap: 0.75rem; justify-content: flex-end; margin-top: 1.5rem; }
-
-#toast {       
-position: fixed; bottom: 2rem; left: 50%; transform: translate(-50%, 100px); z-index: 300;       
-background: var(--surface2); border: 1px solid var(--border); backdrop-filter: blur(20px);       
-border-radius: 14px; padding: 0.85rem 1.5rem; font-weight: 500;       
-font-size: 0.9rem; opacity: 0; box-shadow: var(--card-shadow);       
-transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.3s; pointer-events: none;       
-}       
-#toast.show { transform: translate(-50%, 0); opacity: 1; }       
-#toast.success { border-color: var(--green); color: var(--green); }       
-#toast.error { border-color: var(--red); color: var(--red); }
-
-.session-body { display: none; }       
-.session-item.expanded .session-body { display: block; }       
-.session-summary {       
-font-size: 0.9rem; color: var(--muted); margin-top: 0.4rem; line-height: 1.5;       
-display: -webkit-box; -webkit-line-clamp: 2; line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;       
-}       
-.session-item.expanded .session-summary { display: block; overflow: visible; -webkit-line-clamp: unset; line-clamp: 2; }     
-
-select {  
-  width: 100%;  
-  background: var(--surface2);  
-  border: 1px solid var(--border);  
-  border-radius: 10px;  
-  color: var(--text);  
-  padding: 0.75rem;  
-  font-family: var(--font-display);  
-  font-size: 0.9rem;  
-  outline: none;  
-  transition: border-color 0.2s;  
-  appearance: none;  
-  -webkit-appearance: none;  
-}
-
-/* --- NEW MINDSET MOMENT BADGES & TOGGLES --- */  
-.radio-group {   
-    display: flex;   
-    gap: 15px;   
-    margin-top: 8px;   
-    margin-bottom: 15px;  
-}  
-.radio-group label {   
-    cursor: pointer;   
-    font-size: 0.9em;   
-    display: flex;   
-    align-items: center;   
-    gap: 5px;   
-    background: #2a2a2a;  
-    padding: 8px 12px;  
-    border-radius: 6px;  
-    border: 1px solid #444;  
-}  
-.radio-group input[type="radio"] {  
-    accent-color: #3b82f6;  
-}  
-.moment-badges {   
-    display: flex;   
-    gap: 8px;   
-    margin-bottom: 12px;   
-}  
-.badge-question { background: rgba(59, 130, 246, 0.2); color: #60a5fa; border: 1px solid #3b82f6; padding: 4px 8px; border-radius: 12px; font-size: 0.75em; font-weight: bold; }  
-.badge-situation { background: rgba(139, 92, 246, 0.2); color: #a78bfa; border: 1px solid #8b5cf6; padding: 4px 8px; border-radius: 12px; font-size: 0.75em; font-weight: bold; }  
-.badge-me { background: rgba(16, 185, 129, 0.2); color: #34d399; border: 1px solid #10b981; padding: 4px 8px; border-radius: 12px; font-size: 0.75em; font-weight: bold; }  
-.badge-ai { background: rgba(245, 158, 11, 0.2); color: #fbbf24; border: 1px solid #f59e0b; padding: 4px 8px; border-radius: 12px; font-size: 0.75em; font-weight: bold; }
-
-/* Admin-only buttons: hidden by default, shown only when admin */
-.admin-only { display: none !important; }
-.admin-mode .admin-only { display: inline-flex !important; }
-
-</style>       
+  <meta charset="UTF-8" />       
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />       
+  <title>DevOps Tracker</title>       
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32' fill='none'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='2' y1='16' x2='30' y2='16' gradientUnits='userSpaceOnUse'%3E%3Cstop offset='0%25' stop-color='%2300e5ff'/%3E%3Cstop offset='100%25' stop-color='%237c3aed'/%3E%3C/linearGradient%3E%3C/defs%3E%3Cpath d='M9.5 10C5.35 10 2 12.68 2 16s3.35 6 7.5 6c3.37 0 5.11-1.91 6-2.88.89.97 2.63 2.88 6 2.88 4.15 0 7.5-2.68 7.5-6s-3.35-6-7.5-6c-3.37 0-5.11 1.91-6 2.88-.89-.97-2.63-2.88-6-2.88z' stroke='url(%23g)' stroke-width='2.5'/%3E%3Ccircle cx='16' cy='16' r='1.5' fill='%2300e5ff'/%3E%3C/svg%3E">       
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=SF+Pro+Display:wght@400;500;600;700&display=swap" rel="stylesheet" />       
+  
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>       
+  
+  <link rel="stylesheet" href="style.css" />
 </head>       
 <body>
 
-<header>       
+  <!-- ========================================== -->
+  <!-- START OF TOP HEADER                        -->
+  <!-- ========================================== -->
+  <header>       
     <div class="logo" onclick="handleLogoClick()" style="cursor: pointer;">devops<span>.</span>tracker</div>
     <div class="header-actions">      
-        <button class="theme-toggle" id="themeToggleBtn" onclick="toggleTheme()" title="Toggle appearance">☀️</button>      
-        <div class="status-dot">       
-            <div class="dot" id="statusDot"></div>       
-            <span id="statusText">connecting…</span>       
-        </div>       
-    </div>      
-</header>
-
-<div class="nav-container">      
-  <nav>       
-    <button class="active" onclick="showTab('dashboard',this)">Dashboard</button>       
-    <button onclick="showTab('log',this)">Session Log</button>       
-    <button onclick="showTab('topics',this)">Topics</button>       
-    <button onclick="showTab('projects',this)">Portfolio</button>       
-    <button onclick="showTab('mindset',this)">Mindset</button>       
-    <button onclick="showTab('notes',this)">Daily Log</button>       
-    <button onclick="showTab('cmds',this)">Terminal Cmds 💻</button>  
-    <button onclick="showTab('jarvis',this)">⚡ Jarvis</button>
-    <button onclick="showTab('warroom',this)">🚨 War Room</button>
-  </nav>      
-</div>
-
-<main>
-
-<!-- ── DASHBOARD TAB ── -->
-<div id="tab-dashboard" class="tab-content active">
-  <div class="grid-4" style="margin-bottom:1.25rem">
-    <div class="card" style="text-align:center">
-      <div class="stat-big" id="dash-done">—</div>
-      <div class="stat-label">Topics Completed</div>
-    </div>
-    <div class="card" style="text-align:center">
-      <div class="stat-big" id="dash-pct">—</div>
-      <div class="stat-label">Overall Progress</div>
-    </div>
-    <div class="card" style="text-align:center">
-      <div class="stat-big" id="dash-mindset">—</div>
-      <div class="stat-label">Mindset Moments</div>
-    </div>
-    <div class="card" style="text-align:center">
-      <div class="stat-big" id="dash-projects">—</div>
-      <div class="stat-label">Portfolio Projects</div>
-    </div>
-  </div>
-  <div class="card">
-    <h3>Phase Progress</h3>
-    <div class="progress-wrap">
-      <div class="progress-label"><span>Phase 1 — Foundations</span><span id="phase1-pct">0%</span></div>
-      <div class="progress-bar"><div class="progress-fill" id="phase1-bar" style="width:0%"></div></div>
-    </div>
-    <div class="progress-wrap">
-      <div class="progress-label"><span>Phase 2 — Networking + Cloud</span><span id="phase2-pct">0%</span></div>
-      <div class="progress-bar"><div class="progress-fill" id="phase2-bar" style="width:0%"></div></div>
-    </div>
-    <div class="progress-wrap">
-      <div class="progress-label"><span>Phases 3–8 — Advanced</span><span id="phase38-pct">0%</span></div>
-      <div class="progress-bar"><div class="progress-fill" id="phase38-bar" style="width:0%"></div></div>
-    </div>
-  </div>
-  <div class="card">
-    <h3>Up Next</h3>
-    <div id="dash-next-topic" style="font-size:1rem;font-weight:500">Loading...</div>
-    <div style="margin-top:1.25rem;display:flex;gap:0.75rem;flex-wrap:wrap">
-      <button class="btn btn-primary admin-only" onclick="openSaveModal()">💾 Save Completed Session</button>
-      <button class="btn btn-ghost" onclick="showTab('topics',document.querySelectorAll('nav button')[2])">📋 View Roadmap</button>
-    </div>
-  </div>
-</div>
-
-<!-- ── SESSION LOG TAB ── -->
-<div id="tab-log" class="tab-content">
-  <div class="card" style="margin-bottom:1.25rem">
-    <input type="text" id="session-search" placeholder="Search by topic, date, concepts, notes..." oninput="searchSessions()" style="margin-bottom:0" />
-  </div>
-  <div id="sessions-list"></div>
-</div>
-
-<!-- ── TOPICS / ROADMAP TAB ── -->
-<div id="tab-topics" class="tab-content">
-  <div class="card" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem;margin-bottom:1.25rem">
-    <div>
-      <div style="font-weight:700;font-size:1.1rem">67-Topic DevOps Roadmap</div>
-      <div style="color:var(--muted);font-size:0.85rem;margin-top:0.2rem">Click any topic to expand teaching notes</div>
-    </div>
-    <button class="btn btn-primary admin-only" onclick="openSaveModal()">💾 Save Session</button>
-  </div>
-  <div id="topics-list"></div>
-</div>
-
-<!-- ── PORTFOLIO TAB ── -->
-<div id="tab-projects" class="tab-content">
-  <div class="card" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem;margin-bottom:1.25rem">
-    <div>
-      <div style="font-weight:700;font-size:1.1rem">Mini Project Portfolio</div>
-      <div style="color:var(--muted);font-size:0.85rem;margin-top:0.2rem">One project per topic — built to prove it, not just know it</div>
-    </div>
-    <button class="btn btn-primary admin-only" onclick="openProjectModal()">🚀 Add Project</button>
-  </div>
-  <div id="projects-list"></div>
-</div>
-
-<!-- ── MINDSET TAB ── -->
-<div id="tab-mindset" class="tab-content">
-  <div class="card" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem;margin-bottom:1.25rem">
-    <div>
-      <div style="font-weight:700;font-size:1.1rem">Mindset Moments</div>
-      <div style="color:var(--muted);font-size:0.85rem;margin-top:0.2rem">Questions and situations that reveal how you think</div>
-    </div>
-    <div style="display:flex;align-items:center;gap:1rem">
-      <div style="font-size:0.85rem;color:var(--muted)">⭐ Strong: <strong id="strong-count">—</strong></div>
-      <button class="btn btn-primary admin-only" onclick="openMindsetModal()">+ Add Moment</button>
-    </div>
-  </div>
-  <div class="card" style="margin-bottom:1.25rem">
-    <div style="display:flex;gap:0.5rem;flex-wrap:wrap;margin-bottom:1rem">
-      <button class="btn btn-ghost" onclick="filterMindset('all')">All</button>
-      <button class="btn btn-ghost" onclick="filterMindset('question')">❓ Questions</button>
-      <button class="btn btn-ghost" onclick="filterMindset('situation')">🎬 Situations</button>
-      <button class="btn btn-ghost" onclick="filterMindset('strong')">⭐ Strong</button>
-      <button class="btn btn-ghost" onclick="filterMindset('good')">👍 Good</button>
-      <button class="btn btn-ghost" onclick="filterMindset('duplicates')">🔍 Duplicates</button>
-    </div>
-    <input type="text" id="mindset-search" placeholder="Search mindset moments..." oninput="searchMindset()" style="margin-bottom:0" />
-  </div>
-  <div id="mindset-list"></div>
-</div>
-
-<!-- ── DAILY LOG TAB ── -->
-<div id="tab-notes" class="tab-content">
-  <div class="card">
-    <h3>New Journal Entry</h3>
-    <div class="form-row-2" style="margin-bottom:1rem">
-      <div class="form-row" style="margin-bottom:0">
-        <label>Date</label>
-        <input type="date" id="note-date" />
-      </div>
-      <div class="form-row" style="margin-bottom:0">
-        <label>Author</label>
-        <input type="text" id="note-author" placeholder="" value="Michael Joshua" />
-      </div>
-    </div>
-    <div class="form-row">
-      <label>Title</label>
-      <input type="text" id="note-title" placeholder="e.g., Day 5 — Terminal Breakthrough" />
-    </div>
-    <div class="form-row">
-      <label>Entry</label>
-      <textarea id="note-text" style="min-height:150px" placeholder="Write your thoughts, progress, reflections, or blockers..."></textarea>
-    </div>
-    <button class="btn btn-save admin-only" onclick="saveNote()">Save Note</button>
-  </div>
-  <div id="notes-list"></div>
-</div>
-
-<!-- ── TERMINAL CMDS TAB ── -->
-<div id="tab-cmds" class="tab-content">
-  <div class="card" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem;margin-bottom:1.25rem">
-    <div>
-      <div style="font-weight:700;font-size:1.1rem">Terminal Commands Runbook 💻</div>
-      <div style="color:var(--muted);font-size:0.85rem;margin-top:0.2rem">Every command you've learned — searchable, categorized, copyable</div>
-    </div>
-    <button class="btn btn-primary admin-only" onclick="openCmdModal()">+ Add Command</button>
-  </div>
-  <div class="card" style="margin-bottom:1.25rem">
-    <div id="cmd-filters" style="display:flex;gap:0.5rem;flex-wrap:wrap;margin-bottom:1rem">
-      <button class="btn" data-filter="All" style="background:var(--accent)" onclick="setCmdFilter('All')">All</button>
-      <button class="btn btn-ghost" data-filter="Linux" onclick="setCmdFilter('Linux')">🐧 Linux</button>
-      <button class="btn btn-ghost" data-filter="Git" onclick="setCmdFilter('Git')">🔀 Git</button>
-      <button class="btn btn-ghost" data-filter="Docker" onclick="setCmdFilter('Docker')">🐳 Docker</button>
-      <button class="btn btn-ghost" data-filter="Kubernetes" onclick="setCmdFilter('Kubernetes')">☸️ Kubernetes</button>
-      <button class="btn btn-ghost" data-filter="Terraform" onclick="setCmdFilter('Terraform')">🏗️ Terraform</button>
-      <button class="btn btn-ghost" data-filter="Python" onclick="setCmdFilter('Python')">🐍 Python</button>
-      <button class="btn btn-ghost" data-filter="Cloud CLI" onclick="setCmdFilter('Cloud CLI')">☁️ Cloud CLI</button>
-      <button class="btn btn-ghost" data-filter="Duplicates" onclick="setCmdFilter('Duplicates')">🔍 Duplicates</button>
-    </div>
-    <input type="text" id="cmd-search" placeholder="Search commands..." oninput="renderCommands()" style="margin-bottom:0" />
-  </div>
-  <div id="cmds-list"></div>
-</div>
-
-<!-- ── JARVIS TAB (original — untouched) ── -->
-<div id="tab-jarvis" class="tab-content">  
-  <div id="j-wrapper" style="height: 600px; display: flex; flex-direction: column; background: var(--card); border: 1px solid var(--border); border-radius: 12px; overflow: hidden;">  
-    <style>  
-      /* Scoped styles specifically for Jarvis to prevent breaking other tabs */  
-      #tab-jarvis .j-topbar { display: flex; align-items: center; gap: 12px; padding: 16px 20px; background: var(--card); border-bottom: 1px solid var(--border); }  
-      #tab-jarvis .j-pulse { width: 10px; height: 10px; border-radius: 50%; background: #34d399; box-shadow: 0 0 10px rgba(52, 211, 153, 0.6); }  
-      #tab-jarvis .j-title { display: flex; flex-direction: column; }  
-      #tab-jarvis .j-tname { font-size: 1.1rem; font-weight: 600; color: var(--text); }  
-      #tab-jarvis .j-tsub { font-family: monospace; font-size: 0.75rem; color: var(--muted); }  
-      #tab-jarvis .j-msgs { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 16px; }  
-      #tab-jarvis .j-msg { display: flex; gap: 12px; }  
-      #tab-jarvis .j-msg.j-user { flex-direction: row-reverse; }  
-      #tab-jarvis .j-bubble { padding: 12px 16px; border-radius: 12px; background: var(--bg); border: 1px solid var(--border); max-width: 80%; }  
-      #tab-jarvis .j-input-area { padding: 16px; background: var(--card); border-top: 1px solid var(--border); display: flex; gap: 10px; }  
-      #tab-jarvis textarea { flex: 1; background: var(--bg); border: 1px solid var(--border); color: var(--text); padding: 8px; border-radius: 6px; resize: none; }  
-    </style>
-    <div class="j-topbar">  
-      <div class="j-pulse"></div>  
-      <div class="j-title">  
-        <span class="j-tname">Jarvis</span>  
-        <span class="j-tsub">DevOps Learning Agent</span>  
-      </div>  
-    </div>  
-    <div class="j-msgs" id="j-msgs">  
-      <div class="j-msg"><div class="j-bubble">Systems initialized. What do you need help with?</div></div>  
-    </div>
-    <div class="j-input-area">  
-      <textarea id="j-input" rows="1" placeholder="Ask Jarvis... (Enter to send, Shift+Enter for new line)" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();jSend();}"></textarea>  
-      <button onclick="jSend()" style="padding: 0 15px; background: var(--accent); color: white; border: none; border-radius: 6px; cursor: pointer;">Send</button>  
-    </div>  
-  </div>  
-</div>
-
-<script>
-  const jHistory = [];
-
-  async function jSend() {
-    const input = document.getElementById('j-input');
-    const text = input.value.trim();
-    if (!text) return;
-
-    const msgs = document.getElementById('j-msgs');
-
-    // Show user message
-    const userDiv = document.createElement('div');
-    userDiv.className = 'j-msg j-user';
-    userDiv.innerHTML = `<div class="j-bubble">${text}</div>`;
-    msgs.appendChild(userDiv);
-    input.value = '';
-    msgs.scrollTop = msgs.scrollHeight;
-
-    // Add to conversation history
-    jHistory.push({ role: 'user', content: text });
-
-    // Show thinking indicator
-    const thinkDiv = document.createElement('div');
-    thinkDiv.className = 'j-msg';
-    thinkDiv.id = 'j-thinking';
-    thinkDiv.innerHTML = `<div class="j-bubble" style="color:var(--muted);font-style:italic">Thinking...</div>`;
-    msgs.appendChild(thinkDiv);
-    msgs.scrollTop = msgs.scrollHeight;
-
-    try {
-     const response = await fetch('https://jarvis-proxy-seven.vercel.app/api/proxy', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ message: text })
-        });
-
-        const data = await response.json();
-        console.log('Jarvis response:', JSON.stringify(data));
-        document.getElementById('j-thinking').remove();
-
-        const reply = data.reply || 'No response received.';
-      // Add to history
-      jHistory.push({ role: 'assistant', content: reply });
-
-      const replyDiv = document.createElement('div');
-      replyDiv.className = 'j-msg';
-      replyDiv.innerHTML = `<div class="j-bubble">${reply.replace(/\n/g, '<br>')}</div>`;
-      msgs.appendChild(replyDiv);
-
-    } catch (err) {
-      document.getElementById('j-thinking').remove();
-      const errDiv = document.createElement('div');
-      errDiv.className = 'j-msg';
-      errDiv.innerHTML = `<div class="j-bubble" style="color:#f87171">Error: ${err.message}</div>`;
-      msgs.appendChild(errDiv);
-    }
-
-    msgs.scrollTop = msgs.scrollHeight;
-  }
-
-
-</script>
-
-<!-- ── SETUP TAB ── -->
-<div id="tab-setup" class="tab-content">
-  <div class="card">
-    <h3>Supabase Connection</h3>
-    <div class="form-row">
-      <label>Supabase Project URL</label>
-      <input type="text" id="sb-url" placeholder="https://your-project.supabase.co" />
-    </div>
-    <div class="form-row">
-      <label>Supabase Anon Key</label>
-      <input type="text" id="sb-key" placeholder="your-anon-key-here" />
-    </div>
-    <button class="btn btn-primary" onclick="saveConfig()">Connect to Supabase</button>
-  </div>
-</div>
-
-<!-- ── WAR ROOM TAB ── -->
-<div id="tab-warroom" class="tab-content">
-
-  <!-- Header row -->
-  <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:1.25rem; flex-wrap:wrap; gap:0.75rem;">
-    <div>
-      <div style="font-size:1.3rem; font-weight:700; letter-spacing:-0.02em;">🚨 War Room</div>
-      <div style="font-size:0.82rem; color:var(--muted); margin-top:0.2rem;">Every problem you fought — documented, searchable, permanent.</div>
-    </div>
-    <div style="display:flex; gap:0.5rem; align-items:center; flex-wrap:wrap;">
-      <!-- View toggles -->
-      <div style="display:flex; background:rgba(120,120,128,0.12); border-radius:8px; padding:2px; gap:1px;">
-        <button id="wr-view-grid" onclick="setWRView('grid')" title="Grid view" style="background:var(--surface2); border:1px solid var(--border); border-radius:6px; padding:0.3rem 0.6rem; cursor:pointer; font-size:0.85rem; color:var(--accent-blue);">⊞</button>
-        <button id="wr-view-list" onclick="setWRView('list')" title="List view" style="background:none; border:none; border-radius:6px; padding:0.3rem 0.6rem; cursor:pointer; font-size:0.85rem; color:var(--muted);">≡</button>
-        <button id="wr-view-compact" onclick="setWRView('compact')" title="Compact view" style="background:none; border:none; border-radius:6px; padding:0.3rem 0.6rem; cursor:pointer; font-size:0.85rem; color:var(--muted);">▤</button>
-      </div>
-      <button class="btn btn-primary admin-only" onclick="openWarRoomModal()">+ New Report</button>
-    </div>
-  </div>
-
-  <!-- Filter + search bar -->
-  <div style="display:flex; gap:0.5rem; flex-wrap:wrap; align-items:center; margin-bottom:1.25rem;">
-    <div id="wr-filters" style="display:flex; gap:0.5rem; flex-wrap:wrap;">
-      <button class="btn btn-ghost" style="font-size:0.78rem; padding:0.3rem 0.75rem;" data-wrfilter="all" onclick="setWRFilter('all')">All</button>
-      <button class="btn btn-ghost" style="font-size:0.78rem; padding:0.3rem 0.75rem;" data-wrfilter="bug" onclick="setWRFilter('bug')">🐛 Bug</button>
-      <button class="btn btn-ghost" style="font-size:0.78rem; padding:0.3rem 0.75rem;" data-wrfilter="deep-dive" onclick="setWRFilter('deep-dive')">📚 Deep Dive</button>
-      <button class="btn btn-ghost" style="font-size:0.78rem; padding:0.3rem 0.75rem;" data-wrfilter="build" onclick="setWRFilter('build')">🔨 Build</button>
-      <button class="btn btn-ghost" style="font-size:0.78rem; padding:0.3rem 0.75rem;" data-wrfilter="incident" onclick="setWRFilter('incident')">🔥 Incident</button>
-    </div>
-    <input type="text" id="wr-search" placeholder="Search reports…" oninput="searchWR()" style="margin-left:auto; width:200px; padding:0.35rem 0.75rem; font-size:0.82rem; min-height:unset;" />
-  </div>
-
-  <!-- Report cards container -->
-  <div id="warroom-list">
-    <div style="color:var(--muted); font-size:0.9rem;">No reports yet. Hit <strong>+ New Report</strong> to document your first battle.</div>
-  </div>
-
-</div>
-
-<!-- ── WAR ROOM READER (full-screen overlay) ── -->
-<div id="wr-reader" style="display:none; position:fixed; inset:0; z-index:500; background:var(--bg); overflow-y:auto;">
-
-  <!-- Reader top bar -->
-  <div style="position:sticky; top:0; z-index:10; display:flex; justify-content:space-between; align-items:center; padding:1rem 2rem; background:var(--surface); border-bottom:1px solid var(--border); backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px); flex-wrap:wrap; gap:0.75rem;">
-    <div style="display:flex; align-items:center; gap:0.75rem;">
-      <button onclick="closeWRReader()" style="background:none; border:none; color:var(--muted); cursor:pointer; font-size:1.1rem; padding:0.25rem 0.5rem; border-radius:6px; transition:background 0.2s;" onmouseover="this.style.background='var(--border)'" onmouseout="this.style.background='none'">← Back</button>
-      <span id="wr-reader-type-badge" style="font-size:0.72rem; font-weight:700; padding:0.2rem 0.6rem; border-radius:6px;"></span>
-      <span id="wr-reader-title-bar" style="font-weight:600; font-size:0.95rem;"></span>
-    </div>
-    <div style="display:flex; gap:0.5rem;">
-      <button id="wr-download-btn" onclick="downloadWRReport()" class="btn btn-ghost" style="font-size:0.82rem; padding:0.4rem 0.9rem;">⬇ Download .md</button>
-      <button class="btn btn-ghost admin-only" id="wr-reader-edit-btn" style="font-size:0.82rem; padding:0.4rem 0.9rem;">✏️ Edit</button>
-    </div>
-  </div>
-
-  <!-- Reader body -->
-  <div style="max-width:760px; margin:0 auto; padding:2.5rem 1.5rem;">
-    <div id="wr-reader-date" style="font-family:var(--font-mono); font-size:0.78rem; color:var(--muted); margin-bottom:0.5rem;"></div>
-    <h1 id="wr-reader-title" style="font-size:1.8rem; font-weight:700; letter-spacing:-0.03em; margin-bottom:0.5rem; line-height:1.2;"></h1>
-    <div id="wr-reader-topic" style="margin-bottom:2rem;"></div>
-
-    <div id="wr-reader-problem" style="margin-bottom:2rem;"></div>
-    <div id="wr-reader-rootcause" style="margin-bottom:2rem;"></div>
-    <div id="wr-reader-solution" style="margin-bottom:2rem;"></div>
-    <div id="wr-reader-fullreport" style="margin-bottom:2rem;"></div>
-  </div>
-
-</div>
-
-</main>
-
-<div class="modal-overlay" id="saveModal">       
-<div class="modal">       
-<h2>💾 Save Completed Session</h2>       
-<div class="form-row-2">       
-<div class="form-row">       
-  <label>Date</label>       
-  <input type="date" id="m-date" />       
-</div>       
-<div class="form-row">       
-  <label>Time</label>       
-  <input type="time" id="m-time" />       
-</div>       
-</div>       
-<div class="form-row-2" style="margin-bottom:1rem">       
-<div class="form-row" style="margin-bottom:0">       
- <label>Topic ID</label>       
- <input type="text" id="m-topicid" placeholder="" />       
-</div>       
-<div class="form-row" style="margin-bottom:0">       
- <label>Topic Name</label>       
- <input type="text" id="m-topicname" placeholder="" />       
-</div>       
-</div>      
-<div class="form-row">       
-<label>Full Teaching Notes</label>       
-<textarea id="m-fullnotes" style="min-height:160px" placeholder="Write complete structural notes, code blocks, analogies, or instructions covered..."></textarea>       
-</div>       
-<div class="form-row">       
-<label>Summary (2 to 3 lines max)</label>       
-<textarea id="m-summary" style="min-height:70px" placeholder="Short summary of metrics or topics achieved..."></textarea>       
-</div>       
-<div class="form-row">       
-<label>Key Concepts (comma separated)</label>       
-<input type="text" id="m-concepts" placeholder="pwd, ls, cd, absolute path" />       
-</div>       
-<div class="modal-footer">       
-<button class="btn btn-ghost" onclick="closeModal()">Cancel</button>       
-<button class="btn btn-save" onclick="saveSession()">Save Session</button>       
-</div>       
-</div>       
-</div>
-
-<div class="modal-overlay" id="projectModal">  
-<div class="modal">  
-  <h2>🚀 Add Portfolio Project</h2>  
-  <input type="hidden" id="proj-id">  
-  <div class="form-row-2">  
-     <div class="form-row">  
-       <label>Topic ID Reference (e.g., 1.5)</label>  
-       <input type="text" id="proj-topic" placeholder="1.5" />  
-     </div>  
-     <div class="form-row">  
-       <label>Project Title</label>  
-       <input type="text" id="proj-name" placeholder="Automated Backup Script" />  
-     </div>  
-  </div>  
-  <div class="form-row">  
-    <label>The DevOps Concept / Problem Solved</label>  
-    <textarea id="proj-theory" style="min-height:80px" placeholder="Explain the problem this solves..."></textarea>  
-  </div>  
-  <div class="form-row">  
-    <label>Code Snippet (Optional)</label>  
-    <textarea id="proj-code" style="font-family: var(--font-mono); min-height: 150px; font-size: 0.85rem;" placeholder="#!/bin/bash..."></textarea>  
-  </div>  
-  <div class="form-row">  
-    <label>GitHub Source URL (Optional)</label>  
-    <input type="url" id="proj-url" placeholder="https://github.com/.../backup.sh" />  
-  </div>  
-  <div class="modal-footer">  
-    <button class="btn btn-ghost" onclick="closeProjectModal()">Cancel</button>  
-    <button class="btn btn-save" onclick="saveProject()">Deploy Project</button>  
-  </div>  
-</div>  
-</div>
-
-<div class="modal-overlay" id="mindsetModal">       
-<div class="modal">       
-<h2>🧠 Add Mindset Moment</h2>     
-
-<div class="form-row" style="margin-bottom: 1rem;">  
-  <label>Entry Type</label>  
-  <div style="display: flex; gap: 1rem; margin-top: 0.5rem;">  
-      <label style="cursor: pointer; display: flex; align-items: center; gap: 0.3rem; font-size: 0.9rem;">  
-          <input type="radio" name="moment_type" value="Question" checked onchange="document.getElementById('label-question').innerText='The Question'; document.getElementById('label-response').innerText='The Insight / Answer';"> ❓ Question  
-      </label>  
-      <label style="cursor: pointer; display: flex; align-items: center; gap: 0.3rem; font-size: 0.9rem;">  
-          <input type="radio" name="moment_type" value="Situation" onchange="document.getElementById('label-question').innerText='What Happened'; document.getElementById('label-response').innerText='The Response / Action Taken';"> 🎬 Situation  
-      </label>  
-  </div>  
-</div>
-
-<div class="form-row">       
-<label id="label-question">The Question</label>       
-<input type="text" id="mind-question" placeholder="e.g., Why do we use Linux instead of Windows?" />       
-</div>     
-
-<div class="form-row-2">       
-<div class="form-row">       
-  <label>Rating</label>       
-  <select id="mind-rating" style="width:100%; background:var(--surface2); border:1px solid var(--border); border-radius:10px; color:var(--text); padding:0.75rem; font-family:var(--font-display); outline:none;">    
-    <option value="good">Good direction</option>    
-    <option value="strong">Strong instinct</option>    
-  </select>       
-</div>       
-<div class="form-row">       
-  <label>Concept Tag</label>       
-  <input type="text" id="mind-concept" placeholder="e.g., Architecture" />       
-</div>       
-</div>    
-
-<div class="form-row">       
-<label>Linked Topic (Optional)</label>       
-<input type="text" id="mind-topic" placeholder="e.g., 1.1 How computers work" />       
-</div>     
-
-<div class="form-row">       
-<label id="label-response">The Insight / Response</label>       
-<textarea id="mind-response" style="min-height:100px" placeholder="Write the realization or answer here..."></textarea>       
-</div>     
-
-<div class="form-row" style="margin-bottom: 1rem;">  
-  <label>Who provided the insight?</label>  
-  <div style="display: flex; gap: 1rem; margin-top: 0.5rem;">  
-      <label style="cursor: pointer; display: flex; align-items: center; gap: 0.3rem; font-size: 0.9rem;">  
-          <input type="radio" name="insight_source" value="Me"> 🧠 Me (I figured it out)  
-      </label>  
-      <label style="cursor: pointer; display: flex; align-items: center; gap: 0.3rem; font-size: 0.9rem;">  
-          <input type="radio" name="insight_source" value="AI" checked> 🤖 AI helped  
-      </label>  
-  </div>  
-</div>
-
-<div class="modal-footer">       
-<button class="btn btn-ghost" onclick="closeMindsetModal()">Cancel</button>       
-<button class="btn btn-save" onclick="saveMindsetMoment()">Save Moment</button>       
-</div>       
-</div>       
-</div>
-
-<div class="modal-overlay" id="deleteConfirmModal">       
- <div class="modal" style="max-width: 400px; text-align: center;">       
-   <div style="font-size: 3rem; margin-bottom: 1rem;">⚠️</div>    
-   <h2>Delete Moment?</h2>       
-   <p style="color:var(--muted); font-size: 0.95rem; margin-bottom: 2rem;">Are you sure you want to permanently delete this mindset moment? This action cannot be undone.</p>       
-   <div style="display: flex; gap: 1rem; justify-content: center;">       
-     <button class="btn btn-ghost" style="flex:1" onclick="closeDeleteModal()">Cancel</button>       
-     <button class="btn" style="flex:1; background: var(--red); color: white;" onclick="confirmDeleteMindset()">Delete</button>       
-   </div>       
- </div>       
-</div>
-
-<div id="toast"></div>
-
-<div class="modal-overlay" id="cmdModal">  
-<div class="modal">  
-  <h2 id="cmd-modal-title">💻 Add Command</h2>
-
-  <div class="form-row-2">  
-    <div class="form-row">  
-      <label>Command <span style="color:var(--red)">*</span></label>  
-      <input type="text" id="cmd-text" placeholder="e.g., mkdir -p" />  
-    </div>  
-    <div class="form-row">  
-      <label>Category <span style="color:var(--red)">*</span></label>  
-      <select id="cmd-category" style="width:100%; background:var(--surface2); border:1px solid var(--border); border-radius:10px; color:var(--text); padding:0.75rem; font-family:var(--font-display); outline:none;">  
-        <option value="Linux">Linux</option>  
-        <option value="Git">Git</option>  
-        <option value="Docker">Docker</option>  
-        <option value="Kubernetes">Kubernetes</option>  
-        <option value="Terraform">Terraform</option>  
-        <option value="Python">Python</option>  
-        <option value="Cloud CLI">Cloud CLI</option>  
-      </select>  
-    </div>  
-  </div>
-
-  <div class="form-row">  
-    <label>Plain English Meaning <span style="color:var(--red)">*</span></label>  
-    <input type="text" id="cmd-meaning" placeholder="e.g., Makes a directory, creates missing parent folders" />  
-  </div>
-
-  <div class="form-row">  
-    <label>Example Usage</label>  
-    <input type="text" id="cmd-example" placeholder="e.g., mkdir -p /home/user/app" />  
-  </div>
-
-  <div class="form-row-2">  
-    <div class="form-row">  
-      <label>Topic Learned</label>  
-      <input type="text" id="cmd-topic" placeholder="e.g., 1.3" />  
-    </div>  
-    <div class="form-row">  
-      <label>Future Topics</label>  
-      <input type="text" id="cmd-future" placeholder="e.g., 1.5, Phase 6" />  
-    </div>  
-  </div>
-
-  <div class="form-row">  
-    <label>Linked Commands (Comma separated)</label>  
-    <input type="text" id="cmd-links" placeholder="e.g., cd, touch, ls" />  
-  </div>
-
-  <div class="form-row">  
-    <label>Security Note</label>  
-    <textarea id="cmd-security" style="min-height:80px; border-left: 3px solid var(--red);" placeholder="e.g., Avoid running as root — never run chmod 777 on system folders"></textarea>  
-  </div>
-
-  <div class="modal-footer">  
-    <button class="btn btn-ghost" onclick="closeCmdModal()">Cancel</button>  
-    <button class="btn btn-save" onclick="saveCommand()">Save Command</button>  
-  </div>  
-</div>  
-</div>
-
-<script>      
-
-const SUPABASE_URL = 'https://btzyjrscjmxrcyllzwic.supabase.co';
-const SUPABASE_KEY = 'sb_publishable_HgG7jZWwCaliP50xjQyY5w_xLLl2D4o';
-
-// ── STATE ──       
-let sb = null;       
-let allMindset = [];      
-let allProjects = [];
-let allSessions = [];
-let allNotes = [];
-let nextTopicGlobal = null;  
-let editingNoteId = null;
-
-// ── UTILITIES ──  
-function escapeHTML(str) {  
-  if (!str) return '';  
-  return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");  
-}
-
-// ── INIT ──       
-window.addEventListener('DOMContentLoaded', () => {       
-initTheme();      
-loadConfig();       
-setDefaultDate();       
-});
-
-function setDefaultDate() {       
-const now = new Date();       
-const d = now.toISOString().split('T')[0];       
-const t = now.toTimeString().slice(0,5);       
-const el = document.getElementById('m-date');       
-const et = document.getElementById('m-time');       
-if(el) el.value = d;       
-if(et) et.value = t;       
-}
-
-// ── THEME ENGINE (iOS Style Switching) ──      
-function initTheme() {      
-const savedTheme = localStorage.getItem('theme') || 'dark';      
-document.documentElement.setAttribute('data-theme', savedTheme);      
-updateThemeToggleIcon(savedTheme);      
-}
-
-function toggleTheme() {      
-const currentTheme = document.documentElement.getAttribute('data-theme');      
-const nextTheme = currentTheme === 'dark' ? 'light' : 'dark';      
-document.documentElement.setAttribute('data-theme', nextTheme);      
-localStorage.setItem('theme', nextTheme);      
-updateThemeToggleIcon(nextTheme);      
-}
-
-function updateThemeToggleIcon(theme) {      
-const btn = document.getElementById('themeToggleBtn');      
-if(btn) btn.innerHTML = theme === 'dark' ? '☀️' : '🌙';      
-}
-
-// ── CONFIG ──             
-function loadConfig() {        
-  // Always use the hardcoded keys — no localStorage needed
-  initSupabase(SUPABASE_URL, SUPABASE_KEY);        
-}
-
-function saveConfig() {       
-const url = document.getElementById('sb-url').value.trim();       
-const key = document.getElementById('sb-key').value.trim();       
-if(!url || !key){ toast('Please fill in both fields','error'); return; }       
-localStorage.setItem('sb_url', url);       
-localStorage.setItem('sb_key', key);       
-initSupabase(url, key);       
-toast('Credentials saved!','success');       
-}
-
-function initSupabase(url, key) {       
-try {       
-sb = window.supabase.createClient(url, key);       
-testConnection();       
-} catch(e) {       
-setStatus(false,'init error');       
-}       
-}
-
-async function testConnection() {       
-try {       
-const { data, error } = await sb.from('topic_status').select('id').limit(1);       
-if(error) throw error;       
-setStatus(true,'Connected to Supabase');       
-loadAll();       
-} catch(e) {       
-setStatus(false,'connection failed');
-console.warn('Supabase connection error:', e.message || JSON.stringify(e));
-// Show a retry button in the status area so user doesn't have to hard-refresh
-const statusEl = document.getElementById('statusText');
-if(statusEl) statusEl.innerHTML = 'connection failed &nbsp;<span onclick="retryConnection()" style="cursor:pointer;color:var(--accent-blue);text-decoration:underline;font-size:0.75rem">retry</span>';
-}       
-}
-
-function retryConnection() {
-  const statusEl = document.getElementById('statusText');
-  if(statusEl) statusEl.textContent = 'retrying…';
-  document.getElementById('statusDot').className = 'dot';
-  initSupabase(SUPABASE_URL, SUPABASE_KEY);
-}
-
-function setStatus(ok, msg) {       
-document.getElementById('statusDot').className = 'dot' + (ok?' connected':'');       
-document.getElementById('statusText').textContent = msg;       
-}
-
-// ── LOAD ALL DATA ──    
-async function loadAll() {    
- await loadTopics();    
- await loadSessions();    
- await loadMindset();    
- await loadProjects();
- await loadNotes();    
- await loadDashboard();    
- await loadCommands();
- await loadWarRoom();
-}
-
-// ── MASTER STATE MANAGER ──    
-async function syncUI() {    
- // 1. Fetch the absolute latest data from Supabase (and wait for it!)    
- await loadAll();    
-  // 2. Force every single tab to redraw with the fresh data    
- if (typeof renderMindset === 'function' && typeof allMindset !== 'undefined') renderMindset(allMindset);    
- if (typeof renderNotes === 'function' && typeof allNotes !== 'undefined') renderNotes(allNotes);    
- if (typeof renderSessions === 'function' && typeof allSessions !== 'undefined') renderSessions(allSessions);    
- if (typeof renderProjects === 'function' && typeof allProjects !== 'undefined') renderProjects(allProjects); // <-- PROJECT REDRAW  
- if (typeof renderRoadmap === 'function') renderRoadmap();    
-}
-
-// ── TABS ──       
-function showTab(name, btn) {       
-document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));       
-document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));       
-document.getElementById('tab-' + name).classList.add('active');       
-if(btn) btn.classList.add('active');       
-}
-
-// ── PORTFOLIO PROJECTS (NEW ENGINE) ──  
-async function loadProjects() {  
-    if(!sb) return;  
-    try {  
-        const { data, error } = await sb.from('mini_projects').select('*').order('topic_id');  
-        if(error) {  
-            document.getElementById('projects-list').innerHTML = `<div style="color:var(--red)">Error loading projects: ${error.message}</div>`;  
-            return;  
-        }  
-        allProjects = data || [];  
-        document.getElementById('dash-projects').textContent = allProjects.length;  
-        renderProjects(allProjects);  
-    } catch(e) {  
-        console.error("Projects Load Error:", e);  
-    }  
-}
-
-function renderProjects(data) {  
-    const container = document.getElementById('projects-list');  
-    if(!data || data.length === 0) {  
-        container.innerHTML = '<div style="color:var(--muted);font-size:0.9rem">No projects deployed yet. Add your first build!</div>';  
-        return;  
-    }  
-      
-    container.innerHTML = data.map(p => {  
-        const codeSnippet = p.code_snippet ? `<div style="margin-top:1.25rem"><div style="font-size:0.75rem;font-weight:600;color:var(--muted);text-transform:uppercase;margin-bottom:0.5rem;letter-spacing:0.05em">Code Engine Artifact</div><pre style="background:var(--bg);padding:1rem;border-radius:10px;font-family:var(--font-mono);font-size:0.85rem;color:var(--accent);overflow-x:auto;border:1px solid var(--border)"><code>${escapeHTML(p.code_snippet)}</code></pre></div>` : '';  
-          
-        const githubBtn = p.github_url ? `<a href="${escapeHTML(p.github_url)}" target="_blank" class="btn btn-ghost" style="font-size:0.8rem;padding:0.4rem 0.85rem;text-decoration:none;color:var(--text)">🔗 View Source</a>` : '';
-
-        // Time log — always visible, small
-        const createdDate = p.created_at ? new Date(p.created_at).toLocaleString() : 'Unknown';
-        const editedDate = p.extra_data && p.extra_data.edited_at ? new Date(p.extra_data.edited_at).toLocaleString() : null;
-        const timeLogId = 'proj-timelog-' + p.id;
-        const timeLogBtn = `<button class="btn btn-ghost" style="font-size:0.72rem;padding:0.25rem 0.6rem;color:var(--muted);" onclick="event.stopPropagation();document.getElementById('${timeLogId}').style.display=document.getElementById('${timeLogId}').style.display==='none'?'block':'none'">🕒 Log</button>`;
-        const timeLogPanel = `<div id="${timeLogId}" style="display:none;margin-top:0.75rem;padding:0.6rem 0.85rem;background:var(--bg);border-radius:8px;border:1px solid var(--border);font-size:0.78rem;color:var(--muted)">
-          <div>📅 Created: ${createdDate}</div>
-          ${editedDate ? `<div style="margin-top:0.25rem">✏️ Last edited: ${editedDate}</div>` : ''}
-        </div>`;
-
-        return `<div class="session-item" style="cursor:default; padding: 1.5rem">  
-            <div class="session-header">  
-                <div class="session-topic" style="color:var(--accent-blue); font-size:1.1rem">${escapeHTML(p.project_name)}</div>  
-                <div class="session-date" style="font-size:0.85rem">Topic ${escapeHTML(p.topic_id)} • ${new Date(p.created_at).toLocaleDateString()}</div>  
-            </div>  
-            <div style="font-size:0.95rem;color:var(--text);line-height:1.6;margin-top:0.75rem">${escapeHTML(p.theory_concept)}</div>  
-            ${codeSnippet}
-            ${timeLogPanel}
-            <div style="margin-top:1.25rem; display:flex; justify-content:flex-end; gap:0.5rem; align-items:center; flex-wrap:wrap">  
-                ${timeLogBtn}
-                ${githubBtn}  
-                ${isAdmin ? `<button class="btn btn-ghost" style="font-size:0.8rem;padding:0.4rem 0.85rem;" onclick="openEditProject('${p.id}')">✏️ Edit</button>` : ''}
-                ${isAdmin ? `<button class="btn btn-ghost" style="color:var(--red); border:1px solid rgba(255,69,58,0.2); font-size:0.8rem; padding:0.4rem 0.85rem;" onclick="deleteProject('${p.id}')">🗑️ Delete Build</button>` : ''}
-            </div>  
-        </div>`;  
-    }).join('');  
-}
-
-function openEditProject(id) {
-    const p = allProjects.find(x => String(x.id) === String(id));
-    if (!p) return;
-    document.getElementById('proj-id').value = p.id;
-    document.getElementById('proj-topic').value = p.topic_id || '';
-    document.getElementById('proj-name').value = p.project_name || '';
-    document.getElementById('proj-theory').value = p.theory_concept || '';
-    document.getElementById('proj-code').value = p.code_snippet || '';
-    document.getElementById('proj-url').value = p.github_url || '';
-    document.querySelector('#projectModal h2').textContent = '✏️ Edit Project';
-    document.getElementById('projectModal').classList.add('open');
-}
-
-function openProjectModal() {  
-    document.getElementById('proj-id').value = '';  
-    document.getElementById('proj-topic').value = '';  
-    document.getElementById('proj-name').value = '';  
-    document.getElementById('proj-theory').value = '';  
-    document.getElementById('proj-code').value = '';  
-    document.getElementById('proj-url').value = '';
-    document.querySelector('#projectModal h2').textContent = '🚀 Add Portfolio Project';
-    document.getElementById('projectModal').classList.add('open');  
-}
-
-function closeProjectModal() {  
-    document.getElementById('projectModal').classList.remove('open');  
-}
-
-async function saveProject() {  
-    if(!sb) { toast('Not connected', 'error'); return; }  
-    const payload = {  
-        topic_id: document.getElementById('proj-topic').value.trim(),  
-        project_name: document.getElementById('proj-name').value.trim(),  
-        theory_concept: document.getElementById('proj-theory').value.trim(),  
-        code_snippet: document.getElementById('proj-code').value.trim(),  
-        github_url: document.getElementById('proj-url').value.trim()  
-    };  
-      
-    if(!payload.topic_id || !payload.project_name || !payload.theory_concept) {  
-        toast('Please fill in Topic ID, Name, and Concept', 'error'); return;  
-    }  
-      
-    const id = document.getElementById('proj-id').value;  
-    let error;  
-      
-    if(id) {  
-        const res = await sb.from('mini_projects').update({...payload, extra_data: { edited_at: new Date().toISOString() }}).eq('id', id);  
-        error = res.error;  
-    } else {  
-        const res = await sb.from('mini_projects').insert([payload]);  
-        error = res.error;  
-    }  
-      
-    if(error) { toast('Error saving project: ' + error.message, 'error'); return; }  
-      
-    toast('Project Deployed! 🚀', 'success');  
-    closeProjectModal();  
-    await syncUI();  
-}
-
-async function deleteProject(id) {  
-    if(!confirm("Permanently scrap this deployment record?")) return;  
-    const { error } = await sb.from('mini_projects').delete().eq('id', id);  
-    if(error) { toast('Error deleting project: ' + error.message, 'error'); return; }  
-    toast('Project removed from ledger 🗑️', 'success');  
-    await syncUI();  
-}
-
-// ── DASHBOARD (Protected against missing data) ──       
-async function loadDashboard() {       
- if(!sb) return;    
- try {    
-   const [topicsRes, sessionsRes, mindsetRes] = await Promise.all([       
-     sb.from('topic_status').select('*'),       
-     sb.from('sessions').select('topic_id'),    
-     sb.from('mindset_moments').select('id', { count: 'exact', head: true })    
-   ]);
-
-   if (topicsRes.error) {    
-     console.error("Dashboard Topics Error:", topicsRes.error);    
-     return;    
-   }
-
-   const sessionsMap = {};       
-   if (sessionsRes.data) {       
-     sessionsRes.data.forEach(s => { if(s.topic_id) sessionsMap[s.topic_id] = true; });       
-   }
-
-   let doneCount = 0;       
-   const phase1Ids = ['1.1','1.2','1.3','1.4','1.5','1.6','1.7'];       
-   const phase2Ids = ['2.1','2.2','2.3','2.4','2.5','2.6','2.7','2.8'];      
-   let p1done = 0;       
-   let p2done = 0;      
-   let p38done = 0;
-
-   topicsRes.data.forEach(t => {       
-     let isDone = t.status === 'done' || !!sessionsMap[t.topic_id];       
-     if (isDone) {       
-      doneCount++;       
-      if (phase1Ids.includes(t.topic_id)) p1done++;       
-      else if (phase2Ids.includes(t.topic_id)) p2done++;      
-      else p38done++;      
-     }       
-   });
-
-   const mindsetCount = mindsetRes.count || 0;    
-   const pct = Math.round((doneCount / 67) * 100);
-
-   document.getElementById('dash-done').textContent = doneCount;       
-   document.getElementById('dash-pct').textContent = pct + '%';       
-   document.getElementById('dash-mindset').textContent = mindsetCount;
-
-   const p1pct = Math.round((p1done / 7) * 100);       
-   document.getElementById('phase1-pct').textContent = p1pct + '%';       
-   document.getElementById('phase1-bar').style.width = p1pct + '%';
-
-   // Update Phase 2 total to 10    
-   const p2pct = Math.round((p2done / 10) * 100);       
-   document.getElementById('phase2-pct').textContent = p2pct + '%';       
-   document.getElementById('phase2-bar').style.width = p2pct + '%';
-
-   // Update Phase 3-8 total to 50    
-   const p38pct = Math.round((p38done / 50) * 100);       
-   document.getElementById('phase38-pct').textContent = p38pct + '%';       
-   document.getElementById('phase38-bar').style.width = p38pct + '%';
-
-   const { data: nextTopics } = await sb       
-     .from('topic_status')       
-     .select('topic_id, topic_name')       
-     .eq('status', 'next')       
-     .limit(1);
-
-   if(nextTopics && nextTopics.length > 0) {       
-     const n = nextTopics[0];       
-     document.getElementById('dash-next-topic').textContent = `Next: ${n.topic_id} — ${n.topic_name}`;       
-     nextTopicGlobal = n;      
-   } else {      
-     document.getElementById('dash-next-topic').textContent = `All active streams caught up!`;      
-     nextTopicGlobal = null;      
-   }      
- } catch(e) {    
-   console.error("Dashboard Crash Protected:", e);    
- }    
-}
-
-// ── ROADMAP CONSTANTS ──       
-const PHASES = [       
-{ label:'Phase 1 — Foundations', ids:['1.1','1.2','1.3','1.4','1.5','1.6','1.7'] },       
-{ label:'Phase 2 — Networking + Cloud', ids:['2.1','2.2','2.3','2.4','2.5','2.6','2.7','2.8','2.9','2.10'] },       
-{ label:'Phase 3 — Python for DevOps', ids:['3.1','3.2','3.3','3.4','3.5','3.6','3.7'] },       
-{ label:'Phase 4 — Git', ids:['4.1','4.2','4.3','4.4','4.5'] },       
-{ label:'Phase 5 — Docker', ids:['5.1','5.2','5.3','5.4','5.5','5.6'] },       
-{ label:'Phase 6 — CI/CD', ids:['6.1','6.2','6.3','6.4','6.5','6.6','6.7','6.8','6.9'] },       
-{ label:'Phase 7 — IaC + Kubernetes', ids:['7.1','7.2','7.3','7.4','7.5','7.6','7.7','7.8','7.9','7.10'] },       
-{ label:'Phase 8 — AIOps', ids:['8.1','8.2','8.3','8.4','8.5','8.6','8.7','8.8','8.9','8.10','8.11','8.12','8.13'] },       
-];
-
-// ── ROADMAP TOPICS ──     
-async function loadTopics() {       
-if(!sb) return;       
-const [topicsRes, sessionsRes] = await Promise.all([     
-  sb.from('topic_status').select('*').order('id'),     
-  sb.from('sessions').select('*')     
-]);
-
-if(topicsRes.error || !topicsRes.data){       
-  document.getElementById('topics-list').innerHTML='<div style="color:var(--red);font-size:0.9rem">Error loading topics</div>';       
-  return;       
-}
-
-const topicsMap = {};       
-topicsRes.data.forEach(t => topicsMap[t.topic_id] = t);
-
-const latestSessions = {};     
-if (sessionsRes.data) {     
-  sessionsRes.data.sort((a,b) => (b.date + b.time).localeCompare(a.date + a.time));     
-  sessionsRes.data.forEach(s => {     
-    if (s.topic_id && !latestSessions[s.topic_id]) {     
-      latestSessions[s.topic_id] = s;     
-    }     
-  });     
-}
-
-let html = '';       
-PHASES.forEach(phase => {       
-  html += `<div class="phase-header">${phase.label}</div>`;       
-  phase.ids.forEach(tid => {       
-    let t = topicsMap[tid];       
-    if(!t) return;
-
-    const matchingSession = latestSessions[tid];     
-    const displayNotes = (matchingSession && matchingSession.full_notes) ? matchingSession.full_notes : (t.full_notes || '');     
-    const displaySummary = (matchingSession && matchingSession.summary) ? matchingSession.summary : (t.session_note || '');     
-    const displayConcepts = (matchingSession && matchingSession.concepts) ? matchingSession.concepts : '';
-
-    const badge = t.status === 'done' ? 'badge-done' : t.status === 'next' ? 'badge-next' : 'badge-todo';       
-    const label = t.status === 'done' ? 'Done' : t.status === 'next' ? 'Next' : 'Todo';       
-        
-    const hasFullNotes = displayNotes.trim().length > 0;       
-    const hasSummary = displaySummary.trim().length > 0;     
-    const hasConcepts = displayConcepts.trim().length > 0;
-
-    const safeDomId = tid.replace('.', '_');
-
-    let conceptsHtml = '';     
-    if (hasConcepts) {     
-      const chips = displayConcepts.split(',').filter(c => c.trim() !== '').map(c =>     
-        `<span class="chip" style="display:inline-block; background:var(--surface, #2a2a2a); border:1px solid var(--border, #444); color:var(--text, #fff); padding:0.3rem 0.8rem; border-radius:100px; font-size:0.75rem; font-weight:500;">${c.trim()}</span>`     
-      ).join('');     
-          
-      conceptsHtml = `     
-        <div style="margin-top:1.2rem; padding-top:1rem; border-top:1px solid var(--border)">     
-          <div style="font-size:0.75rem;color:var(--accent2);font-weight:600;text-transform:uppercase;margin-bottom:0.75rem;letter-spacing:0.5px;">💡 Key Concepts</div>     
-          <div style="display:flex; flex-wrap:wrap; gap:0.5rem; align-items:center;">     
-            ${chips}     
-          </div>     
-        </div>`;     
-    }     
-        
-    const notesHtml = (hasFullNotes || hasSummary || hasConcepts)       
-      ? `<div class="topic-expand" id="expand-${safeDomId}" style="display:none">       
-          <div style="margin-top:0.75rem;padding-top:0.75rem;border-top:1px solid var(--border)">       
-            ${hasFullNotes ? `       
-              <div style="font-size:0.75rem;color:var(--accent2);font-weight:600;text-transform:uppercase;margin-bottom:0.5rem">📖 Full Teaching Notes</div>       
-              <div style="font-size:0.9rem;color:var(--text);line-height:1.6;white-space:pre-wrap;margin-bottom:1rem">${displayNotes}</div>       
-            ` : ''}       
-            ${hasSummary ? `       
-              <div style="font-size:0.75rem;color:var(--accent2);font-weight:600;text-transform:uppercase;margin-bottom:0.4rem">📝 Summary</div>       
-              <div style="font-size:0.88rem;color:var(--muted);line-height:1.5">${displaySummary}</div>       
-            ` : ''}       
-            ${conceptsHtml}     
-          </div>       
-        </div>`       
-      : `<div class="topic-expand" id="expand-${safeDomId}" style="display:none">       
-          <div style="margin-top:0.75rem;padding-top:0.75rem;border-top:1px solid var(--border);font-size:0.85rem;color:var(--muted)">       
-            No teaching notes saved yet.       
-          </div>       
-        </div>`;
-
-    html += `<div class="topic-item" onclick="toggleTopicNotes(this, '${safeDomId}')" style="flex-direction:column;align-items:stretch">       
-      <div style="display:flex;align-items:center;gap:1rem">       
-        <div class="topic-id">${t.topic_id || tid}</div>       
-        <div style="flex:1"><div class="topic-name">${t.topic_name}</div></div>       
-        <span class="badge ${badge}">${label}</span>       
-        <span class="arrow-indicator" style="font-size:0.75rem;color:var(--muted)">▼</span>       
+      <button class="theme-toggle" id="themeToggleBtn" onclick="toggleTheme()" title="Toggle appearance">☀️</button>      
+      <div class="status-dot">       
+        <div class="dot" id="statusDot"></div>       
+        <span id="statusText">connecting…</span>       
       </div>       
-      ${notesHtml}       
-    </div>`;       
-  });       
-});
-
-document.getElementById('topics-list').innerHTML = html;       
-}
-
-function toggleTopicNotes(el, safeId) {       
-const expand = document.getElementById('expand-' + safeId);       
-const arrow = el.querySelector('.arrow-indicator');       
-const isOpen = expand.style.display !== 'none';       
-expand.style.display = isOpen ? 'none' : 'block';       
-if(arrow) arrow.textContent = isOpen ? '▼' : '▲';       
-}
-
-// ── SESSIONS ENGINE ──       
-async function loadSessions() {       
-if(!sb) return;       
-const { data, error } = await sb.from('sessions').select('*');       
-if(error) { console.error('Sessions load error:', error.message || JSON.stringify(error)); return; }
-allSessions = data || [];
-allSessions.sort((a, b) => {       
-const idA = a.topic_id || '';       
-const idB = b.topic_id || '';       
-return idA.localeCompare(idB, undefined, { numeric: true, sensitivity: 'base' });       
-});
-renderSessions(allSessions);
-}
-
-function renderSessions(data) {
-const list = document.getElementById('sessions-list');
-if(!list) return;
-if(!data || data.length === 0){       
-list.innerHTML='<div style="color:var(--muted);font-size:0.9rem">No sessions saved yet. Use the action button above to record your first entry.</div>';       
-return;       
-}
-list.innerHTML = data.map((s, i) => {       
-const concepts = s.concepts ? s.concepts.split(',').map(c=>`<span class="concept-chip">${c.trim()}</span>`).join('') : '';       
-const sid = 'sess-' + i;
-const editedAt = s.extra_data && s.extra_data.edited_at ? `<span style="font-size:0.75rem;color:var(--muted);margin-left:0.5rem">· edited ${new Date(s.extra_data.edited_at).toLocaleDateString()}</span>` : '';
-return `<div class="session-item" onclick="toggleSession(this, '${sid}')">       
-<div class="session-header">       
-  <div class="session-topic">${s.topic_id ? s.topic_id+' — ' : ''}${s.topic_name || 'Session'}${editedAt}</div>       
-  <div style="display:flex;align-items:center;gap:0.75rem">       
-    <div class="session-date">${s.date || ''} ${s.time || ''}</div>       
-    <span id="arrow-${sid}" style="font-size:0.75rem;color:var(--muted)">▼</span>       
-  </div>       
-</div>       
-<div class="session-summary">${s.summary || ''}</div>       
-<div class="session-body" id="${sid}">       
-  ${s.full_notes ? `<div style="font-size:0.9rem;color:var(--text);line-height:1.6;white-space:pre-wrap;margin-top:1rem;padding:1rem;background:var(--bg);border-radius:10px;border:1px solid var(--border)">${s.full_notes}</div>` : ''}       
-  ${concepts ? `<div class="session-concepts">${concepts}</div>` : ''}       
-  <div style="margin-top:1rem; display:flex; justify-content:flex-end; gap:0.5rem;">     
-    ${isAdmin ? `<button class="btn btn-ghost" style="font-size:0.78rem; padding:0.35rem 0.75rem;" onclick="event.stopPropagation(); openEditSessionModal('${s.id}')">✏️ Edit</button>` : ''}
-    ${isAdmin ? `<button class="btn btn-ghost" style="color:var(--red); border:1px solid rgba(255,69,58,0.2); font-size:0.78rem; padding:0.35rem 0.75rem;" onclick="event.stopPropagation(); deleteSession('${s.id || ''}', '${s.topic_id || ''}')">🗑️ Delete Entry</button>` : ''}
-  </div>     
-</div>       
-</div>`;       
-}).join('');       
-}
-
-function searchSessions() {
-const term = document.getElementById('session-search').value.toLowerCase().trim();
-if (!term) { renderSessions(allSessions); return; }
-const filtered = allSessions.filter(s => {
-  return (s.topic_id || '').toLowerCase().includes(term) ||
-         (s.topic_name || '').toLowerCase().includes(term) ||
-         (s.date || '').toLowerCase().includes(term) ||
-         (s.summary || '').toLowerCase().includes(term) ||
-         (s.concepts || '').toLowerCase().includes(term) ||
-         (s.full_notes || '').toLowerCase().includes(term);
-});
-renderSessions(filtered);
-}
-
-function openEditSessionModal(id) {
-const s = allSessions.find(x => String(x.id) === String(id));
-if (!s) return;
-// Fill the save modal in edit mode
-document.getElementById('m-date').value = s.date || '';
-document.getElementById('m-time').value = s.time || '';
-document.getElementById('m-topicid').value = s.topic_id || '';
-document.getElementById('m-topicname').value = s.topic_name || '';
-document.getElementById('m-fullnotes').value = s.full_notes || '';
-document.getElementById('m-summary').value = s.summary || '';
-document.getElementById('m-concepts').value = s.concepts || '';
-document.getElementById('saveModal').dataset.editId = id;
-document.querySelector('#saveModal h2').textContent = '✏️ Edit Session';
-document.getElementById('saveModal').classList.add('open');
-}
-
-function toggleSession(cardElement, sid) {       
-const body = document.getElementById(sid);       
-const arrow = document.getElementById('arrow-' + sid);       
-const isExpanding = !cardElement.classList.contains('expanded');
-
-cardElement.classList.toggle('expanded');       
-if(body) body.style.display = isExpanding ? 'block' : 'none';       
-if(arrow) arrow.textContent = isExpanding ? '▲' : '▼';       
-}
-
-async function deleteSession(id, topicId) {     
-if(!sb) return;     
-if(!confirm("Are you sure you want to completely delete this session log?")) return;
-
-const numericId = parseInt(id, 10);     
-if (isNaN(numericId)) {     
-  toast('Error: Invalid Session ID tracking format.', 'error');     
-  return;     
-}
-
-const { data, error: delErr } = await sb.from('sessions').delete().eq('id', numericId).select();
-
-if(delErr) {     
-  alert('Supabase Database Error: ' + delErr.message);     
-  toast('Delete failed', 'error');     
-  return;     
-}
-
-if (!data || data.length === 0) {     
-  alert("Warning: The database accepted the command but removed 0 rows. Check RLS policies.");     
-  return;     
-}
-
-if(topicId) {     
-  const { data: remainingLogs, error: countErr } = await sb.from('sessions').select('id').eq('topic_id', topicId);     
-  if (!countErr && (!remainingLogs || remainingLogs.length === 0)) {     
-    await sb.from('topic_status').update({     
-      status: 'next', session_note: null, full_notes: null     
-    }).eq('topic_id', topicId);
-
-    const parts = topicId.split('.');     
-    if(parts.length === 2) {     
-      const nextId = parts[0] + '.' + (parseInt(parts[1], 10) + 1);     
-      const { data: nextTopic } = await sb.from('topic_status').select('status').eq('topic_id', nextId).single();     
-      if(nextTopic && nextTopic.status === 'next') {     
-        await sb.from('topic_status').update({ status: 'todo' }).eq('topic_id', nextId);     
-      }     
-    }     
-  }     
-}
-
-toast('Session deleted successfully! 🧹', 'success');     
-await syncUI(); // <-- Updated!    
-}
-
-// ── MINDSET (With Duplicates & Protected) ──       
-async function loadMindset() {       
- if(!sb) return;       
- try {    
-   const { data, error } = await sb.from('mindset_moments').select('*').order('created_at', {ascending:false});       
-   if(error || !data){    
-     document.getElementById('mindset-list').innerHTML='<div style="color:var(--red);font-size:0.9rem">Error loading snapshots</div>';    
-     return;    
-   }       
-   allMindset = data;       
-   const strong = data.filter(m => m.rating === 'strong').length;       
-   document.getElementById('strong-count').textContent = strong;       
-   renderMindset(data);    
- } catch(e) {    
-   console.error("Mindset Load Error:", e);    
- }       
-}
-
-function filterMindset(f) {     
-
-document.getElementById('mindset-search').value = '';
-
- let filtered = [];    
-   
- if (f === 'all') {    
-   filtered = allMindset;    
-     
- } else if (f === 'duplicates') {    
-   const groups = {};    
-   allMindset.forEach(m => {    
-     const textToCheck = m.situation || m.question;   
-     if(!textToCheck) return;    
-     const q = textToCheck.toLowerCase().trim();    
-     if(!groups[q]) groups[q] = [];    
-     groups[q].push(m);    
-   });    
-      
-   Object.keys(groups).forEach(q => {    
-     if(groups[q].length > 1) {    
-       const sortedGroup = groups[q].sort((a,b) => new Date(a.created_at) - new Date(b.created_at));    
-       const taggedGroup = sortedGroup.map((item, index) => ({    
-         ...item,    
-         duplicateTag: index === 0 ? 'Original' : 'Duplicate'    
-       }));    
-       filtered = filtered.concat(taggedGroup);    
-     }    
-   });    
-      
-   if(filtered.length === 0) {    
-     toast('No duplicates found! 🎉', 'success');    
-     filtered = allMindset;    
-   } else {    
-     toast(`Found ${filtered.length} duplicate entries. Grouping them now.`, 'success');    
-   }    
-     
- }   
- // --- STRICT QUESTION & SITUATION FILTERS ---  
- else if (f === 'question') {  
-   filtered = allMindset.filter(m => m.moment_type === 'Question');  
- }   
- else if (f === 'situation') {  
-   filtered = allMindset.filter(m => m.moment_type === 'Situation');  
- }   
- // --- BULLETPROOF RATING FILTERS ---  
- else if (f === 'strong') {  
-   // Converts data to lowercase so "strong" and "Strong Instinct" both match perfectly  
-   filtered = allMindset.filter(m => m.rating && m.rating.toLowerCase().includes('strong'));  
- }   
- else if (f === 'good') {  
-   // Converts data to lowercase so "good" and "Good Direction" both match perfectly  
-   filtered = allMindset.filter(m => m.rating && m.rating.toLowerCase().includes('good'));  
- }   
- else {    
-   filtered = allMindset;    
- }    
-   
- renderMindset(filtered);       
-}
-
-function renderMindset(data) {       
- if(!data || data.length === 0) {       
-   document.getElementById('mindset-list').innerHTML = '<div style="color:var(--muted);font-size:0.9rem">No custom data match this filter template.</div>';       
-   return;       
- }     
-
- document.getElementById('mindset-list').innerHTML = data.map((m, i) => {       
-   const mid = 'mindset-' + i;       
-     
-   // Handle legacy and new rating formats safely  
-   const isStrong = m.rating && m.rating.toLowerCase().includes('strong');  
-   const ratingClass = isStrong ? 'rating-strong' : 'rating-good';       
-   const ratingLabel = isStrong ? 'Strong instinct' : 'Good direction';       
-      
-   // Add visual badges for the Duplicate Finder    
-   let dupBadge = '';    
-   if (m.duplicateTag === 'Original') {    
-     dupBadge = `<span class="concept-tag" style="background:rgba(48,209,88,0.15);color:var(--green);border:1px solid var(--green)">✓ Keep (Original)</span>`;    
-   } else if (m.duplicateTag === 'Duplicate') {    
-     dupBadge = `<span class="concept-tag" style="background:rgba(255,69,58,0.15);color:var(--red);border:1px solid var(--red)">🗑️ Trash (Duplicate)</span>`;    
-   }
-
-   // --- NEW: THE COLORED BADGES ---  
-   const mType = m.moment_type || 'Question';  
-   const mSource = m.insight_source || 'AI';  
-     
-   const typeBadge = mType === 'Question'   
-        ? '<span class="badge-question">❓ Question</span>'   
-        : '<span class="badge-situation">🎬 Situation</span>';  
-          
-   const sourceBadge = mSource === 'Me'   
-        ? '<span class="badge-me">🧠 Me</span>'   
-        : '<span class="badge-ai">🤖 AI</span>';
-
-   return `<div class="mindset-item" onclick="toggleMindset('${mid}')">       
-      
-    <div style="margin-bottom: 8px; display: flex; gap: 8px;">  
-        ${typeBadge}  
-        ${sourceBadge}  
-    </div>  
-      
-    <div class="mindset-q">${m.question || m.situation || 'Untitled Question'}</div>       
-      
-    <div class="mindset-meta">       
-      <span class="${ratingClass}">★ ${ratingLabel}</span>       
-      ${m.tag || m.concept ? `<span class="concept-tag">${m.tag || m.concept}</span>` : ''}       
-      ${m.topic || m.linked_topic_name ? `<span class="concept-tag" style="background:transparent; border-color:var(--border); color:var(--muted)">→ ${m.topic || m.linked_topic_name}</span>` : ''}       
-      ${dupBadge}    
-    </div>       
-      
-    <div id="${mid}" style="display:none;margin-top:0.75rem;padding-top:0.75rem;border-top:1px solid var(--border);font-size:0.9rem;color:var(--muted);line-height:1.6">       
-      <strong>Insight/Action Taken:</strong><br>  
-      ${m.insight || m.response || ''}    
-      <div style="margin-top:1rem; display:flex; justify-content:flex-end; gap:0.5rem;">    
-        ${isAdmin ? `<button class="btn btn-ghost" style="font-size:0.78rem; padding:0.35rem 0.75rem;" onclick="event.stopPropagation(); editMindsetMoment('${m.id}')">✏️ Edit</button>` : ''}
-        ${isAdmin ? `<button class="btn btn-ghost" style="color:var(--red); border:1px solid rgba(255,69,58,0.2); font-size:0.78rem; padding:0.35rem 0.75rem;" onclick="event.stopPropagation(); deleteMindsetMoment('${m.id}')">🗑️ Delete</button>` : ''}
-      </div>    
-    </div>       
-   </div>`;       
- }).join('');       
-}
-
-function toggleMindset(mid) {       
-const el = document.getElementById(mid);       
-if(!el) return;       
-el.style.display = el.style.display === 'block' ? 'none' : 'block';       
-}
-
-// Variable to remember which moment we are trying to delete    
-let mindsetToDeleteId = null;
-
-// Opens the beautiful custom modal instead of the browser alert    
-function deleteMindsetMoment(id) {    
- mindsetToDeleteId = id;    
- document.getElementById('deleteConfirmModal').classList.add('open');    
-}
-
-// Closes the modal if you click Cancel    
-function closeDeleteModal() {    
- mindsetToDeleteId = null;    
- document.getElementById('deleteConfirmModal').classList.remove('open');    
-}
-
-// Actually deletes the data from Supabase when you click the red button    
-async function confirmDeleteMindset() {    
- if(!sb || !mindsetToDeleteId) return;
-
- const { error } = await sb.from('mindset_moments').delete().eq('id', mindsetToDeleteId);
-
- if(error) {    
-   toast('Delete failed: ' + error.message, 'error');    
-   closeDeleteModal();    
-   return;    
- }
-
- toast('Moment deleted successfully! 🧹', 'success');    
- closeDeleteModal();    
- await syncUI(); // <-- Fixed typo and updated!    
-}
-
-// Add this line to the ── EVENT LISTENERS ── section at the bottom so clicking the background closes the modal    
-document.getElementById('deleteConfirmModal').addEventListener('click', function(e){ if(e.target===this) closeDeleteModal(); });
-
-// ── NOTES (Protected and Ordered + X-Ray) ──       
-async function saveNote() {       
-    if(!sb){ toast('Not connected to database.'); return; }       
-    let dateVal = document.getElementById('note-date').value;     
-    if (!dateVal) dateVal = new Date().toISOString().split('T')[0];
-
-    const author = document.getElementById('note-author').value.trim() || 'DevOps Log';       
-    const title = document.getElementById('note-title').value.trim() || 'Daily Log';    
-    const content = document.getElementById('note-text').value.trim();       
-    if(!content){ toast('Please write an entry first.'); return; }     
-
-    if (editingNoteId) {  
-        // === UPDATE PATH ===  
-        // Added .select() to force Supabase to return the row it just updated  
-        const { data, error } = await sb.from('notes').update({     
-            date: dateVal,     
-            author: author,     
-            title: title,          
-            note_text: content     
-        }).eq('id', editingNoteId).select();     
-
-        if(error){ toast('Error: ' + error.message); return; }       
-          
-        // THE X-RAY: Look in your browser's Developer Tools Console (Right Click -> Inspect \-> Console)  
-        console.log("Supabase Update Result:", data);  
-        if (data.length === 0) {  
-            toast('❌ Update blocked by Supabase RLS Policies!');  
-            return;  
-        }
-
-        // Reset the tracker and button  
-        editingNoteId = null;  
-        document.querySelector('.btn-save').innerText = 'Save Note';  
-        toast('Note Updated! ✏️');
-
-    } else {  
-        // === INSERT PATH ===  
-        const { error } = await sb.from('notes').insert({     
-            date: dateVal,     
-            author: author,     
-            title: title,          
-            note_text: content     
-        });     
-
-        if(error){ toast('Error: ' + error.message); return; }     
-        toast('Note Saved! 🎉');    
-    }
-
-    // Clear the boxes and reload the UI  
-    document.getElementById('note-title').value = '';       
-    document.getElementById('note-text').value = '';         
-    await syncUI();     
-}
-
-// ── DELETE NOTE ──    
-async function deleteNote(id) {    
- if (!confirm("Are you sure you want to delete this note?")) return;    
-  const { error } = await sb.from('notes').delete().eq('id', id);    
-  if (error) {    
-   toast('Error deleting: ' + error.message, 'error');    
-   return;    
- }    
-  toast('Note deleted 🗑️', 'success');    
- await syncUI(); // Instantly redraws the UI!    
-}
-
-// ── NOTES (Protected and Ordered) ──       
-async function loadNotes() {       
- if(!sb) return;      
- try {    
-   const { data, error } = await sb.from('notes').select('*').order('created_at', { ascending: false });       
-   if(error){     
-     console.error("Notes DB Error:", error);
-     const container = document.getElementById('notes-list');
-     if(container) container.innerHTML = `<div style="color:var(--red);font-size:0.9rem;">Error connecting: ${error.message}</div>`;     
-     return;     
-   }
-   allNotes = data || [];
-   document.getElementById('note-date').value = new Date().toISOString().split('T')[0];
-   renderNotes(allNotes);
- } catch (e) {    
-   console.error("Notes Crash Protected:", e);    
- }     
-}
-
-function renderNotes(data) {
- const container = document.getElementById('notes-list');
- if (!container) return;
- if (!data || data.length === 0) {
-   container.innerHTML = '<div style="color:var(--muted);font-size:0.9rem;">No journal entries yet.</div>';
-   return;
- }
- container.innerHTML = data.map((n) => {    
-   const safeTitle = (n.title || 'Daily Log').replace(/</g, '&lt;').replace(/>/g, '&gt;');    
-   const safeText = (n.note_text || '').replace(/</g, '&lt;').replace(/>/g, '&gt;');    
-   const btnTitle = (n.title || 'Daily Log').replace(/'/g, "\\'").replace(/"/g, "&quot;").replace(/[\r\n]+/g, "\\n");  
-   const btnText = (n.note_text || '').replace(/'/g, "\\'").replace(/"/g, "&quot;").replace(/[\r\n]+/g, "\\n");
-   return `     
-   <div class="session-item" style="cursor:default; margin-bottom:1rem; padding:1.2rem;">       
-     <div class="session-header" style="display:flex; justify-content:space-between; align-items:center; width:100%">       
-       <div style="font-size:0.85rem; font-weight:600; color:var(--accent2); text-transform:uppercase;">👤 ${n.author || 'DevOps Log'}</div>       
-       <div class="session-date" style="font-size:0.85rem; color:var(--muted);">${n.date || (n.created_at ? n.created_at.split('T')[0] : '')}</div>       
-     </div>       
-     <div style="font-size:1.1rem; font-weight:700; color:var(--text); margin-top:0.6rem; margin-bottom:0.4rem;">${safeTitle}</div>     
-     <div style="font-size:0.9rem; line-height:1.6; color:var(--muted); white-space:pre-wrap;">${safeText}</div>   
-     <div style="margin-top:1.5rem; display:flex; justify-content:flex-end; gap:0.5rem;">     
-       ${isAdmin ? `<button class="btn" style="background: #eab308;" onclick="triggerEdit('${n.id}', '${btnTitle}', '${btnText}', '${n.date || ''}', '${n.author || ''}')">Edit ✏️</button>` : ''}
-       ${isAdmin ? `<button class="btn btn-ghost" style="color:var(--red); border:1px solid rgba(255,69,58,0.2); font-size:0.78rem; padding:0.35rem 0.75rem;" onclick="deleteNote('${n.id}')">🗑️ Delete Note</button>` : ''}
-     </div>    
-   </div>`;    
- }).join('');    
-}
-
-// ── SAVE SESSION MODAL CONTROLS ──       
-async function openSaveModal() {       
-setDefaultDate();
-document.getElementById('saveModal').dataset.editId = '';
-document.querySelector('#saveModal h2').textContent = '💾 Save Completed Session';
-document.getElementById('m-topicid').value   = '';       
-document.getElementById('m-topicname').value = '';       
-document.getElementById('m-fullnotes').value = '';       
-document.getElementById('m-summary').value   = '';       
-document.getElementById('m-concepts').value  = '';
-
-if (sb) {       
- try {     const { data: nextTopics, error } = await sb       
-     .from('topic_status')       
-     .select('topic_id, topic_name')       
-     .eq('status', 'next')       
-     .limit(1);
-
-   if (!error && nextTopics && nextTopics.length > 0) {       
-     document.getElementById('m-topicid').value = nextTopics[0].topic_id || '';       
-     document.getElementById('m-topicname').value = nextTopics[0].topic_name || '';       
-   }       
- } catch (e) {       
-   console.error("Error loading current next topic into modal:", e);       
- }       
-}
-
-document.getElementById('saveModal').classList.add('open');       
-}
-
-function closeModal() {       
-document.getElementById('saveModal').classList.remove('open');
-document.getElementById('saveModal').dataset.editId = '';
-document.querySelector('#saveModal h2').textContent = '💾 Save Completed Session';
-}
-
-async function saveSession() {       
-if(!sb){ toast('Not connected to Supabase','error'); return; }       
-const date      = document.getElementById('m-date').value;       
-const time      = document.getElementById('m-time').value;       
-const topicId   = document.getElementById('m-topicid').value.trim();       
-const topicName = document.getElementById('m-topicname').value.trim();       
-const fullNotes = document.getElementById('m-fullnotes').value.trim();       
-const summary   = document.getElementById('m-summary').value.trim();       
-const concepts  = document.getElementById('m-concepts').value.trim();       
-if(!topicName || !summary){ toast('Please fill in topic name and summary','error'); return; }
-
-const editId = document.getElementById('saveModal').dataset.editId;
-
-if (editId) {
-  // EDIT MODE — update existing session
-  const { error: updateErr } = await sb.from('sessions').update({
-    date, time, topic_id: topicId, topic_name: topicName,
-    full_notes: fullNotes, summary, concepts,
-    extra_data: { edited_at: new Date().toISOString() }
-  }).eq('id', editId);
-  if(updateErr){ toast('Error updating session: '+updateErr.message,'error'); return; }
-  toast('Session updated! ✏️','success');
-} else {
-  // INSERT MODE — new session
-  const { error: sessErr } = await sb.from('sessions').insert({       
-    date, time, topic_id: topicId, topic_name: topicName,       
-    full_notes: fullNotes, summary, concepts       
-  });       
-  if(sessErr){ toast('Error saving session: '+sessErr.message,'error'); return; }       
-  if(topicId) {       
-    const { error: statusErr } = await sb.from('topic_status')       
-      .update({ status: 'done', session_note: summary, full_notes: fullNotes })       
-      .eq('topic_id', topicId);       
-    if(statusErr) { toast('Session saved but tracker sync errored: '+statusErr.message,'error'); }       
-    const parts = topicId.split('.');       
-    if(parts.length === 2) {       
-      const nextId = parts[0] + '.' + (parseInt(parts[1], 10) + 1);       
-      const { data: nextTopic } = await sb.from('topic_status')       
-        .select('status').eq('topic_id', nextId).single();       
-      if(nextTopic && nextTopic.status !== 'done') {       
-        await sb.from('topic_status').update({ status: 'next' }).eq('topic_id', nextId);       
-      }       
-    }       
-  }
-  toast('Session saved! 🎉','success');       
-}
-
-closeModal();       
-await syncUI();
-}
-
-// ── MINDSET MODAL CONTROLS (Add & Edit) ──       
-let currentMindsetEditId = null;
-
-function openMindsetModal() {       
- currentMindsetEditId = null;    
- document.querySelector('#mindsetModal h2').innerHTML = '🧠 Add Mindset Moment';    
- document.getElementById('mind-question').value = '';       
- document.getElementById('mind-concept').value = '';       
- document.getElementById('mind-topic').value = '';       
- document.getElementById('mind-response').value = '';       
- document.getElementById('mind-rating').value = 'good';       
- document.getElementById('mindsetModal').classList.add('open');       
-}
-
-function editMindsetMoment(id) {    
- // Find the specific data for the moment you clicked    
- const m = allMindset.find(x => x.id === id || x.id === parseInt(id));    
- if(!m) return;    
-  // Set the global state so the save function knows we are editing    
- currentMindsetEditId = m.id;    
-  // Change the title and fill the inputs with your existing data    
- document.querySelector('#mindsetModal h2').innerHTML = '✏️ Edit Mindset Moment';    
- document.getElementById('mind-question').value = m.question || '';    
- document.getElementById('mind-concept').value = m.concept || '';    
- document.getElementById('mind-topic').value = m.linked_topic_name || '';    
- document.getElementById('mind-response').value = m.response || '';    
- document.getElementById('mind-rating').value = m.rating || 'good';    
-  document.getElementById('mindsetModal').classList.add('open');    
-}
-
-function closeMindsetModal() {       
- currentMindsetEditId = null;    
- document.getElementById('mindsetModal').classList.remove('open');       
-}
-
-async function saveMindsetMoment() {  
-    console.log("1. Save button clicked! Starting process...");
-
-    try {  
-        // Grab the values from the toggles safely (with fallbacks just in case)  
-        const typeNode = document.querySelector('input[name="moment_type"]:checked');  
-        const sourceNode = document.querySelector('input[name="insight_source"]:checked');  
-          
-        const momentType = typeNode ? typeNode.value : 'Question';  
-        const insightSource = sourceNode ? sourceNode.value : 'AI';  
-          
-        console.log("2. Toggles grabbed:", momentType, insightSource);
-
-        // Grab the text from the inputs  
-        const questionText = document.getElementById('mind-question').value.trim();  
-        const ratingValue = document.getElementById('mind-rating').value;   
-        const conceptTag = document.getElementById('mind-concept').value.trim();  
-        const linkedTopic = document.getElementById('mind-topic').value.trim();  
-        const responseText = document.getElementById('mind-response').value.trim();
-
-        // Validation  
-        if (!questionText || !responseText) {  
-            toast("Please fill in both the Question/Situation and the Insight!", "error");  
-            console.log("❌ Stopped: Fields were empty.");  
-            return;  
-        }
-
-        const formattedRating = ratingValue === 'strong' ? 'Strong Instinct' : 'Good Direction';
-
-        // Prepare the exact package of data we are sending  
-        const payload =   
-        {  
-          moment_type: momentType,  
-          insight_source: insightSource,  
-          question: questionText,   
-          rating: ratingValue,             // 🚨 CHANGED: Send the raw 'strong' or 'good' value!  
-          concept: conceptTag,               
-          linked_topic_name: linkedTopic,    
-          response: responseText             
-        }
-
-        let dbError = null;
-
-        // 🚨 THE FIX: Destructuring the error safely so JS never crashes  
-        if (currentMindsetEditId) {  
-            console.log("4. UPDATING existing moment...");  
-            const { error } = await sb.from('mindset_moments').update(payload).eq('id', currentMindsetEditId);  
-            dbError = error;  
-        } else {  
-            console.log("4. INSERTING new moment...");  
-            const { error } = await sb.from('mindset_moments').insert([payload]);  
-            dbError = error;  
-        }
-
-        if (dbError) {  
-            console.error("❌ Supabase rejected the save!", dbError);  
-            toast("Database Error: Check the Console!", "error");  
-       } else {  
-            console.log("✅ Successfully saved!");  
-            toast("Mindset Moment saved successfully! 🧠", "success");  
-              
-            closeMindsetModal();  
-            loadMindset(); // 🪄 Silently fetches the new data and redraws the list!  
-        }
-
-    } catch (err) {  
-        console.error("❌ CRITICAL JAVASCRIPT CRASH:", err);  
-    }  
-}
-
-// ── EVENT LISTENERS ──    
-document.getElementById('saveModal').addEventListener('click', function(e){ if(e.target===this) closeModal(); });       
-document.getElementById('projectModal').addEventListener('click', function(e){ if(e.target===this) closeProjectModal(); });  
-document.getElementById('mindsetModal').addEventListener('click', function(e){ if(e.target===this) closeMindsetModal(); });  
-document.getElementById('cmdModal').addEventListener('click', function(e){ if(e.target===this) closeCmdModal(); });
-
-// ── TOAST ──       
-function toast(msg, type='success') {       
-const el = document.getElementById('toast');       
-el.textContent = msg;       
-el.className = 'show ' + type;       
-setTimeout(() => el.className = '', 3000);       
-}  
-
-// ── TRIGGER EDIT MODE ──  
-function triggerEdit(id, title, content, date, author) {  
-    document.getElementById('note-title').value = title;  
-    document.getElementById('note-text').value = content;  
-      
-    // Safely set date and author if they exist  
-    if(date) document.getElementById('note-date').value = date;  
-    if(author) document.getElementById('note-author').value = author;  
-      
-    // Change the button text so the user knows they are editing  
-    document.querySelector('.btn-save').innerText = 'Update Note';  
-      
-    // Remember the ID and scroll to top  
-    editingNoteId = id;  
-    window.scrollTo({ top: 0, behavior: 'smooth' });  
-}
-
-function searchMindset() {  
-    // Grab what the user typed and make it lowercase  
-    const term = document.getElementById('mindset-search').value.toLowerCase().trim();  
-      
-    // If the search bar is empty, just show everything  
-    if (!term) {  
-        filterMindset('all');   
-        return;  
-    }
-
-    // Filter the database by checking every field  
-    const filtered = allMindset.filter(m => {  
-        // Safely grab text (using fallback '' so it doesn't crash on missing data)  
-        const q = (m.situation || m.question || '').toLowerCase();  
-        const a = (m.insight || '').toLowerCase();  
-        const tag = (m.tag || '').toLowerCase();  
-        const top = (m.topic || '').toLowerCase();  
-          
-        // Return true if the search term exists in ANY of these fields  
-        return q.includes(term) || a.includes(term) || tag.includes(term) || top.includes(term);  
-    });
-
-    // Draw the filtered cards on the screen  
-    renderMindset(filtered);  
-}
-
-// ==========================================  
-// ── TERMINAL COMMANDS RUNBOOK ENGINE ──  
-// ==========================================
-
-let allCommands = [];  
-let currentCmdFilter = 'All';  
-let currentCmdEditId = null;
-
-async function loadCommands() {  
-    if(!sb) return;  
-    try {  
-        const { data, error } = await sb.from('commands').select('*').order('created_at', { ascending: false });  
-        if (error) throw error;  
-        allCommands = data || [];  
-        renderCommands();  
-    } catch (e) {  
-        console.error("Commands DB Error:", e);  
-    }  
-}
-
-// ── 2. RENDER & FILTER COMMANDS ──  
-function renderCommands() {  
-    const container = document.getElementById('cmds-list');  
-    if (!container) return; 
-
-    const searchInput = document.getElementById('cmd-search');  
-    const searchTerm = searchInput ? searchInput.value.toLowerCase() : '';  
-      
-    let filtered = [];
-
-    // --- NEW DUPLICATE FINDER LOGIC ---  
-    if (currentCmdFilter === 'Duplicates') {  
-        const groups = {};  
-          
-        // Group all commands by their exact text  
-        allCommands.forEach(cmd => {  
-            if (!cmd.command_text) return;  
-            const text = cmd.command_text.trim();  
-            if (!groups[text]) groups[text] = [];  
-            groups[text].push(cmd);  
-        });
-
-        // Filter out single items, keep only ones with 2+ identical commands  
-        Object.keys(groups).forEach(text => {  
-            if (groups[text].length > 1) {  
-                // Sort by date so the oldest one comes first  
-                const sortedGroup = groups[text].sort((a,b) => new Date(a.created_at) - new Date(b.created_at));  
-                  
-                // Tag them so the UI knows which is the original  
-                const taggedGroup = sortedGroup.map((item, index) => ({  
-                    ...item,  
-                    duplicateTag: index === 0 ? 'Original' : 'Duplicate'  
-                }));  
-                filtered = filtered.concat(taggedGroup);  
-            }  
-        });
-
-        if (filtered.length === 0) {  
-            toast('Your runbook is clean! No duplicates found. 🎉', 'success');  
-            filtered = allCommands; // Reset back to showing everything  
-            currentCmdFilter = 'All'; // Reset filter button state  
-            setCmdFilter('All');  
-            return;  
-        } else {  
-            toast(`Found ${filtered.length} duplicate entries!`, 'success');  
-        }
-
-    } else {  
-        // --- NORMAL CATEGORY FILTERING ---  
-        filtered = allCommands.filter(cmd => {  
-            const matchesCategory = currentCmdFilter === 'All' || cmd.category === currentCmdFilter;  
-            const matchesSearch = (cmd.command_text || '').toLowerCase().includes(searchTerm) ||   
-                                  (cmd.meaning || '').toLowerCase().includes(searchTerm) ||  
-                                  (cmd.topic_learned || '').toLowerCase().includes(searchTerm);  
-            return matchesCategory && matchesSearch;  
-        });  
-    }
-
-    if (filtered.length === 0) {  
-        container.innerHTML = '<div style="color:var(--muted); padding: 1rem;">No commands found. Add your first one!</div>';  
-        return;  
-    }
-
-    container.innerHTML = filtered.map(cmd => {  
-        const safeCmdForButton = (cmd.command_text || '').replace(/'/g, "\\'").replace(/"/g, "&quot;");  
-          
-        const linkedPills = (cmd.linked_cmds && cmd.linked_cmds.length > 0)  
-            ? cmd.linked_cmds.map(c => `<span style="display:inline-block; font-size:0.75rem; background:rgba(255,255,255,0.1); border:1px solid rgba(255,255,255,0.2); padding:0.2rem 0.5rem; border-radius:4px; margin-right:6px; color:var(--accent-blue);">🔗 ${c}</span>`).join('')  
-            : '';
-
-        // --- NEW BADGE RENDERER ---  
-        let dupBadge = '';  
-        if (cmd.duplicateTag === 'Original') {  
-            dupBadge = `<span style="font-size:0.7rem; background:rgba(48,209,88,0.15); color:var(--green); border:1px solid var(--green); padding:0.2rem 0.5rem; border-radius:4px; margin-left:8px;">✓ Keep (Original)</span>`;  
-        } else if (cmd.duplicateTag === 'Duplicate') {  
-            dupBadge = `<span style="font-size:0.7rem; background:rgba(255,69,58,0.15); color:var(--red); border:1px solid var(--red); padding:0.2rem 0.5rem; border-radius:4px; margin-left:8px;">🗑️ Trash (Duplicate)</span>`;  
-        }
-
-        return `  
-        <div class="session-item" style="margin-bottom:1rem; padding:1.2rem; cursor: default;">  
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 0.8rem; flex-wrap: wrap; gap: 10px;">  
-                <div style="display:flex; gap:10px; align-items:center;">  
-                    <span style="font-size:0.75rem; font-weight:700; color:var(--accent2); background: rgba(0,255,170,0.1); padding: 0.3rem 0.6rem; border-radius: 4px; text-transform: uppercase;">${cmd.category || 'Uncategorized'}</span>  
-                    <span style="font-size:0.75rem; color:var(--muted);">Learned: ${cmd.topic_learned || 'N/A'}</span>  
-                    ${cmd.future_topics ? `<span style="font-size:0.75rem; color:var(--muted);">Future: ${cmd.future_topics}</span>` : ''}  
-                    ${dupBadge}  
-                </div>  
-                  
-                <div style="display:flex; gap: 0.5rem;">  
-                    ${isAdmin ? `<button class="btn btn-ghost" style="font-size:0.75rem; padding:0.3rem 0.6rem;" onclick="editCommand('${cmd.id}')">✏️ Edit</button>` : ''}
-                    ${isAdmin ? `<button class="btn btn-ghost" style="color:var(--red); font-size:0.75rem; padding:0.3rem 0.6rem; border:1px solid rgba(255,69,58,0.2);" onclick="deleteCommand('${cmd.id}')">🗑️ Delete</button>` : ''}
-                </div>  
-            </div>  
-              
-            <div style="display:flex; justify-content:space-between; align-items:center; background: rgba(0,0,0,0.5); padding: 0.8rem 1rem; border-radius: 6px; border: 1px solid rgba(255,255,255,0.1); margin-bottom: 0.8rem;">  
-                <code style="font-size: 1.1rem; color: #fff; font-family: monospace; word-break: break-all;">${cmd.command_text || ''}</code>  
-                <button class="btn btn-ghost" onclick="copyCmd('${safeCmdForButton}')" style="padding: 0.4rem; font-size: 1.1rem; min-width: auto; margin-left: 10px;" title="Copy to clipboard">📋</button>  
-            </div>
-
-            <div style="font-size:1rem; font-weight:600; color:var(--text); margin-bottom:0.4rem;">${cmd.meaning || ''}</div>  
-              
-            ${cmd.example ? `<div style="font-size:0.85rem; color:var(--muted); margin-bottom:0.4rem; margin-top: 0.8rem;"><b>Example:</b> <br><code style="background: rgba(255,255,255,0.05); padding: 4px 6px; border-radius: 4px; display: inline-block; margin-top: 4px;">${cmd.example}</code></div>` : ''}  
-              
-            ${linkedPills ? `<div style="margin-top: 1rem; margin-bottom: 0.5rem;">${linkedPills}</div>` : ''}
-
-            ${cmd.security_note ? `<div style="font-size:0.85rem; color: #ff6b6b; margin-top:1rem; padding-top: 0.8rem; border-top: 1px solid rgba(255,69,58,0.2);">🔒 <b>Security Note:</b> ${cmd.security_note}</div>` : ''}  
-        </div>  
-    `}).join('');  
-}
-
-// ── 3. FILTER BUTTON CLICK HANDLER ──  
-function setCmdFilter(category) {  
-    currentCmdFilter = category;  
-    const filterContainer = document.getElementById('cmd-filters');  
-    if (filterContainer) {  
-        const buttons = filterContainer.querySelectorAll('button');  
-        buttons.forEach(btn => {  
-            // Using .includes() so the emoji in "🔍 Duplicates" doesn't break the matching logic  
-            if (btn.innerText.includes(category)) {  
-                btn.className = 'btn';  
-                btn.style.background = 'var(--accent)';  
-            } else {  
-                btn.className = 'btn btn-ghost';  
-                btn.style.background = 'transparent';  
-            }  
-        });  
-    }  
-    renderCommands();  
-}
-
-// ── CRUD OPERATIONS (ADD, EDIT, DELETE) ──
-
-function openCmdModal() {  
-    currentCmdEditId = null;  
-    document.getElementById('cmd-modal-title').innerText = '💻 Add Command';  
-    document.getElementById('cmd-text').value = '';  
-    document.getElementById('cmd-category').value = 'Linux';  
-    document.getElementById('cmd-meaning').value = '';  
-    document.getElementById('cmd-example').value = '';  
-    document.getElementById('cmd-topic').value = '';  
-    document.getElementById('cmd-future').value = '';  
-    document.getElementById('cmd-links').value = '';  
-    document.getElementById('cmd-security').value = '';  
-      
-    // Fallback display toggles  
-    const modal = document.getElementById('cmdModal');  
-    modal.classList.add('open');  
-    modal.style.display = 'flex';   
-}
-
-function closeCmdModal() {  
-    const modal = document.getElementById('cmdModal');  
-    modal.classList.remove('open');  
-    modal.style.display = 'none';  
-}
-
-function editCommand(id) {  
-    const cmd = allCommands.find(c => c.id === id);  
-    if (!cmd) return;  
-      
-    currentCmdEditId = cmd.id;  
-    document.getElementById('cmd-modal-title').innerText = '✏️ Edit Command';  
-      
-    document.getElementById('cmd-text').value = cmd.command_text || '';  
-    document.getElementById('cmd-category').value = cmd.category || 'Linux';  
-    document.getElementById('cmd-meaning').value = cmd.meaning || '';  
-    document.getElementById('cmd-example').value = cmd.example || '';  
-    document.getElementById('cmd-topic').value = cmd.topic_learned || '';  
-    document.getElementById('cmd-future').value = cmd.future_topics || '';  
-    document.getElementById('cmd-security').value = cmd.security_note || '';  
-      
-    document.getElementById('cmd-links').value = (cmd.linked_cmds && cmd.linked_cmds.length > 0) ? cmd.linked_cmds.join(', ') : '';  
-      
-    // Fallback display toggles  
-    const modal = document.getElementById('cmdModal');  
-    modal.classList.add('open');  
-    modal.style.display = 'flex';  
-}
-
-async function saveCommand() {  
-    if(!sb) { toast('Database not connected', 'error'); return; }  
-      
-    const text = document.getElementById('cmd-text').value.trim();  
-    const meaning = document.getElementById('cmd-meaning').value.trim();  
-      
-    if(!text || !meaning) { toast('Command and Meaning are required!', 'error'); return; }
-
-    // This perfectly converts your comma separated text into the Postgres Array!  
-    const rawLinks = document.getElementById('cmd-links').value;  
-    const linksArray = rawLinks ? rawLinks.split(',').map(s => s.trim()).filter(Boolean) : [];
-
-    const payload = {  
-        command_text: text,  
-        category: document.getElementById('cmd-category').value,  
-        meaning: meaning,  
-        example: document.getElementById('cmd-example').value.trim(),  
-        topic_learned: document.getElementById('cmd-topic').value.trim(),  
-        future_topics: document.getElementById('cmd-future').value.trim(),  
-        linked_cmds: linksArray,  
-        security_note: document.getElementById('cmd-security').value.trim()  
-    };
-
-    let error;  
-    if (currentCmdEditId) {  
-        const res = await sb.from('commands').update(payload).eq('id', currentCmdEditId);  
-        error = res.error;  
-    } else {  
-        const res = await sb.from('commands').insert([payload]);  
-        error = res.error;  
-    }
-
-    if (error) { toast('Error saving command: ' + error.message, 'error'); return; }  
-      
-    toast('Command saved to Runbook! 💻', 'success');  
-    closeCmdModal();  
-    await syncUI(); // Reload everything seamlessly  
-}
-
-async function deleteCommand(id) {  
-    if (!confirm("Remove this command from your runbook?")) return;  
-    const { error } = await sb.from('commands').delete().eq('id', id);  
-    if (error) { toast('Error deleting: ' + error.message, 'error'); return; }  
-    toast('Command removed 🗑️', 'success');  
-    await syncUI();  
-}
-
-function setCmdFilter(category) {  
-    currentCmdFilter = category;  
-    const filterContainer = document.getElementById('cmd-filters');  
-    if (filterContainer) {  
-        const buttons = filterContainer.querySelectorAll('button');  
-        buttons.forEach(btn => {  
-            if (btn.dataset.filter === category) {
-                btn.className = 'btn';  
-                btn.style.background = 'var(--accent)';  
-            } else {  
-                btn.className = 'btn btn-ghost';  
-                btn.style.background = 'transparent';  
-            }  
-        });  
-    }  
-    renderCommands();  
-}
-
-function copyCmd(text) {  
-    navigator.clipboard.writeText(text).then(() => {  
-        toast('Command copied! 📋');  
-    }).catch(err => {  
-        console.error('Failed to copy text: ', err);  
-        toast('Failed to copy command.', 'error');  
-    });  
-}  
-// ==========================================
-
-// ── WAR ROOM ──────────────────────────────
-let allWRReports = [];
-let currentWRFilter = 'all';
-let currentWREditId = null;
-let currentWRView = 'grid';
-let currentReaderReport = null;
-
-const WR_TYPE_LABEL = { bug: '🐛 Bug', 'deep-dive': '📚 Deep Dive', build: '🔨 Build', incident: '🔥 Incident' };
-const WR_TYPE_COLOR = { bug: 'var(--red)', 'deep-dive': 'var(--accent-blue)', build: 'var(--green)', incident: 'var(--yellow)' };
-
-async function loadWarRoom() {
-    if (!sb) return;
-    const { data, error } = await sb.from('war_room').select('*').order('date', { ascending: false });
-    if (error) { console.error('War Room load error:', error.message || JSON.stringify(error)); return; }
-    allWRReports = data || [];
-    renderWRReports(allWRReports);
-}
-
-// ── RENDER ──
-function renderWRReports(data) {
-    const list = document.getElementById('warroom-list');
-    if (!list) return;
-    if (!data || data.length === 0) {
-        list.innerHTML = '<div style="color:var(--muted); font-size:0.9rem; padding:2rem 0;">No reports yet. Hit <strong>+ New Report</strong> to document your first battle.</div>';
-        return;
-    }
-    if (currentWRView === 'grid') renderWRGrid(data, list);
-    else if (currentWRView === 'list') renderWRList(data, list);
-    else renderWRCompact(data, list);
-}
-
-function renderWRGrid(data, list) {
-    list.innerHTML = `<div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(280px, 1fr)); gap:1rem;">` +
-    data.map(r => {
-        const color = WR_TYPE_COLOR[r.type] || 'var(--muted)';
-        const label = WR_TYPE_LABEL[r.type] || r.type;
-        return `<div onclick="openWRReader('${r.id}')" style="background:var(--surface); border:1px solid var(--border); border-radius:14px; padding:1.25rem; cursor:pointer; transition:all 0.2s; position:relative; overflow:hidden;"
-            onmouseover="this.style.borderColor='${color}'; this.style.transform='translateY(-2px)'"
-            onmouseout="this.style.borderColor='var(--border)'; this.style.transform='none'">
-            <div style="position:absolute; top:0; left:0; right:0; height:3px; background:${color}; border-radius:14px 14px 0 0;"></div>
-            <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:0.75rem; margin-top:0.25rem;">
-                <span style="font-size:0.7rem; font-weight:700; color:${color}; background:${color}22; padding:0.2rem 0.55rem; border-radius:5px; border:1px solid ${color}44;">${label}</span>
-                <span style="font-size:0.75rem; color:var(--muted); font-family:var(--font-mono);">${r.date || ''}</span>
-            </div>
-            <div style="font-weight:600; font-size:0.95rem; margin-bottom:0.5rem; line-height:1.3;">${escapeHTML(r.title)}</div>
-            <div style="font-size:0.82rem; color:var(--muted); line-height:1.5; display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden;">${escapeHTML(r.problem || '')}</div>
-            ${r.linked_topic ? `<div style="margin-top:0.75rem; font-family:var(--font-mono); font-size:0.72rem; color:var(--accent2);">📌 Topic ${escapeHTML(r.linked_topic)}</div>` : ''}
-        </div>`;
-    }).join('') + '</div>';
-}
-
-function renderWRList(data, list) {
-    list.innerHTML = data.map(r => {
-        const color = WR_TYPE_COLOR[r.type] || 'var(--muted)';
-        const label = WR_TYPE_LABEL[r.type] || r.type;
-        return `<div onclick="openWRReader('${r.id}')" style="background:var(--surface); border:1px solid var(--border); border-left:3px solid ${color}; border-radius:12px; padding:1.1rem 1.25rem; margin-bottom:0.75rem; cursor:pointer; transition:all 0.2s; display:flex; gap:1rem; align-items:flex-start;"
-            onmouseover="this.style.background='var(--surface2)'"
-            onmouseout="this.style.background='var(--surface)'">
-            <div style="min-width:90px; padding-top:0.1rem;">
-                <span style="font-size:0.7rem; font-weight:700; color:${color}; background:${color}22; padding:0.2rem 0.5rem; border-radius:5px; border:1px solid ${color}44; white-space:nowrap;">${label}</span>
-            </div>
-            <div style="flex:1; min-width:0;">
-                <div style="font-weight:600; font-size:0.95rem; margin-bottom:0.35rem;">${escapeHTML(r.title)}</div>
-                <div style="font-size:0.82rem; color:var(--muted); line-height:1.5; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;">${escapeHTML(r.problem || '')}</div>
-                ${r.linked_topic ? `<div style="margin-top:0.4rem; font-family:var(--font-mono); font-size:0.72rem; color:var(--accent2);">📌 Topic ${escapeHTML(r.linked_topic)}</div>` : ''}
-            </div>
-            <div style="font-family:var(--font-mono); font-size:0.75rem; color:var(--muted); white-space:nowrap; padding-top:0.1rem;">${r.date || ''}</div>
-        </div>`;
-    }).join('');
-}
-
-function renderWRCompact(data, list) {
-    list.innerHTML = `<div style="background:var(--surface); border:1px solid var(--border); border-radius:14px; overflow:hidden;">` +
-    data.map((r, i) => {
-        const color = WR_TYPE_COLOR[r.type] || 'var(--muted)';
-        const label = WR_TYPE_LABEL[r.type] || r.type;
-        const border = i > 0 ? 'border-top:1px solid var(--border);' : '';
-        return `<div onclick="openWRReader('${r.id}')" style="${border} padding:0.75rem 1.25rem; cursor:pointer; display:flex; align-items:center; gap:1rem; transition:background 0.15s;"
-            onmouseover="this.style.background='var(--surface2)'"
-            onmouseout="this.style.background='transparent'">
-            <span style="font-size:0.68rem; font-weight:700; color:${color}; min-width:80px; white-space:nowrap;">${label}</span>
-            <span style="flex:1; font-size:0.88rem; font-weight:500; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${escapeHTML(r.title)}</span>
-            ${r.linked_topic ? `<span style="font-family:var(--font-mono); font-size:0.7rem; color:var(--accent2); white-space:nowrap;">T${escapeHTML(r.linked_topic)}</span>` : ''}
-            <span style="font-family:var(--font-mono); font-size:0.72rem; color:var(--muted); white-space:nowrap;">${r.date || ''}</span>
-        </div>`;
-    }).join('') + '</div>';
-}
-
-// ── VIEW TOGGLE ──
-function setWRView(view) {
-    currentWRView = view;
-    ['grid','list','compact'].forEach(v => {
-        const btn = document.getElementById('wr-view-' + v);
-        if (!btn) return;
-        if (v === view) {
-            btn.style.background = 'var(--surface2)';
-            btn.style.border = '1px solid var(--border)';
-            btn.style.color = 'var(--accent-blue)';
-        } else {
-            btn.style.background = 'none';
-            btn.style.border = 'none';
-            btn.style.color = 'var(--muted)';
-        }
-    });
-    applyWRFilter((document.getElementById('wr-search')?.value || '').toLowerCase().trim());
-}
-
-// ── FILTER + SEARCH ──
-function setWRFilter(type) {
-    currentWRFilter = type;
-    document.querySelectorAll('#wr-filters button').forEach(btn => {
-        const active = btn.dataset.wrfilter === type;
-        btn.style.background = active ? 'var(--accent-blue)' : '';
-        btn.style.color = active ? '#fff' : '';
-    });
-    applyWRFilter((document.getElementById('wr-search')?.value || '').toLowerCase().trim());
-}
-
-function searchWR() {
-    applyWRFilter(document.getElementById('wr-search').value.toLowerCase().trim());
-}
-
-function applyWRFilter(term) {
-    let filtered = allWRReports;
-    if (currentWRFilter !== 'all') filtered = filtered.filter(r => r.type === currentWRFilter);
-    if (term) filtered = filtered.filter(r =>
-        (r.title || '').toLowerCase().includes(term) ||
-        (r.problem || '').toLowerCase().includes(term) ||
-        (r.solution || '').toLowerCase().includes(term) ||
-        (r.root_cause || '').toLowerCase().includes(term) ||
-        (r.linked_topic || '').toLowerCase().includes(term)
-    );
-    renderWRReports(filtered);
-}
-
-// ── READER ──
-function openWRReader(id) {
-    const r = allWRReports.find(x => String(x.id) === String(id));
-    if (!r) return;
-    currentReaderReport = r;
-
-    const color = WR_TYPE_COLOR[r.type] || 'var(--muted)';
-    const label = WR_TYPE_LABEL[r.type] || r.type;
-
-    // Top bar
-    const badge = document.getElementById('wr-reader-type-badge');
-    badge.textContent = label;
-    badge.style.cssText = `font-size:0.72rem; font-weight:700; padding:0.2rem 0.6rem; border-radius:6px; color:${color}; background:${color}22; border:1px solid ${color}44;`;
-    document.getElementById('wr-reader-title-bar').textContent = r.title;
-
-    // Edit button
-    const editBtn = document.getElementById('wr-reader-edit-btn');
-    if (editBtn) editBtn.onclick = () => { closeWRReader(); openEditWRModal(id); };
-
-    // Body
-    document.getElementById('wr-reader-date').textContent = r.date || '';
-    document.getElementById('wr-reader-title').textContent = r.title;
-
-    // Topic link
-    const topicEl = document.getElementById('wr-reader-topic');
-    if (r.linked_topic) {
-        topicEl.innerHTML = `<span style="font-family:var(--font-mono); font-size:0.82rem; color:var(--accent2); cursor:pointer; text-decoration:underline;" onclick="closeWRReader(); goToTopic('${escapeHTML(r.linked_topic)}')">📌 Linked to Topic ${escapeHTML(r.linked_topic)}</span>`;
-    } else {
-        topicEl.innerHTML = '';
-    }
-
-    // Sections
-    const section = (heading, content, color) => content ? `
-        <div style="margin-bottom:2rem;">
-            <div style="font-size:0.72rem; font-weight:700; text-transform:uppercase; letter-spacing:0.07em; color:${color || 'var(--muted)'}; margin-bottom:0.6rem;">${heading}</div>
-            <div style="font-size:0.95rem; line-height:1.75; color:var(--text);">${escapeHTML(content)}</div>
-        </div>` : '';
-
-    document.getElementById('wr-reader-problem').innerHTML = section('🔴 Problem', r.problem, 'var(--red)');
-    document.getElementById('wr-reader-rootcause').innerHTML = section('🔍 Root Cause', r.root_cause, 'var(--yellow)');
-    document.getElementById('wr-reader-solution').innerHTML = section('✅ Solution', r.solution, 'var(--green)');
-
-    // Full report — monospace block
-    const frEl = document.getElementById('wr-reader-fullreport');
-    if (r.full_report) {
-        frEl.innerHTML = `
-            <div style="font-size:0.72rem; font-weight:700; text-transform:uppercase; letter-spacing:0.07em; color:var(--accent-blue); margin-bottom:0.75rem;">📄 Full Report</div>
-            <div style="font-size:0.88rem; line-height:1.8; white-space:pre-wrap; font-family:var(--font-mono); background:var(--surface2); border:1px solid var(--border); border-radius:12px; padding:1.5rem;">${escapeHTML(r.full_report)}</div>`;
-    } else {
-        frEl.innerHTML = '';
-    }
-
-    document.getElementById('wr-reader').style.display = 'block';
-    document.body.style.overflow = 'hidden';
-}
-
-function closeWRReader() {
-    document.getElementById('wr-reader').style.display = 'none';
-    document.body.style.overflow = '';
-    currentReaderReport = null;
-}
-
-// ── TOPIC LINK ──
-function goToTopic(topicId) {
-    // Switch to topics tab
-    const topicsBtn = document.querySelector('button[onclick*="showTab(\'topics\'"]');
-    if (topicsBtn) topicsBtn.click();
-    // Try to highlight the topic item after tab switch
-    setTimeout(() => {
-        const items = document.querySelectorAll('.topic-id');
-        items.forEach(el => {
-            if (el.textContent.trim() === topicId) {
-                const parent = el.closest('.topic-item');
-                if (parent) {
-                    parent.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                    parent.style.border = '1px solid var(--accent-blue)';
-                    parent.style.boxShadow = '0 0 0 3px rgba(10,132,255,0.2)';
-                    setTimeout(() => { parent.style.border = '1px solid var(--border)'; parent.style.boxShadow = 'none'; }, 2500);
-                }
-            }
-        });
-    }, 400);
-}
-
-// ── DOWNLOAD ──
-function downloadWRReport() {
-    if (!currentReaderReport) return;
-    const r = currentReaderReport;
-    const label = (WR_TYPE_LABEL[r.type] || r.type).replace(/[^\w\s]/g, '').trim();
-    let md = `# ${r.title}\n`;
-    md += `**Type:** ${label}  \n`;
-    md += `**Date:** ${r.date || ''}  \n`;
-    if (r.linked_topic) md += `**Linked Topic:** ${r.linked_topic}  \n`;
-    md += `\n---\n\n`;
-    if (r.problem) md += `## Problem\n${r.problem}\n\n`;
-    if (r.root_cause) md += `## Root Cause\n${r.root_cause}\n\n`;
-    if (r.solution) md += `## Solution\n${r.solution}\n\n`;
-    if (r.full_report) md += `## Full Report\n${r.full_report}\n`;
-
-    const blob = new Blob([md], { type: 'text/markdown' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = (r.title || 'report').replace(/[^a-z0-9]/gi, '-').toLowerCase() + '.md';
-    a.click();
-    URL.revokeObjectURL(url);
-    toast('Report downloaded! 📄', 'success');
-}
-
-// ── FILE UPLOAD ──
-function handleWRFileUpload(event) {
-    const file = event.target.files[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = (e) => {
-        const content = e.target.result;
-        document.getElementById('wr-fullreport').value = content;
-        // Try to auto-extract title from first # heading
-        const titleMatch = content.match(/^#\s+(.+)/m);
-        if (titleMatch && !document.getElementById('wr-title').value.trim()) {
-            document.getElementById('wr-title').value = titleMatch[1].trim();
-        }
-        toast('File loaded! Review and save. ✅', 'success');
-    };
-    reader.readAsText(file);
-    event.target.value = '';
-}
-
-// ── MODAL OPEN / CLOSE ──
-function openWarRoomModal() {
-    currentWREditId = null;
-    document.getElementById('wr-modal-title').textContent = '🚨 New War Room Report';
-    document.getElementById('wr-date').value = new Date().toISOString().split('T')[0];
-    document.getElementById('wr-type').value = 'bug';
-    ['wr-title','wr-problem','wr-rootcause','wr-solution','wr-fullreport','wr-topic'].forEach(id => {
-        const el = document.getElementById(id); if (el) el.value = '';
-    });
-    document.getElementById('warRoomModal').classList.add('open');
-}
-
-function openEditWRModal(id) {
-    const r = allWRReports.find(x => String(x.id) === String(id));
-    if (!r) return;
-    currentWREditId = id;
-    document.getElementById('wr-modal-title').textContent = '✏️ Edit Report';
-    document.getElementById('wr-date').value = r.date || '';
-    document.getElementById('wr-type').value = r.type || 'bug';
-    document.getElementById('wr-title').value = r.title || '';
-    document.getElementById('wr-problem').value = r.problem || '';
-    document.getElementById('wr-rootcause').value = r.root_cause || '';
-    document.getElementById('wr-solution').value = r.solution || '';
-    document.getElementById('wr-fullreport').value = r.full_report || '';
-    document.getElementById('wr-topic').value = r.linked_topic || '';
-    document.getElementById('warRoomModal').classList.add('open');
-}
-
-function closeWarRoomModal() {
-    document.getElementById('warRoomModal').classList.remove('open');
-    currentWREditId = null;
-}
-
-// ── SAVE ──
-async function saveWRReport() {
-    if (!sb) { toast('Database not connected', 'error'); return; }
-    const title = document.getElementById('wr-title').value.trim();
-    const problem = document.getElementById('wr-problem').value.trim();
-    if (!title || !problem) { toast('Title and Problem are required!', 'error'); return; }
-
-    const payload = {
-        date: document.getElementById('wr-date').value,
-        type: document.getElementById('wr-type').value,
-        title,
-        problem,
-        root_cause: document.getElementById('wr-rootcause').value.trim(),
-        solution: document.getElementById('wr-solution').value.trim(),
-        full_report: document.getElementById('wr-fullreport').value.trim(),
-        linked_topic: document.getElementById('wr-topic').value.trim()
-    };
-
-    let error;
-    if (currentWREditId) {
-        ({ error } = await sb.from('war_room').update(payload).eq('id', currentWREditId));
-    } else {
-        ({ error } = await sb.from('war_room').insert([payload]));
-    }
-
-    if (error) { toast('Error saving: ' + error.message, 'error'); return; }
-    toast(currentWREditId ? 'Report updated! ✅' : 'Saved to War Room! 🚨', 'success');
-    closeWarRoomModal();
-    await loadWarRoom();
-}
-
-// ── DELETE ──
-async function deleteWRReport(id) {
-    if (!sb) return;
-    if (!confirm('Delete this report permanently?')) return;
-    const { error } = await sb.from('war_room').delete().eq('id', id);
-    if (error) { toast('Delete failed: ' + error.message, 'error'); return; }
-    toast('Report deleted 🗑️', 'success');
-    await loadWarRoom();
-}
-// ─────────────────────────────────────────
-
-</script>    
-
-<!-- ── WAR ROOM MODAL ── -->
-<div class="modal-overlay" id="warRoomModal">
-  <div class="modal" style="max-width:640px;">
-    <h2 id="wr-modal-title">🚨 New War Room Report</h2>
-
-    <!-- Upload shortcut -->
-    <div style="background:rgba(10,132,255,0.08); border:1px dashed var(--accent-blue); border-radius:10px; padding:0.85rem 1rem; margin-bottom:1.25rem; display:flex; align-items:center; justify-content:space-between; gap:0.75rem; flex-wrap:wrap;">
-      <div style="font-size:0.82rem; color:var(--accent-blue);">📎 Have a <strong>.md report file?</strong> Upload it to auto-fill the report below.</div>
-      <label style="cursor:pointer;">
-        <span class="btn btn-ghost" style="font-size:0.78rem; padding:0.3rem 0.75rem; color:var(--accent-blue); border:1px solid var(--accent-blue);">Upload .md file</span>
-        <input type="file" id="wr-file-upload" accept=".md,.txt" style="display:none;" onchange="handleWRFileUpload(event)" />
-      </label>
-    </div>
-
-    <div class="form-row-2">
-      <div class="form-row" style="margin-bottom:0">
-        <label>Date</label>
-        <input type="date" id="wr-date" />
+    </div>      
+  </header>
+  <!-- ========================================== -->
+  <!-- END OF TOP HEADER                          -->
+  <!-- ========================================== -->
+
+  <!-- ========================================== -->
+  <!-- START OF NAVIGATION BAR                    -->
+  <!-- ========================================== -->
+  <div class="nav-container">      
+    <nav>       
+      <button class="active" onclick="showTab('dashboard',this)">Dashboard</button>       
+      <button onclick="showTab('log',this)">Session Log</button>       
+      <button onclick="showTab('topics',this)">Topics</button>       
+      <button onclick="showTab('projects',this)">Portfolio</button>       
+      <button onclick="showTab('mindset',this)">Mindset</button>       
+      <button onclick="showTab('notes',this)">Daily Log</button>       
+      <button onclick="showTab('cmds',this)">Terminal Cmds 💻</button>  
+      <button onclick="showTab('warroom',this)">🚨 War Room</button>
+    </nav>      
+  </div>
+  <!-- ========================================== -->
+  <!-- END OF NAVIGATION BAR                      -->
+  <!-- ========================================== -->
+
+  <main id="app-container">
+
+    <!-- ========================================== -->
+    <!-- START OF DASHBOARD TAB                     -->
+    <!-- ========================================== -->
+    <div id="tab-dashboard" class="tab-content active">
+      <div class="grid-4" style="margin-bottom:1.25rem">
+        <div class="card" style="text-align:center"><div class="stat-big" id="dash-done">—</div><div class="stat-label">Topics Completed</div></div>
+        <div class="card" style="text-align:center"><div class="stat-big" id="dash-pct">—</div><div class="stat-label">Overall Progress</div></div>
+        <div class="card" style="text-align:center"><div class="stat-big" id="dash-mindset">—</div><div class="stat-label">Mindset Moments</div></div>
+        <div class="card" style="text-align:center"><div class="stat-big" id="dash-projects">—</div><div class="stat-label">Portfolio Projects</div></div>
       </div>
-      <div class="form-row" style="margin-bottom:0">
-        <label>Report Type</label>
-        <select id="wr-type">
-          <option value="bug">🐛 Bug / Issue</option>
-          <option value="deep-dive">📚 Deep Dive</option>
-          <option value="build">🔨 Build Report</option>
-          <option value="incident">🔥 Incident Post-Mortem</option>
-        </select>
+      <div class="card">
+        <h3>Phase Progress</h3>
+        <div class="progress-wrap"><div class="progress-label"><span>Phase 1 — Foundations</span><span id="phase1-pct">0%</span></div><div class="progress-bar"><div class="progress-fill" id="phase1-bar" style="width:0%"></div></div></div>
+        <div class="progress-wrap"><div class="progress-label"><span>Phase 2 — Networking + Cloud</span><span id="phase2-pct">0%</span></div><div class="progress-bar"><div class="progress-fill" id="phase2-bar" style="width:0%"></div></div></div>
+        <div class="progress-wrap"><div class="progress-label"><span>Phases 3–8 — Advanced</span><span id="phase38-pct">0%</span></div><div class="progress-bar"><div class="progress-fill" id="phase38-bar" style="width:0%"></div></div></div>
+      </div>
+      <div class="card">
+        <h3>Up Next</h3>
+        <div id="dash-next-topic" style="font-size:1rem;font-weight:500">Loading...</div>
+        <div style="margin-top:1.25rem;display:flex;gap:0.75rem;flex-wrap:wrap">
+          <button class="btn btn-save" onclick="openSessionModal()">💾 Save Completed Session</button>
+          <button class="btn btn-ghost" onclick="showTab('topics',document.querySelectorAll('nav button')[2])">📋 View Roadmap</button>
+        </div>
       </div>
     </div>
+    <!-- ========================================== -->
+    <!-- END OF DASHBOARD TAB                       -->
+    <!-- ========================================== -->
 
-    <div class="form-row" style="margin-top:1rem;">
-      <label>Title</label>
-      <input type="text" id="wr-title" placeholder="e.g. Jarvis CORS Fix, Supabase RLS Block, Docker Build Failure" />
+    <!-- ========================================== -->
+    <!-- START OF SESSION LOG TAB                   -->
+    <!-- ========================================== -->
+    <div id="tab-log" class="tab-content">
+      <div class="card" style="margin-bottom:1.25rem"><input type="text" id="session-search" placeholder="Search by topic, date, concepts, notes..." oninput="searchSessions()" style="margin-bottom:0" /></div>
+      <div id="sessions-list"></div>
     </div>
+    <!-- ========================================== -->
+    <!-- END OF SESSION LOG TAB                     -->
+    <!-- ========================================== -->
 
-    <div class="form-row">
-      <label>Problem — What broke or what you were investigating</label>
-      <textarea id="wr-problem" style="min-height:80px;" placeholder="Describe the problem. What were you trying to do? What went wrong?"></textarea>
+    <!-- ========================================== -->
+    <!-- START OF TOPICS TAB                        -->
+    <!-- ========================================== -->
+   <div id="tab-topics" class="tab-content">
+      <div class="card" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem;margin-bottom:1.25rem">
+        <div>
+          <div style="font-weight:700;font-size:1.1rem">67-Topic DevOps Roadmap</div>
+          <div style="color:var(--muted);font-size:0.85rem;margin-top:0.2rem">Click any topic to expand teaching notes</div>
+        </div>
+        <button class="btn btn-primary admin-only" onclick="openSessionModal()">💾 Save Session</button>
+      </div>
+      <div id="topics-list"></div>
     </div>
+    <!-- ========================================== -->
+    <!-- END OF TOPICS TAB                          -->
+    <!-- ========================================== -->
 
-    <div class="form-row">
-      <label>Root Cause — Why it actually happened</label>
-      <textarea id="wr-rootcause" style="min-height:80px;" placeholder="After investigation, the real reason was…"></textarea>
+    <!-- ========================================== -->
+    <!-- START OF PORTFOLIO PROJECTS TAB            -->
+    <!-- ========================================== -->
+    <div id="tab-projects" class="tab-content">
+      <div class="card" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem;margin-bottom:1.25rem">
+        <div><div style="font-weight:700;font-size:1.1rem">Mini Project Portfolio</div><div style="color:var(--muted);font-size:0.85rem;margin-top:0.2rem">One project per topic</div></div>
+        <button class="btn btn-primary admin-only" onclick="openProjectModal()">🚀 Add Project</button>
+      </div>
+      <div id="projects-list"></div>
     </div>
+    <!-- ========================================== -->
+    <!-- END OF PORTFOLIO PROJECTS TAB              -->
+    <!-- ========================================== -->
 
-    <div class="form-row">
-      <label>Solution — What fixed it</label>
-      <textarea id="wr-solution" style="min-height:80px;" placeholder="Step by step — what you changed, added, or removed."></textarea>
+    <!-- ========================================== -->
+    <!-- START OF MINDSET TAB                       -->
+    <!-- ========================================== -->
+    <div id="tab-mindset" class="tab-content">
+      <div class="card" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem;margin-bottom:1.25rem">
+        <div><div style="font-weight:700;font-size:1.1rem">Mindset Moments</div><div style="color:var(--muted);font-size:0.85rem;margin-top:0.2rem">Questions and situations that reveal how you think</div></div>
+        <div style="display:flex;align-items:center;gap:1rem">
+          <div style="font-size:0.85rem;color:var(--muted)">⭐ Strong: <strong id="strong-count">—</strong></div>
+          <button class="btn btn-primary admin-only" onclick="openMindsetModal()">+ Add Moment</button>
+        </div>
+      </div>
+      <div class="card" style="margin-bottom:1.25rem">
+        <div style="display:flex;gap:0.5rem;flex-wrap:wrap;margin-bottom:1rem">
+          <button class="btn btn-ghost" onclick="filterMindset('all')">All</button>
+          <button class="btn btn-ghost" onclick="filterMindset('question')">❓ Questions</button>
+          <button class="btn btn-ghost" onclick="filterMindset('situation')">🎬 Situations</button>
+          <button class="btn btn-ghost" onclick="filterMindset('strong')">⭐ Strong</button>
+          <button class="btn btn-ghost" onclick="filterMindset('good')">👍 Good</button>
+          <button class="btn btn-ghost" onclick="filterMindset('duplicates')">🔍 Duplicates</button>
+        </div>
+        <input type="text" id="mindset-search" placeholder="Search mindset moments..." oninput="searchMindset()" style="margin-bottom:0" />
+      </div>
+      <div id="mindset-list"></div>
     </div>
+    <!-- ========================================== -->
+    <!-- END OF MINDSET TAB                         -->
+    <!-- ========================================== -->
 
-    <div class="form-row">
-      <label>Full Report — Paste your complete .md write-up here</label>
-      <textarea id="wr-fullreport" style="min-height:140px; font-family:var(--font-mono); font-size:0.82rem;" placeholder="Full markdown report. Supports headings, code blocks, lists. Auto-filled when you upload a file above."></textarea>
+    <!-- ========================================== -->
+    <!-- START OF DAILY LOG NOTES TAB               -->
+    <!-- ========================================== -->
+    <div id="tab-notes" class="tab-content">
+      
+      <div class="card admin-only" style="margin-bottom:1.25rem">
+        <div style="font-weight:700; font-size:0.85rem; color:var(--muted); text-transform:uppercase; margin-bottom:1rem; letter-spacing:0.05em;" id="note-form-title">New Journal Entry</div>
+        
+        <div class="form-row-2" style="margin-bottom:1rem">
+          <div class="form-row" style="margin-bottom:0"><label style="font-size:0.75rem; font-weight:700; color:var(--muted); text-transform:uppercase;">Date</label><input type="date" id="note-date" /></div>
+          <div class="form-row" style="margin-bottom:0"><label style="font-size:0.75rem; font-weight:700; color:var(--muted); text-transform:uppercase;">Author</label><input type="text" id="note-author" value="Michael Joshua" /></div>
+        </div>
+        
+        <div class="form-row" style="margin-bottom:1rem;">
+          <label style="font-size:0.75rem; font-weight:700; color:var(--muted); text-transform:uppercase;">Title</label>
+          <input type="text" id="note-title" placeholder="e.g., Day 5 — Terminal Breakthrough" />
+        </div>
+        
+        <div class="form-row" style="margin-bottom:1rem;">
+          <label style="font-size:0.75rem; font-weight:700; color:var(--muted); text-transform:uppercase;">Linked Topic (Optional)</label>
+          <input type="text" id="note-topic" placeholder="e.g., Topic 3.1" />
+        </div>
+        
+        <div class="form-row">
+          <label style="font-size:0.75rem; font-weight:700; color:var(--muted); text-transform:uppercase;">Entry</label>
+          <textarea id="note-text" style="min-height:150px" placeholder="Write your thoughts, progress, reflections, or blockers..."></textarea>
+        </div>
+        
+        <div style="display:flex; justify-content:flex-end; gap:0.75rem; margin-top:1rem;">
+          <button id="cancel-note-edit" class="btn btn-ghost" style="display:none;" onclick="cancelEditNote()">Cancel</button>
+          
+          <button class="btn-save" onclick="saveNote()">Save Note</button>
+        </div>
+      </div>
+
+      <div class="card" style="margin-bottom:1.25rem">
+        <input type="text" id="note-search" placeholder="Search journal entries..." oninput="searchNotes()" style="margin-bottom:0" />
+      </div>
+
+      <div id="notes-list"></div>
+      
     </div>
+    <!-- ========================================== -->
+    <!-- END OF DAILY LOG NOTES TAB                 -->
+    <!-- ========================================== -->
 
-    <div class="form-row">
-      <label>Linked Topic (Optional)</label>
-      <input type="text" id="wr-topic" placeholder="e.g. 1.5, 3.4, Jarvis Stage 2" />
+    <!-- ========================================== -->
+    <!-- START OF TERMINAL COMMANDS TAB             -->
+    <!-- ========================================== -->
+    <div id="tab-cmds" class="tab-content">
+      
+      <div class="card" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem;margin-bottom:1.25rem">
+        <div>
+          <div style="font-weight:700;font-size:1.15rem;letter-spacing:-0.02em;">Terminal Commands Runbook 💻</div>
+          <div style="color:var(--muted);font-size:0.85rem;margin-top:0.3rem;">Every command you've learned — searchable, categorized, copyable</div>
+        </div>
+        <button class="btn btn-primary admin-only" onclick="openCmdModal()">+ Add Command</button>
+      </div>
+
+      <div class="card" style="margin-bottom:1.25rem">
+        <div id="cmd-filters" style="display:flex; gap:0.5rem; flex-wrap:wrap; margin-bottom:1.25rem;">
+          <button class="btn" data-filter="All" style="background:var(--accent); color:#fff;" onclick="setCmdFilter('All')">All</button>
+          <button class="btn btn-ghost" data-filter="Linux" onclick="setCmdFilter('Linux')">🐧 Linux</button>
+          <button class="btn btn-ghost" data-filter="Git" onclick="setCmdFilter('Git')">🔀 Git</button>
+          <button class="btn btn-ghost" data-filter="Docker" onclick="setCmdFilter('Docker')">🐳 Docker</button>
+          <button class="btn btn-ghost" data-filter="Kubernetes" onclick="setCmdFilter('Kubernetes')">☸️ Kubernetes</button>
+          <button class="btn btn-ghost" data-filter="Terraform" onclick="setCmdFilter('Terraform')">🏗️ Terraform</button>
+          <button class="btn btn-ghost" data-filter="Python" onclick="setCmdFilter('Python')">🐍 Python</button>
+          <button class="btn btn-ghost" data-filter="Cloud CLI" onclick="setCmdFilter('Cloud CLI')">☁️ Cloud CLI</button>
+          <button class="btn btn-ghost" data-filter="Duplicates" onclick="setCmdFilter('Duplicates')">🔍 Duplicates</button>
+        </div>
+        <input type="text" id="cmd-search" placeholder="Search commands..." oninput="renderCommands()" style="margin-bottom:0" />
+      </div>
+
+      <div id="cmds-list"></div>
     </div>
+    <!-- ========================================== -->
+    <!-- END OF TERMINAL COMMANDS TAB               -->
+    <!-- ========================================== -->
 
-    <div class="modal-footer">
-      <button class="btn btn-ghost" onclick="closeWarRoomModal()">Cancel</button>
-      <button class="btn btn-save" onclick="saveWRReport()">Save Report</button>
+    <!-- ========================================== -->
+    <!-- START OF JARVIS AI                         -->
+    <!-- ========================================== -->
+    <button id="jarvis-fab" onclick="toggleJarvis()" style="position: fixed; bottom: 30px; right: 30px; width: 60px; height: 60px; border-radius: 50%; font-size: 1.5rem; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 15px rgba(0,0,0,0.3); z-index: 9999; cursor: pointer; border: none; background: var(--accent-blue); color: white; transition: transform 0.2s;">
+    ⚡
+  </button>
+
+  <div id="jarvis-widget" style="display: none; position: fixed; bottom: 100px; right: 30px; width: 350px; height: 500px; background: var(--surface); border: 1px solid var(--border); border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); z-index: 9998; flex-direction: column; overflow: hidden;">
+    
+    <div class="j-topbar" style="display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; border-bottom: 1px solid var(--border); background: var(--surface2);">
+      <div style="display: flex; align-items: center; gap: 8px;">
+        <div class="j-pulse" style="width: 10px; height: 10px; border-radius: 50%; background: #34d399; box-shadow: 0 0 10px rgba(52, 211, 153, 0.6);"></div>
+        <div class="j-title">
+          <span class="j-tname" style="font-size: 1rem; font-weight: 600; color: var(--text);">Jarvis</span>
+          <span style="font-size: 0.7rem; color: var(--muted); margin-left: 6px;">DevOps Agent</span>
+        </div>
+      </div>
+      <button onclick="toggleJarvis()" style="background: none; border: none; color: var(--muted); font-size: 1.2rem; cursor: pointer; padding: 0 4px;">✕</button>
+    </div>
+    
+    <div class="j-msgs" id="j-msgs" style="flex: 1; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 12px; background: var(--bg);">
+      <div class="j-msg" style="display: flex; gap: 12px;">
+        <div class="j-bubble" style="padding: 10px 14px; border-radius: 12px; background: var(--surface2); border: 1px solid var(--border); max-width: 85%; font-size: 0.9rem; color: var(--text); line-height: 1.4;">Systems initialized. What do you need help with?</div>
+      </div>
+    </div>
+    
+    <div class="j-input-area" style="padding: 12px; border-top: 1px solid var(--border); background: var(--surface); display: flex; gap: 8px;">
+      <textarea id="j-input" rows="1" placeholder="Ask Jarvis..." onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();jSend();}" style="flex: 1; background: var(--bg); border: 1px solid var(--border); color: var(--text); padding: 8px 12px; border-radius: 20px; resize: none; font-size: 0.9rem; outline: none;"></textarea>
+      <button onclick="jSend()" style="width: 36px; height: 36px; border-radius: 50%; background: var(--accent-blue); color: white; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; padding-left: 3px;">➤</button>
+    </div>
+    
+  </div>
+    <!-- ========================================== -->
+    <!-- END OF JARVIS AI                           -->
+    <!-- ========================================== -->
+
+    <!-- ========================================== -->
+    <!-- START OF WAR ROOM TAB                      -->
+    <!-- ========================================== -->
+  <div id="tab-warroom" class="tab-content">
+      
+      <div class="card" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem;margin-bottom:1.25rem">
+        <div>
+          <div style="font-weight:700;font-size:1.15rem;letter-spacing:-0.02em;">🚨 War Room</div>
+          <div style="color:var(--muted);font-size:0.85rem;margin-top:0.3rem;">Every problem you fought — documented, searchable, permanent.</div>
+        </div>
+        <button class="btn btn-primary admin-only" onclick="openWarRoomModal()">+ New Report</button>
+      </div>
+
+      <div class="card" style="margin-bottom:1.25rem">
+        <div id="wr-filters" style="display:flex; gap:0.5rem; flex-wrap:wrap; margin-bottom:1.25rem;">
+          <button class="btn" data-filter="all" style="background:var(--accent); color:#fff;" onclick="setWRFilter('all')">All</button>
+          <button class="btn btn-ghost" data-filter="bug" onclick="setWRFilter('bug')">🐛 Bug</button>
+          <button class="btn btn-ghost" data-filter="deep-dive" onclick="setWRFilter('deep-dive')">📚 Deep Dive</button>
+          <button class="btn btn-ghost" data-filter="build" onclick="setWRFilter('build')">🔨 Build</button>
+          <button class="btn btn-ghost" data-filter="incident" onclick="setWRFilter('incident')">🔥 Incident</button>
+        </div>
+        <input type="text" id="wr-search" placeholder="Search reports by title, error code, or solution..." oninput="renderWarRoom()" style="margin-bottom:0" />
+      </div>
+
+      <div id="warroom-list"></div>
+    </div>
+    <!-- ========================================== -->
+    <!-- END OF WAR ROOM TAB                        -->
+    <!-- ========================================== -->
+
+  </main>
+
+
+  <!-- ========================================== -->
+  <!-- START OF POPUP MODALS SECTION              -->
+  <!-- ========================================== -->
+
+  <!-- ========================================== -->
+  <!-- WAR ROOM REPORT MODAL                      -->
+  <!-- ========================================== -->
+  <div class="modal-overlay" id="warRoomModal">
+    <div class="modal" style="max-width:640px;">
+      <h2 id="wr-modal-title">🚨 New War Room Report</h2>
+      
+      <div class="form-row-2">
+        <div class="form-row" style="margin-bottom:0">
+          <label>Date</label>
+          <input type="date" id="wr-date" />
+        </div>
+        <div class="form-row" style="margin-bottom:0">
+          <label>Report Type</label>
+          <select id="wr-type">
+            <option value="Bug">🐛 Bug / Issue</option>
+            <option value="Deep Dive">📚 Deep Dive</option>
+            <option value="Build">🔨 Build Report</option>
+            <option value="Incident">🔥 Incident Post-Mortem</option>
+          </select>
+        </div>
+      </div>
+      
+      <div class="form-row" style="margin-top:1.25rem;">
+        <label>Title</label>
+        <input type="text" id="wr-title" placeholder="e.g., Docker Build Failure Exit Code 137" required />
+      </div>
+
+      <div class="form-row">
+        <label>Error Code (Optional)</label>
+        <input type="text" id="wr-error" placeholder="e.g., ERR_CONNECTION_REFUSED" />
+      </div>
+
+      <div class="form-row">
+        <label>Solution / Fix</label>
+        <textarea id="wr-solution" rows="5" placeholder="How did you solve it? (Markdown supported)" required></textarea>
+      </div>
+
+      <div class="form-row" style="margin-top: 1rem;">
+        <label style="font-size:0.75rem; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:0.05em;">Attach Detailed AI Report (PDF, MD, TXT)</label>
+        <input type="file" id="wr-file" style="background: var(--surface2); padding: 0.5rem; border: 1px solid var(--border); border-radius: 8px; color: var(--text); width: 100%; box-sizing: border-box;" />
+        <div style="font-size:0.7rem; color:var(--muted); margin-top:0.25rem;">Optional: Upload a deep-dive architecture document or post-mortem.</div>
+      </div>
+      
+      <div class="modal-footer" style="display:flex; justify-content:flex-end; gap:0.5rem; margin-top:1.5rem">
+        <button class="btn btn-ghost" onclick="closeWarRoomModal()">Cancel</button>
+        <button class="btn btn-save" style="background: var(--accent-blue); color: white; border: none; padding: 0.5rem 1rem; border-radius: 6px; font-weight: 600;" onclick="saveWRReport()">Save Report</button>
+      </div>
     </div>
   </div>
-</div>
+  
 
-<div class="modal-overlay" id="logout-modal">
-    <div class="modal" style="max-width: 360px; text-align: center;">
-        <div style="font-size: 2rem; margin-bottom: 1rem;">🔒</div>
-        <h2 style="margin-bottom: 0.5rem;">Log out?</h2>
-        <p style="color: var(--muted); margin-bottom: 1.75rem; font-size: 0.9rem;">You'll return to visitor mode.</p>
-        <div style="display: flex; gap: 0.75rem;">
-            <button class="btn btn-ghost" onclick="document.getElementById('logout-modal').classList.remove('open')" style="flex:1;">Cancel</button>
-            <button class="btn btn-primary" onclick="document.getElementById('logout-modal').classList.remove('open'); adminLogout();" style="flex:1; background: var(--red);">Log out</button>
+  <!-- ========================================== -->
+  <!-- ADMIN LOGOUT MODAL                         -->
+  <!-- ========================================== -->
+  <div class="modal-overlay" id="logout-modal">
+      <div class="modal" style="max-width: 360px; text-align: center;">
+          <h2 style="margin-bottom: 0.5rem;">Log out?</h2>
+          <div style="display: flex; gap: 0.75rem;">
+              <button class="btn btn-ghost" onclick="document.getElementById('logout-modal').classList.remove('open')" style="flex:1;">Cancel</button>
+              <button class="btn btn-primary" onclick="document.getElementById('logout-modal').classList.remove('open'); adminLogout();" style="flex:1; background: var(--red);">Log out</button>
+          </div>
+      </div>
+  </div>
+
+
+  <!-- ========================================== -->
+  <!-- ADMIN LOGIN MODAL                          -->
+  <!-- ========================================== -->
+  <div class="modal-overlay" id="login-modal">
+      <div class="modal" style="max-width: 400px; text-align: center;">
+          <h2>🔓 Admin Login</h2>
+          <div class="form-row" style="text-align: left;">
+              <label>Email</label>
+              <input type="email" id="login-email" />
+          </div>
+          <div class="form-row" style="text-align: left; margin-bottom: 1.5rem;">
+              <label>Password</label>
+              <input type="password" id="login-pwd" onkeydown="if(event.key==='Enter') adminLogin()" />
+          </div>
+          <button class="btn btn-primary" onclick="adminLogin()" style="width:100%; margin-bottom: 0.75rem;">Login</button>
+          <button class="btn btn-ghost" onclick="document.getElementById('login-modal').classList.remove('open')" style="width:100%;">Cancel</button>
+          <div id="login-error" style="color: var(--red);"></div>
+      </div>
+  </div>
+
+
+  <!-- ========================================== -->
+  <!-- SESSION LOG SAVE MODAL                     -->
+  <!-- ========================================== -->
+  <div class="modal-overlay" id="sessionModal">
+    <div class="modal" style="max-width: 640px;">
+      <h2 id="session-modal-title" style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 1.5rem; font-size: 1.25rem;">
+        💾 Save Completed Session
+      </h2>
+      
+      <!-- Row 1: Date & Time -->
+      <div class="form-row-2">
+        <div class="form-row" style="margin-bottom: 0;">
+          <label style="font-size:0.75rem; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:0.05em;">Date</label>
+          <input type="date" id="session-date" />
         </div>
+        <div class="form-row" style="margin-bottom: 0;">
+          <label style="font-size:0.75rem; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:0.05em;">Time</label>
+          <input type="time" id="session-time" />
+        </div>
+      </div>
+      
+      <!-- Row 2: Topic ID & Topic Name -->
+      <div class="form-row-2" style="margin-top: 1rem;">
+        <div class="form-row" style="margin-bottom: 0;">
+          <label style="font-size:0.75rem; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:0.05em;">Topic ID</label>
+          <input type="text" id="session-topic-id" placeholder="e.g., 1.5" />
+        </div>
+        <div class="form-row" style="margin-bottom: 0;">
+          <label style="font-size:0.75rem; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:0.05em;">Topic Name</label>
+          <input type="text" id="session-topic-name" placeholder="e.g., Your first shell script" />
+        </div>
+      </div>
+      
+      <!-- Row 3: Full Teaching Notes -->
+      <div class="form-row" style="margin-top: 1rem;">
+        <label style="font-size:0.75rem; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:0.05em;">Full Teaching Notes</label>
+        <textarea id="session-notes" style="min-height:140px;" placeholder="Write complete structural notes, code blocks, analogies, or instructions covered..."></textarea>
+      </div>
+      
+      <!-- Row 4: Summary -->
+      <div class="form-row">
+        <label style="font-size:0.75rem; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:0.05em;">Summary (2 to 3 lines max)</label>
+        <textarea id="session-summary" style="min-height:60px;" placeholder="Short summary of metrics or topics achieved..."></textarea>
+      </div>
+
+      <!-- Row 5: Key Concepts -->
+      <div class="form-row">
+        <label style="font-size:0.75rem; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:0.05em;">Key Concepts (Comma Separated)</label>
+        <input type="text" id="session-concepts" placeholder="e.g., pwd, ls, cd, absolute path" />
+      </div>
+      
+      <!-- Footer Buttons -->
+      <div class="modal-footer" style="margin-top: 1.5rem; display: flex; justify-content: flex-end; gap: 0.75rem;">
+        <button class="btn btn-ghost" onclick="closeSessionModal()">Cancel</button>
+        <button class="btn-save" onclick="saveSession()">Save Session</button>
+      </div>
     </div>
-</div>
+  </div>
 
-<div class="modal-overlay" id="login-modal">
-    <div class="modal" style="max-width: 400px; text-align: center;">
-        <h2>🔓 Admin Login</h2>
-        <p style="color: var(--muted); margin-bottom: 1.5rem; font-size: 0.9rem;">Sign in to unlock editing features.</p>
-        
-        <div class="form-row" style="text-align: left;">
-            <label>Email</label>
-            <input type="email" id="login-email" placeholder="admin@example.com" style="width:100%; background:var(--surface2); border:1px solid var(--border); border-radius:10px; color:var(--text); padding:0.75rem; font-family:var(--font-display); outline:none; transition:border-color 0.2s;" onfocus="this.style.borderColor='var(--accent-blue)'" onblur="this.style.borderColor='var(--border)'" />
-        </div>
-        
-        <div class="form-row" style="text-align: left; margin-bottom: 1.5rem;">
-            <label>Password</label>
-            <input type="password" id="login-pwd" placeholder="••••••••" style="width:100%; background:var(--surface2); border:1px solid var(--border); border-radius:10px; color:var(--text); padding:0.75rem; font-family:var(--font-display); outline:none; transition:border-color 0.2s;" onfocus="this.style.borderColor='var(--accent-blue)'" onblur="this.style.borderColor='var(--border)'" onkeydown="if(event.key==='Enter') adminLogin()" />
-        </div>
-        
-        <button class="btn btn-primary" onclick="adminLogin()" style="width:100%; margin-bottom: 0.75rem;">Login</button>
-        <button class="btn btn-ghost" onclick="document.getElementById('login-modal').classList.remove('open')" style="width:100%;">Cancel</button>
-        
-        <div id="login-error" style="color: var(--red); margin-top: 1rem; font-size: 0.85rem; font-weight: 600;"></div>
+
+  <!-- ========================================== -->
+  <!-- PORTFOLIO PROJECT MODAL                    -->
+  <!-- ========================================== -->
+  <div class="modal-overlay" id="projectModal">
+    <div class="modal">
+      <h2 id="project-modal-title">Add Project</h2>
+      <div class="form-row"><label>Title</label><input type="text" id="proj-title" /></div>
+      <div class="form-row"><label>Phase</label><input type="text" id="proj-phase" /></div>
+      <div class="form-row"><label>Description</label><textarea id="proj-desc" style="min-height:80px;"></textarea></div>
+      <div class="form-row"><label>Tech Stack</label><input type="text" id="proj-tech" placeholder="e.g., Linux, Docker" /></div>
+      <div class="form-row"><label>GitHub URL</label><input type="text" id="proj-repo" /></div>
+      <div class="modal-footer">
+        <button class="btn btn-ghost" onclick="document.getElementById('projectModal').classList.remove('open')">Cancel</button>
+        <button class="btn btn-save" onclick="saveProject()">Save</button>
+      </div>
     </div>
-</div>
+  </div>
 
+
+  <!-- ========================================== -->
+  <!-- DELETE CONFIRMATION MODAL                  -->
+  <!-- ========================================== -->
+  <div class="modal-overlay" id="delete-confirm-modal" onclick="if(event.target === this) this.classList.remove('open')">
+      <div class="modal" style="max-width: 360px; text-align: center;">
+          <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">⚠️</div>
+          <h2 style="margin-bottom: 0.5rem;">Delete Project?</h2>
+          <div style="color: var(--muted); font-size: 0.9rem; margin-bottom: 1.5rem;">
+              This action cannot be undone. Are you sure you want to scrap this build?
+          </div>
+          <div style="display: flex; gap: 0.75rem;">
+              
+              <button class="btn btn-ghost" onclick="document.getElementById('delete-confirm-modal').classList.remove('open');" style="flex:1; background: #d1d5db; color: #111827; border: none; font-weight: 600;">Cancel</button>
+              
+              <button class="btn" onclick="executeDeleteProject()" style="flex:1; background: #ef4444; color: white; border: none; font-weight: 700;">Delete</button>
+          </div>
+      </div>
+  </div>
+
+
+  <!-- ========================================== -->
+  <!-- DOCUMENT DOWNLOAD MODAL                    -->
+  <!-- ========================================== -->
+  <div class="modal-overlay" id="download-modal" onclick="if(event.target === this) this.classList.remove('open')">
+      <div class="modal" style="max-width: 400px; text-align: center;">
+          <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">📥</div>
+          <h2 style="margin-bottom: 0.5rem;">Download Report</h2>
+          <div style="color: var(--muted); font-size: 0.9rem; margin-bottom: 1.5rem;">
+              Enter your professional email to download this detailed post-mortem report.
+          </div>
+          <div class="form-row" style="text-align: left;">
+              <input type="email" id="download-email" placeholder="e.g., recruiter@company.com" required style="width: 100%; box-sizing: border-box; padding: 0.75rem; border-radius: 8px; border: 1px solid var(--border); background: var(--surface2); color: var(--text);" />
+          </div>
+          <div style="display: flex; gap: 0.75rem; margin-top: 1.5rem;">
+              <button class="btn btn-ghost" onclick="document.getElementById('download-modal').classList.remove('open');" style="flex:1;">Cancel</button>
+              <button class="btn-primary" onclick="processDownload()" style="flex:1;">Send to me</button>
+          </div>
+      </div>
+  </div>
+
+
+  <!-- ========================================== -->
+  <!-- DOCUMENT VIEWER MODAL                      -->
+  <!-- ========================================== -->
+  <div class="modal-overlay" id="viewer-modal" onclick="if(event.target === this) this.classList.remove('open')">
+      <div class="modal" style="max-width: 800px; height: 85vh; display: flex; flex-direction: column; padding: 1.5rem;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+              <h2 style="margin-bottom: 0;">📄 Document Viewer</h2>
+              <button class="btn btn-ghost" onclick="document.getElementById('viewer-modal').classList.remove('open')" style="padding: 0.35rem 0.75rem;">Close ✕</button>
+          </div>
+          <iframe id="file-viewer-frame" style="flex: 1; border: 1px solid var(--border); border-radius: 8px; width: 100%; background: white;" src=""></iframe>
+      </div>
+  </div>
+
+
+  <!-- ========================================== -->
+  <!-- MINDSET MOMENTS MODAL                      -->
+  <!-- ========================================== -->
+<div class="modal-overlay" id="mindsetModal" onclick="if(event.target === this) closeMindsetModal()">
+    <div class="modal" style="max-width: 640px;">
+      <h2>🧠 Add Mindset Moment</h2>
+
+      <div class="form-row-2" style="margin-bottom: 1rem;">
+        <div class="form-row" style="margin-bottom: 0;">
+          <label>Moment Type</label>
+          <div style="display: flex; gap: 1rem; margin-top: 0.5rem; color: var(--text);">
+            <label><input type="radio" name="moment_type" value="Question" checked /> ❓ Question</label>
+            <label><input type="radio" name="moment_type" value="Situation" /> 🎬 Situation</label>
+          </div>
+        </div>
+        <div class="form-row" style="margin-bottom: 0;">
+          <label>Insight Source</label>
+          <div style="display: flex; gap: 1rem; margin-top: 0.5rem; color: var(--text);">
+            <label><input type="radio" name="insight_source" value="AI" checked /> 🤖 AI</label>
+            <label><input type="radio" name="insight_source" value="Me" /> 🧠 Me</label>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <label>Question or Situation</label>
+        <textarea id="mind-question" rows="3" placeholder="What was asked or what happened?"></textarea>
+      </div>
+
+      <div class="form-row-2">
+        <div class="form-row" style="margin-bottom: 0;">
+          <label>Rating</label>
+          <select id="mind-rating">
+            <option value="good">👍 Good Direction</option>
+            <option value="strong">⭐ Strong Instinct</option>
+          </select>
+        </div>
+        <div class="form-row" style="margin-bottom: 0;">
+          <label>Concept / Tag</label>
+          <input type="text" id="mind-concept" placeholder="e.g., DNS, Debugging" />
+        </div>
+      </div>
+
+      <div class="form-row" style="margin-top: 1rem;">
+        <label>Linked Topic (Optional)</label>
+        <input type="text" id="mind-topic" placeholder="e.g., Topic 3.1" />
+      </div>
+
+      <div class="form-row">
+        <label>Insight / Action Taken</label>
+        <textarea id="mind-response" rows="4" placeholder="What did you learn or decide?"></textarea>
+      </div>
+
+      <div class="modal-footer" style="display:flex; justify-content:flex-end; gap:0.5rem; margin-top:1.5rem">
+        <button type="button" class="btn btn-ghost" onclick="closeMindsetModal()">Cancel</button>
+        <button type="button" class="btn-save" onclick="saveMindsetMoment()">Save Moment</button>
+      </div>
+    </div>
+  </div>
+  <!-- ========================================== -->
+  <!-- END OF POPUP MODALS SECTION                -->
+  <!-- ========================================== -->
+
+
+  <!-- ========================================== -->
+  <!-- GLOBAL TOASTS & JAVASCRIPT IMPORTS         -->
+  <!-- ========================================== -->
+
+   <div id="toast"></div>
+   <div id="undo-toast" class="undo-toast">
+    <span id="undo-text">Item deleted.</span>
+    <div class="undo-actions">
+      <span id="undo-timer">60s</span>
+      <button class="btn" style="background: var(--accent-blue); color: white; padding: 0.35rem 0.85rem; font-size: 0.85rem; border: none;" onclick="executeUndo()">Undo</button>
+    </div>
+  </div>
+
+  <script src="core.js"></script>
+  <script src="Components/dashboard/dashboard.js"></script>
+  <script src="Components/session-log/log.js"></script>
+  <script src="Components/topics/topics.js"></script>
+  <script src="Components/projects/projects.js"></script>
+  <script src="Components/mindset/mindset.js"></script>
+  <script src="Components/daily-log/notes.js"></script>
+  <script src="Components/terminal-cmds/cmds.js"></script>
+  <script src="Components/war-room/warroom.js"></script>
+  <script src="Components/jarvis/jarvis.js"></script>
+  <!-- ========================================== -->
+  <!-- END OF DOCUMENT                            -->
+  <!-- ========================================== -->
 
 </body>   
-<script>
-let isAdmin = false;
-
-async function adminLogin() {
-    const email = document.getElementById('login-email').value;
-    const pwd = document.getElementById('login-pwd').value;
-    const errDiv = document.getElementById('login-error');
-    errDiv.textContent = 'Logging in...';
-
-    try {
-        const response = await fetch(`${SUPABASE_URL}/auth/v1/token?grant_type=password`, {
-            method: 'POST',
-            headers: {
-                'apikey': SUPABASE_KEY,
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ email: email, password: pwd })
-        });
-
-        const data = await response.json();
-
-        if (response.ok && data.access_token) {
-            localStorage.setItem('sb_access_token', data.access_token);
-            isAdmin = true;
-           document.getElementById('login-modal').classList.remove('open');
-            applyAdminUI();
-            toast('Admin mode enabled! 🔓', 'success');
-        } else {
-            errDiv.textContent = data.error_description || 'Login failed.';
-        }
-    } catch (e) {
-        errDiv.textContent = 'Network error during login.';
-    }
-}
-
-function adminLogout() {
-    localStorage.removeItem('sb_access_token');
-    isAdmin = false;
-    applyVisitorUI();
-    toast('Logged out. Visitor mode active. 🔒', 'success');
-}
-
-function handleLogoClick() {
-    if (isAdmin) {
-        document.getElementById('logout-modal').classList.add('open');
-    } else {
-        document.getElementById('login-modal').classList.add('open');
-    }
-}
-
-function checkAdminStatus() {
-    const token = localStorage.getItem('sb_access_token');
-    if (token) {
-        isAdmin = true;
-        applyAdminUI();
-    } else {
-        isAdmin = false;
-        applyVisitorUI();
-    }
-}
-
-function applyVisitorUI() {
-    // Remove admin-mode class — CSS hides all .admin-only buttons automatically
-    document.body.classList.remove('admin-mode');
-    // Force all dynamic tabs to redraw without edit/delete buttons
-    if (typeof renderMindset === 'function' && typeof allMindset !== 'undefined') renderMindset(allMindset);
-    if (typeof renderNotes === 'function' && typeof allNotes !== 'undefined') renderNotes(allNotes);
-    if (typeof loadSessions === 'function') loadSessions();
-    if (typeof renderProjects === 'function' && typeof allProjects !== 'undefined') renderProjects(allProjects);
-    if (typeof renderCommands === 'function') renderCommands();
-}
-
-function applyAdminUI() {
-    // Add admin-mode class — CSS shows all .admin-only buttons automatically
-    document.body.classList.add('admin-mode');
-    // Force all dynamic tabs to redraw with edit/delete buttons
-    if (typeof renderMindset === 'function' && typeof allMindset !== 'undefined') renderMindset(allMindset);
-    if (typeof renderNotes === 'function' && typeof allNotes !== 'undefined') renderNotes(allNotes);
-    if (typeof loadSessions === 'function') loadSessions();
-    if (typeof renderProjects === 'function' && typeof allProjects !== 'undefined') renderProjects(allProjects);
-    if (typeof renderCommands === 'function') renderCommands();
-}
-setTimeout(checkAdminStatus, 1000);
-
-</script>    
 </html>
