@@ -99,8 +99,8 @@ async function syncUI() {
   try { if (typeof loadNotes === 'function') await loadNotes(); } catch(e) { console.error('Notes Error:', e); }
   
   // Un-extracted modules
-  try { await loadCommands(); } catch(e) { console.error('Commands Error:', e); }
-  try { await loadWarRoom(); } catch(e) { console.error('War Room Error:', e); }
+  try { if (typeof loadCommands === 'function') await loadCommands(); } catch(e) { console.error('Commands Error:', e); }
+  try { if (typeof loadWarRoom === 'function') await loadWarRoom(); } catch(e) { console.error('War Room Error:', e); }
 
   // 2. Force dynamic lists to redraw
   if (typeof renderMindset === 'function' && allMindset.length) renderMindset(allMindset);
@@ -125,58 +125,88 @@ function handleLogoClick() {
 }
 
 async function adminLogin() {
-    const email = document.getElementById('login-email').value;
-    const pwd = document.getElementById('login-pwd').value;
+    const emailInput = document.getElementById('login-email');
+    const pwdInput = document.getElementById('login-pwd');
     const errDiv = document.getElementById('login-error');
     errDiv.textContent = 'Logging in...';
 
     try {
-        const response = await fetch(`${SUPABASE_URL}/auth/v1/token?grant_type=password`, {
-            method: 'POST',
-            headers: { 'apikey': SUPABASE_KEY, 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email: email, password: pwd })
+        const { data, error } = await sb.auth.signInWithPassword({
+            email: emailInput.value,
+            password: pwdInput.value
         });
-        const data = await response.json();
 
-        if (response.ok && data.access_token) {
-            localStorage.setItem('sb_access_token', data.access_token);
+        if (error) {
+            errDiv.textContent = error.message || 'Login failed.';
+        } else {
             isAdmin = true;
             document.getElementById('login-modal').classList.remove('open');
             applyAdminUI();
             toast('Admin mode enabled! 🔓', 'success');
-        } else {
-            errDiv.textContent = data.error_description || 'Login failed.';
+            
+            // 👇 THE FIX: Erase the credentials from the DOM so Chrome forgets them!
+            emailInput.value = '';
+            pwdInput.value = '';
         }
-    } catch (e) { errDiv.textContent = 'Network error.'; }
+    } catch (e) { 
+        errDiv.textContent = 'Network error.'; 
+    }
 }
 
-function adminLogout() {
-    localStorage.removeItem('sb_access_token');
+async function adminLogout() {
+    // 👇 Tell the SDK to destroy the secure token
+    await sb.auth.signOut(); 
+    
     isAdmin = false;
     applyVisitorUI();
     document.getElementById('logout-modal').classList.remove('open');
     toast('Logged out. 🔒', 'success');
 }
 
-function checkAdminStatus() {
-    if (localStorage.getItem('sb_access_token')) { isAdmin = true; applyAdminUI(); } 
-    else { isAdmin = false; applyVisitorUI(); }
+async function checkAdminStatus() {
+    // 👇 Ask the SDK if a valid, unexpired token actually exists in the browser
+    const { data: { session } } = await sb.auth.getSession();
+    
+    if (session) { 
+        isAdmin = true; 
+        applyAdminUI(); 
+    } else { 
+        isAdmin = false; 
+        applyVisitorUI(); 
+    }
 }
 
 function applyVisitorUI() {
     document.body.classList.remove('admin-mode');
+    
+    const saveBtn = document.getElementById('save-session-btn');
+    if (saveBtn) saveBtn.style.display = 'none';
+    
     syncUI();
 }
 
 function applyAdminUI() {
     document.body.classList.add('admin-mode');
+    
+    const saveBtn = document.getElementById('save-session-btn');
+    if (saveBtn) saveBtn.style.display = 'block'; 
+    
+    syncUI(); 
+}
+
+function applyAdminUI() {
+    document.body.classList.add('admin-mode');
+    
+    // Explicitly show the Save Session button on the Dashboard
+    const saveBtn = document.getElementById('save-session-btn');
+    if (saveBtn) saveBtn.style.display = 'block'; 
+    
     syncUI(); 
 }
 
 // =========================================================================
-// QUARANTINED UN-EXTRACTED LOGIC (Will be moved to separate folders soon)
+// QUARANTINED UN-EXTRACTED LOGIC
 // =========================================================================
-
 
 // ── JARVIS ──
 const jHistory = [];
@@ -193,13 +223,10 @@ async function jSend() {
 let undoPending = null; 
 let undoInterval = null;
 
-// Added an optional 5th parameter: commitCallback
 function triggerUniversalDelete(table, id, itemName, restoreCallback, commitCallback = null) {
     if (undoPending) forceCommitDelete();
 
     let secondsLeft = 60; 
-    
-    // Store the advanced callback
     undoPending = { table, id, restoreCallback, commitCallback };
 
     const toast = document.getElementById('undo-toast');
@@ -226,8 +253,6 @@ async function forceCommitDelete() {
     
     document.getElementById('undo-toast').classList.remove('show');
     
-    // IF a complex function was provided (like your roadmap revert), run THAT.
-    // OTHERWISE, just do a standard database row deletion.
     if (commitCallback) {
         await commitCallback();
     } else {
@@ -243,15 +268,4 @@ function executeUndo() {
     document.getElementById('undo-toast').classList.remove('show');
     if (restoreCallback) restoreCallback();
     toast('Action undone!', 'success');
-}
-
-// ── HELPER UTILITY: ESCAPE HTML TO PREVENT CRASHES ──
-function escapeHTML(str) {
-  if (!str) return '';
-  return str
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&#039;");
 }

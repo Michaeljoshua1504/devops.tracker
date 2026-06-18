@@ -172,6 +172,14 @@ function editWarRoomReport(id) {
 async function saveWRReport() {
   if(!sb) return;
   
+  // 👇 CRITICAL SECURITY FIX: Force Supabase to get the secure session token 
+  const { data: { session }, error: sessionError } = await sb.auth.getSession();
+  
+  if (!session) {
+      toast("Security Block: Not authenticated as Admin. Please log in.", "error");
+      return;
+  }
+  
   const payload = {
     date: document.getElementById('wr-date').value,
     type: document.getElementById('wr-type').value,

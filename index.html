@@ -71,8 +71,9 @@
         <h3>Up Next</h3>
         <div id="dash-next-topic" style="font-size:1rem;font-weight:500">Loading...</div>
         <div style="margin-top:1.25rem;display:flex;gap:0.75rem;flex-wrap:wrap">
-          <button class="btn btn-save" onclick="openSessionModal()">💾 Save Completed Session</button>
-          <button class="btn btn-ghost" onclick="showTab('topics',document.querySelectorAll('nav button')[2])">📋 View Roadmap</button>
+        <button id="save-session-btn" class="btn btn-save" onclick="openSessionModal()">💾 Save Completed Session</button>
+  
+        <button class="btn btn-ghost" onclick="showTab('topics',document.querySelectorAll('nav button')[2])">📋 View Roadmap</button>
         </div>
       </div>
     </div>
@@ -530,6 +531,17 @@
 <div class="modal-overlay" id="mindsetModal" onclick="if(event.target === this) closeMindsetModal()">
     <div class="modal" style="max-width: 640px;">
       <h2>🧠 Add Mindset Moment</h2>
+
+      <div class="grid grid-cols-2 gap-4 mb-4">
+       <div>
+       <label class="block text-xs font-bold text-gray-500 uppercase mb-2">Date</label>
+       <input type="date" id="moment-date" class="w-full p-2 border border-gray-200 rounded-md bg-gray-50 text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500" />
+     </div>
+     <div>
+       <label class="block text-xs font-bold text-gray-500 uppercase mb-2">Time</label>
+      <input type="time" id="moment-time" class="w-full p-2 border border-gray-200 rounded-md bg-gray-50 text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500" />
+       </div>
+     </div>
 
       <div class="form-row-2" style="margin-bottom: 1rem;">
         <div class="form-row" style="margin-bottom: 0;">

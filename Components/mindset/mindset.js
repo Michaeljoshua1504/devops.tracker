@@ -155,6 +155,7 @@ function toggleMindset(mid) {
 
 // ── MODAL LOGIC ──
 function openMindsetModal() {
+  // Reset existing fields
   editingMindsetId = null;
   document.getElementById('mind-question').value = '';
   document.getElementById('mind-rating').value = 'good';
@@ -162,6 +163,20 @@ function openMindsetModal() {
   document.getElementById('mind-topic').value = '';
   document.getElementById('mind-response').value = '';
   document.querySelector('#mindsetModal h2').textContent = '🧠 Add Mindset Moment';
+
+  // --- NEW DATE AND TIME AUTO-FILL ---
+  const dateInput = document.getElementById('moment-date');
+  const timeInput = document.getElementById('moment-time');
+  const now = new Date();
+
+  if (dateInput && timeInput) {
+    const localDate = new Date(now.getTime() - (now.getTimezoneOffset() * 60000));
+    dateInput.value = localDate.toISOString().split('T')[0];
+    timeInput.value = now.toTimeString().slice(0, 5);
+  }
+  // -----------------------------------
+
+  // Open the modal
   document.getElementById('mindsetModal').classList.add('open');
 }
 
@@ -202,8 +217,14 @@ async function saveMindsetMoment() {
   const mType = document.querySelector('input[name="moment_type"]:checked').value;
   const mSource = document.querySelector('input[name="insight_source"]:checked').value;
   
+  // 👇 Grab the new Date and Time values 👇
+  const momentDate = document.getElementById('moment-date').value;
+  const momentTime = document.getElementById('moment-time').value;
+  
   // Cleaned up payload to prevent 400 Bad Request error!
-const payload = {
+  const payload = {
+    date: momentDate, // <-- NEW
+    time: momentTime, // <-- NEW
     moment_type: mType,
     insight_source: mSource,
     question: document.getElementById('mind-question').value.trim(),
