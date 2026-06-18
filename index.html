@@ -1,101 +1,147 @@
-<!DOCTYPE html>       
-<html lang="en" data-theme="dark">       
-<head>       
-  <meta charset="UTF-8" />       
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />       
-  <title>DevOps Tracker</title>       
-  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32' fill='none'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='2' y1='16' x2='30' y2='16' gradientUnits='userSpaceOnUse'%3E%3Cstop offset='0%25' stop-color='%2300e5ff'/%3E%3Cstop offset='100%25' stop-color='%237c3aed'/%3E%3C/linearGradient%3E%3C/defs%3E%3Cpath d='M9.5 10C5.35 10 2 12.68 2 16s3.35 6 7.5 6c3.37 0 5.11-1.91 6-2.88.89.97 2.63 2.88 6 2.88 4.15 0 7.5-2.68 7.5-6s-3.35-6-7.5-6c-3.37 0-5.11 1.91-6 2.88-.89-.97-2.63-2.88-6-2.88z' stroke='url(%23g)' stroke-width='2.5'/%3E%3Ccircle cx='16' cy='16' r='1.5' fill='%2300e5ff'/%3E%3C/svg%3E">       
-  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=SF+Pro+Display:wght@400;500;600;700&display=swap" rel="stylesheet" />       
-  
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>       
-  
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>DevOps Tracker</title>
+
+  <!-- Favicon: inline SVG logo (cyan-to-purple gradient infinity-style mark) -->
+  <link
+    rel="icon"
+    type="image/svg+xml"
+    href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32' fill='none'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='2' y1='16' x2='30' y2='16' gradientUnits='userSpaceOnUse'%3E%3Cstop offset='0%25' stop-color='%2300e5ff'/%3E%3Cstop offset='100%25' stop-color='%237c3aed'/%3E%3C/linearGradient%3E%3C/defs%3E%3Cpath d='M9.5 10C5.35 10 2 12.68 2 16s3.35 6 7.5 6c3.37 0 5.11-1.91 6-2.88.89.97 2.63 2.88 6 2.88 4.15 0 7.5-2.68 7.5-6s-3.35-6-7.5-6c-3.37 0-5.11 1.91-6 2.88-.89-.97-2.63-2.88-6-2.88z' stroke='url(%23g)' stroke-width='2.5'/%3E%3Ccircle cx='16' cy='16' r='1.5' fill='%2300e5ff'/%3E%3C/svg%3E"
+  />
+
+  <!-- Fonts: JetBrains Mono for code/terminal feel, SF Pro Display for UI text -->
+  <link
+    href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=SF+Pro+Display:wght@400;500;600;700&display=swap"
+    rel="stylesheet"
+  />
+
+  <!-- Supabase JS client (used for auth + database reads/writes throughout the app) -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <!-- App-wide styles (theme variables, layout, components) -->
   <link rel="stylesheet" href="style.css" />
-</head>       
+</head>
 <body>
 
-  <!-- ========================================== -->
-  <!-- START OF TOP HEADER                        -->
-  <!-- ========================================== -->
-  <header>       
+  <!-- ============================================================
+       HEADER
+       Logo (click triggers a hidden handler - likely admin login),
+       theme toggle, and a connection status indicator for Supabase.
+  ============================================================ -->
+  <header>
     <div class="logo" onclick="handleLogoClick()" style="cursor: pointer;">devops<span>.</span>tracker</div>
-    <div class="header-actions">      
-      <button class="theme-toggle" id="themeToggleBtn" onclick="toggleTheme()" title="Toggle appearance">☀️</button>      
-      <div class="status-dot">       
-        <div class="dot" id="statusDot"></div>       
-        <span id="statusText">connecting…</span>       
-      </div>       
-    </div>      
+    <div class="header-actions">
+      <button class="theme-toggle" id="themeToggleBtn" onclick="toggleTheme()" title="Toggle appearance">☀️</button>
+      <div class="status-dot">
+        <div class="dot" id="statusDot"></div>
+        <span id="statusText">connecting…</span>
+      </div>
+    </div>
   </header>
-  <!-- ========================================== -->
-  <!-- END OF TOP HEADER                          -->
-  <!-- ========================================== -->
 
-  <!-- ========================================== -->
-  <!-- START OF NAVIGATION BAR                    -->
-  <!-- ========================================== -->
-  <div class="nav-container">      
-    <nav>       
-      <button class="active" onclick="showTab('dashboard',this)">Dashboard</button>       
-      <button onclick="showTab('log',this)">Session Log</button>       
-      <button onclick="showTab('topics',this)">Topics</button>       
-      <button onclick="showTab('projects',this)">Portfolio</button>       
-      <button onclick="showTab('mindset',this)">Mindset</button>       
-      <button onclick="showTab('notes',this)">Daily Log</button>       
-      <button onclick="showTab('cmds',this)">Terminal Cmds 💻</button>  
+  <!-- ============================================================
+       MAIN NAVIGATION
+       Each button calls showTab(tabId, thisButton) to switch the
+       active panel below and highlight the clicked nav item.
+  ============================================================ -->
+  <div class="nav-container">
+    <nav>
+      <button class="active" onclick="showTab('dashboard',this)">Dashboard</button>
+      <button onclick="showTab('log',this)">Session Log</button>
+      <button onclick="showTab('topics',this)">Topics</button>
+      <button onclick="showTab('projects',this)">Portfolio</button>
+      <button onclick="showTab('mindset',this)">Mindset</button>
+      <button onclick="showTab('notes',this)">Daily Log</button>
+      <button onclick="showTab('cmds',this)">Terminal Cmds 💻</button>
       <button onclick="showTab('warroom',this)">🚨 War Room</button>
-    </nav>      
+    </nav>
   </div>
-  <!-- ========================================== -->
-  <!-- END OF NAVIGATION BAR                      -->
-  <!-- ========================================== -->
 
   <main id="app-container">
 
-    <!-- ========================================== -->
-    <!-- START OF DASHBOARD TAB                     -->
-    <!-- ========================================== -->
+    <!-- ============================================================
+         TAB: DASHBOARD
+         Summary stats + phase progress bars + "what's next" card.
+         All numeric values are populated by JS (dashboard.js) on load.
+    ============================================================ -->
     <div id="tab-dashboard" class="tab-content active">
+
+      <!-- Top stat cards: topics completed, overall %, mindset moments, project count -->
       <div class="grid-4" style="margin-bottom:1.25rem">
-        <div class="card" style="text-align:center"><div class="stat-big" id="dash-done">—</div><div class="stat-label">Topics Completed</div></div>
-        <div class="card" style="text-align:center"><div class="stat-big" id="dash-pct">—</div><div class="stat-label">Overall Progress</div></div>
-        <div class="card" style="text-align:center"><div class="stat-big" id="dash-mindset">—</div><div class="stat-label">Mindset Moments</div></div>
-        <div class="card" style="text-align:center"><div class="stat-big" id="dash-projects">—</div><div class="stat-label">Portfolio Projects</div></div>
+        <div class="card" style="text-align:center">
+          <div class="stat-big" id="dash-done">—</div>
+          <div class="stat-label">Topics Completed</div>
+        </div>
+        <div class="card" style="text-align:center">
+          <div class="stat-big" id="dash-pct">—</div>
+          <div class="stat-label">Overall Progress</div>
+        </div>
+        <div class="card" style="text-align:center">
+          <div class="stat-big" id="dash-mindset">—</div>
+          <div class="stat-label">Mindset Moments</div>
+        </div>
+        <div class="card" style="text-align:center">
+          <div class="stat-big" id="dash-projects">—</div>
+          <div class="stat-label">Portfolio Projects</div>
+        </div>
       </div>
+
+      <!-- Per-phase progress bars (filled in dynamically via JS, width set as %) -->
       <div class="card">
         <h3>Phase Progress</h3>
-        <div class="progress-wrap"><div class="progress-label"><span>Phase 1 — Foundations</span><span id="phase1-pct">0%</span></div><div class="progress-bar"><div class="progress-fill" id="phase1-bar" style="width:0%"></div></div></div>
-        <div class="progress-wrap"><div class="progress-label"><span>Phase 2 — Networking + Cloud</span><span id="phase2-pct">0%</span></div><div class="progress-bar"><div class="progress-fill" id="phase2-bar" style="width:0%"></div></div></div>
-        <div class="progress-wrap"><div class="progress-label"><span>Phases 3–8 — Advanced</span><span id="phase38-pct">0%</span></div><div class="progress-bar"><div class="progress-fill" id="phase38-bar" style="width:0%"></div></div></div>
+        <div class="progress-wrap">
+          <div class="progress-label"><span>Phase 1 — Foundations</span><span id="phase1-pct">0%</span></div>
+          <div class="progress-bar"><div class="progress-fill" id="phase1-bar" style="width:0%"></div></div>
+        </div>
+        <div class="progress-wrap">
+          <div class="progress-label"><span>Phase 2 — Networking + Cloud</span><span id="phase2-pct">0%</span></div>
+          <div class="progress-bar"><div class="progress-fill" id="phase2-bar" style="width:0%"></div></div>
+        </div>
+        <div class="progress-wrap">
+          <div class="progress-label"><span>Phases 3–8 — Advanced</span><span id="phase38-pct">0%</span></div>
+          <div class="progress-bar"><div class="progress-fill" id="phase38-bar" style="width:0%"></div></div>
+        </div>
       </div>
+
+      <!-- "Up Next" card: shows the next incomplete topic + quick actions -->
       <div class="card">
         <h3>Up Next</h3>
         <div id="dash-next-topic" style="font-size:1rem;font-weight:500">Loading...</div>
         <div style="margin-top:1.25rem;display:flex;gap:0.75rem;flex-wrap:wrap">
-        <button id="save-session-btn" class="btn btn-save" onclick="openSessionModal()">💾 Save Completed Session</button>
-  
-        <button class="btn btn-ghost" onclick="showTab('topics',document.querySelectorAll('nav button')[2])">📋 View Roadmap</button>
+          <button id="save-session-btn" class="btn btn-save" onclick="openSessionModal()">💾 Save Completed Session</button>
+          <!-- Jumps to the Topics tab by simulating a click on the 3rd nav button -->
+          <button class="btn btn-ghost" onclick="showTab('topics',document.querySelectorAll('nav button')[2])">📋 View Roadmap</button>
         </div>
       </div>
     </div>
-    <!-- ========================================== -->
-    <!-- END OF DASHBOARD TAB                       -->
-    <!-- ========================================== -->
 
-    <!-- ========================================== -->
-    <!-- START OF SESSION LOG TAB                   -->
-    <!-- ========================================== -->
+    <!-- ============================================================
+         TAB: SESSION LOG
+         Searchable list of past learning sessions, rendered into
+         #sessions-list by log.js.
+    ============================================================ -->
     <div id="tab-log" class="tab-content">
-      <div class="card" style="margin-bottom:1.25rem"><input type="text" id="session-search" placeholder="Search by topic, date, concepts, notes..." oninput="searchSessions()" style="margin-bottom:0" /></div>
+      <div class="card" style="margin-bottom:1.25rem">
+        <input
+          type="text"
+          id="session-search"
+          placeholder="Search by topic, date, concepts, notes..."
+          oninput="searchSessions()"
+          style="margin-bottom:0"
+        />
+      </div>
       <div id="sessions-list"></div>
     </div>
-    <!-- ========================================== -->
-    <!-- END OF SESSION LOG TAB                     -->
-    <!-- ========================================== -->
 
-    <!-- ========================================== -->
-    <!-- START OF TOPICS TAB                        -->
-    <!-- ========================================== -->
-   <div id="tab-topics" class="tab-content">
+    <!-- ============================================================
+         TAB: TOPICS
+         The 67-topic roadmap. Clicking a topic expands its notes.
+         "Save Session" button here is admin-only (class admin-only).
+    ============================================================ -->
+    <div id="tab-topics" class="tab-content">
       <div class="card" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem;margin-bottom:1.25rem">
         <div>
           <div style="font-weight:700;font-size:1.1rem">67-Topic DevOps Roadmap</div>
@@ -105,35 +151,39 @@
       </div>
       <div id="topics-list"></div>
     </div>
-    <!-- ========================================== -->
-    <!-- END OF TOPICS TAB                          -->
-    <!-- ========================================== -->
 
-    <!-- ========================================== -->
-    <!-- START OF PORTFOLIO PROJECTS TAB            -->
-    <!-- ========================================== -->
+    <!-- ============================================================
+         TAB: PORTFOLIO (mini projects)
+    ============================================================ -->
     <div id="tab-projects" class="tab-content">
       <div class="card" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem;margin-bottom:1.25rem">
-        <div><div style="font-weight:700;font-size:1.1rem">Mini Project Portfolio</div><div style="color:var(--muted);font-size:0.85rem;margin-top:0.2rem">One project per topic</div></div>
+        <div>
+          <div style="font-weight:700;font-size:1.1rem">Mini Project Portfolio</div>
+          <div style="color:var(--muted);font-size:0.85rem;margin-top:0.2rem">One project per topic</div>
+        </div>
         <button class="btn btn-primary admin-only" onclick="openProjectModal()">🚀 Add Project</button>
       </div>
       <div id="projects-list"></div>
     </div>
-    <!-- ========================================== -->
-    <!-- END OF PORTFOLIO PROJECTS TAB              -->
-    <!-- ========================================== -->
 
-    <!-- ========================================== -->
-    <!-- START OF MINDSET TAB                       -->
-    <!-- ========================================== -->
+    <!-- ============================================================
+         TAB: MINDSET MOMENTS
+         Questions/situations log with filters (type, rating, dupes)
+         and a search box. List rendered by mindset.js.
+    ============================================================ -->
     <div id="tab-mindset" class="tab-content">
       <div class="card" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem;margin-bottom:1.25rem">
-        <div><div style="font-weight:700;font-size:1.1rem">Mindset Moments</div><div style="color:var(--muted);font-size:0.85rem;margin-top:0.2rem">Questions and situations that reveal how you think</div></div>
+        <div>
+          <div style="font-weight:700;font-size:1.1rem">Mindset Moments</div>
+          <div style="color:var(--muted);font-size:0.85rem;margin-top:0.2rem">Questions and situations that reveal how you think</div>
+        </div>
         <div style="display:flex;align-items:center;gap:1rem">
           <div style="font-size:0.85rem;color:var(--muted)">⭐ Strong: <strong id="strong-count">—</strong></div>
           <button class="btn btn-primary admin-only" onclick="openMindsetModal()">+ Add Moment</button>
         </div>
       </div>
+
+      <!-- Filter buttons + search; setWRFilter-style pattern via filterMindset() -->
       <div class="card" style="margin-bottom:1.25rem">
         <div style="display:flex;gap:0.5rem;flex-wrap:wrap;margin-bottom:1rem">
           <button class="btn btn-ghost" onclick="filterMindset('all')">All</button>
@@ -145,43 +195,49 @@
         </div>
         <input type="text" id="mindset-search" placeholder="Search mindset moments..." oninput="searchMindset()" style="margin-bottom:0" />
       </div>
+
       <div id="mindset-list"></div>
     </div>
-    <!-- ========================================== -->
-    <!-- END OF MINDSET TAB                         -->
-    <!-- ========================================== -->
 
-    <!-- ========================================== -->
-    <!-- START OF DAILY LOG NOTES TAB               -->
-    <!-- ========================================== -->
+    <!-- ============================================================
+         TAB: DAILY LOG (journal entries)
+         Inline form (admin-only) + searchable list of past entries.
+    ============================================================ -->
     <div id="tab-notes" class="tab-content">
-      
+
+      <!-- New/Edit journal entry form. Title text changes via JS when editing. -->
       <div class="card admin-only" style="margin-bottom:1.25rem">
         <div style="font-weight:700; font-size:0.85rem; color:var(--muted); text-transform:uppercase; margin-bottom:1rem; letter-spacing:0.05em;" id="note-form-title">New Journal Entry</div>
-        
+
         <div class="form-row-2" style="margin-bottom:1rem">
-          <div class="form-row" style="margin-bottom:0"><label style="font-size:0.75rem; font-weight:700; color:var(--muted); text-transform:uppercase;">Date</label><input type="date" id="note-date" /></div>
-          <div class="form-row" style="margin-bottom:0"><label style="font-size:0.75rem; font-weight:700; color:var(--muted); text-transform:uppercase;">Author</label><input type="text" id="note-author" value="Michael Joshua" /></div>
+          <div class="form-row" style="margin-bottom:0">
+            <label style="font-size:0.75rem; font-weight:700; color:var(--muted); text-transform:uppercase;">Date</label>
+            <input type="date" id="note-date" />
+          </div>
+          <div class="form-row" style="margin-bottom:0">
+            <label style="font-size:0.75rem; font-weight:700; color:var(--muted); text-transform:uppercase;">Author</label>
+            <input type="text" id="note-author" value="Michael Joshua" />
+          </div>
         </div>
-        
+
         <div class="form-row" style="margin-bottom:1rem;">
           <label style="font-size:0.75rem; font-weight:700; color:var(--muted); text-transform:uppercase;">Title</label>
           <input type="text" id="note-title" placeholder="e.g., Day 5 — Terminal Breakthrough" />
         </div>
-        
+
         <div class="form-row" style="margin-bottom:1rem;">
           <label style="font-size:0.75rem; font-weight:700; color:var(--muted); text-transform:uppercase;">Linked Topic (Optional)</label>
           <input type="text" id="note-topic" placeholder="e.g., Topic 3.1" />
         </div>
-        
+
         <div class="form-row">
           <label style="font-size:0.75rem; font-weight:700; color:var(--muted); text-transform:uppercase;">Entry</label>
           <textarea id="note-text" style="min-height:150px" placeholder="Write your thoughts, progress, reflections, or blockers..."></textarea>
         </div>
-        
+
         <div style="display:flex; justify-content:flex-end; gap:0.75rem; margin-top:1rem;">
+          <!-- Hidden by default; shown only when editing an existing note -->
           <button id="cancel-note-edit" class="btn btn-ghost" style="display:none;" onclick="cancelEditNote()">Cancel</button>
-          
           <button class="btn-save" onclick="saveNote()">Save Note</button>
         </div>
       </div>
@@ -191,17 +247,16 @@
       </div>
 
       <div id="notes-list"></div>
-      
-    </div>
-    <!-- ========================================== -->
-    <!-- END OF DAILY LOG NOTES TAB                 -->
-    <!-- ========================================== -->
 
-    <!-- ========================================== -->
-    <!-- START OF TERMINAL COMMANDS TAB             -->
-    <!-- ========================================== -->
+    </div>
+
+    <!-- ============================================================
+         TAB: TERMINAL COMMANDS RUNBOOK
+         Categorized, searchable list of every command learned.
+         "Duplicates" filter helps catch repeated entries.
+    ============================================================ -->
     <div id="tab-cmds" class="tab-content">
-      
+
       <div class="card" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem;margin-bottom:1.25rem">
         <div>
           <div style="font-weight:700;font-size:1.15rem;letter-spacing:-0.02em;">Terminal Commands Runbook 💻</div>
@@ -210,6 +265,7 @@
         <button class="btn btn-primary admin-only" onclick="openCmdModal()">+ Add Command</button>
       </div>
 
+      <!-- Category filter buttons; setCmdFilter() updates active state + re-renders list -->
       <div class="card" style="margin-bottom:1.25rem">
         <div id="cmd-filters" style="display:flex; gap:0.5rem; flex-wrap:wrap; margin-bottom:1.25rem;">
           <button class="btn" data-filter="All" style="background:var(--accent); color:#fff;" onclick="setCmdFilter('All')">All</button>
@@ -227,51 +283,70 @@
 
       <div id="cmds-list"></div>
     </div>
-    <!-- ========================================== -->
-    <!-- END OF TERMINAL COMMANDS TAB               -->
-    <!-- ========================================== -->
 
-    <!-- ========================================== -->
-    <!-- START OF JARVIS AI                         -->
-    <!-- ========================================== -->
-    <button id="jarvis-fab" onclick="toggleJarvis()" style="position: fixed; bottom: 30px; right: 30px; width: 60px; height: 60px; border-radius: 50%; font-size: 1.5rem; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 15px rgba(0,0,0,0.3); z-index: 9999; cursor: pointer; border: none; background: var(--accent-blue); color: white; transition: transform 0.2s;">
-    ⚡
-  </button>
+    <!-- ============================================================
+         JARVIS — Floating Action Button
+         Fixed-position circular button (bottom-right) that toggles
+         the chat widget below. Styled inline rather than in style.css.
+    ============================================================ -->
+    <button
+      id="jarvis-fab"
+      onclick="toggleJarvis()"
+      style="position: fixed; bottom: 30px; right: 30px; width: 60px; height: 60px; border-radius: 50%; font-size: 1.5rem; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 15px rgba(0,0,0,0.3); z-index: 9999; cursor: pointer; border: none; background: var(--accent-blue); color: white; transition: transform 0.2s;"
+    >
+      ⚡
+    </button>
 
-  <div id="jarvis-widget" style="display: none; position: fixed; bottom: 100px; right: 30px; width: 350px; height: 500px; background: var(--surface); border: 1px solid var(--border); border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); z-index: 9998; flex-direction: column; overflow: hidden;">
-    
-    <div class="j-topbar" style="display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; border-bottom: 1px solid var(--border); background: var(--surface2);">
-      <div style="display: flex; align-items: center; gap: 8px;">
-        <div class="j-pulse" style="width: 10px; height: 10px; border-radius: 50%; background: #34d399; box-shadow: 0 0 10px rgba(52, 211, 153, 0.6);"></div>
-        <div class="j-title">
-          <span class="j-tname" style="font-size: 1rem; font-weight: 600; color: var(--text);">Jarvis</span>
-          <span style="font-size: 0.7rem; color: var(--muted); margin-left: 6px;">DevOps Agent</span>
+    <!-- ============================================================
+         JARVIS — Chat Widget
+         Hidden by default (display:none). toggleJarvis() shows/hides.
+         Sends user input via jSend() -> proxy/edge function -> AI model.
+    ============================================================ -->
+    <div
+      id="jarvis-widget"
+      style="display: none; position: fixed; bottom: 100px; right: 30px; width: 350px; height: 500px; background: var(--surface); border: 1px solid var(--border); border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); z-index: 9998; flex-direction: column; overflow: hidden;"
+    >
+
+      <!-- Widget header: pulse dot (online indicator), title, close button -->
+      <div class="j-topbar" style="display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; border-bottom: 1px solid var(--border); background: var(--surface2);">
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <div class="j-pulse" style="width: 10px; height: 10px; border-radius: 50%; background: #34d399; box-shadow: 0 0 10px rgba(52, 211, 153, 0.6);"></div>
+          <div class="j-title">
+            <span class="j-tname" style="font-size: 1rem; font-weight: 600; color: var(--text);">Jarvis</span>
+            <span style="font-size: 0.7rem; color: var(--muted); margin-left: 6px;">DevOps Agent</span>
+          </div>
+        </div>
+        <button onclick="toggleJarvis()" style="background: none; border: none; color: var(--muted); font-size: 1.2rem; cursor: pointer; padding: 0 4px;">✕</button>
+      </div>
+
+      <!-- Message thread; jarvis.js appends new bubbles here as messages are sent/received -->
+      <div class="j-msgs" id="j-msgs" style="flex: 1; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 12px; background: var(--bg);">
+        <div class="j-msg" style="display: flex; gap: 12px;">
+          <div class="j-bubble" style="padding: 10px 14px; border-radius: 12px; background: var(--surface2); border: 1px solid var(--border); max-width: 85%; font-size: 0.9rem; color: var(--text); line-height: 1.4;">Systems initialized. What do you need help with?</div>
         </div>
       </div>
-      <button onclick="toggleJarvis()" style="background: none; border: none; color: var(--muted); font-size: 1.2rem; cursor: pointer; padding: 0 4px;">✕</button>
-    </div>
-    
-    <div class="j-msgs" id="j-msgs" style="flex: 1; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 12px; background: var(--bg);">
-      <div class="j-msg" style="display: flex; gap: 12px;">
-        <div class="j-bubble" style="padding: 10px 14px; border-radius: 12px; background: var(--surface2); border: 1px solid var(--border); max-width: 85%; font-size: 0.9rem; color: var(--text); line-height: 1.4;">Systems initialized. What do you need help with?</div>
-      </div>
-    </div>
-    
-    <div class="j-input-area" style="padding: 12px; border-top: 1px solid var(--border); background: var(--surface); display: flex; gap: 8px;">
-      <textarea id="j-input" rows="1" placeholder="Ask Jarvis..." onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();jSend();}" style="flex: 1; background: var(--bg); border: 1px solid var(--border); color: var(--text); padding: 8px 12px; border-radius: 20px; resize: none; font-size: 0.9rem; outline: none;"></textarea>
-      <button onclick="jSend()" style="width: 36px; height: 36px; border-radius: 50%; background: var(--accent-blue); color: white; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; padding-left: 3px;">➤</button>
-    </div>
-    
-  </div>
-    <!-- ========================================== -->
-    <!-- END OF JARVIS AI                           -->
-    <!-- ========================================== -->
 
-    <!-- ========================================== -->
-    <!-- START OF WAR ROOM TAB                      -->
-    <!-- ========================================== -->
-  <div id="tab-warroom" class="tab-content">
-      
+      <!-- Input row: Enter key (without Shift) triggers send via jSend() -->
+      <div class="j-input-area" style="padding: 12px; border-top: 1px solid var(--border); background: var(--surface); display: flex; gap: 8px;">
+        <textarea
+          id="j-input"
+          rows="1"
+          placeholder="Ask Jarvis..."
+          onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();jSend();}"
+          style="flex: 1; background: var(--bg); border: 1px solid var(--border); color: var(--text); padding: 8px 12px; border-radius: 20px; resize: none; font-size: 0.9rem; outline: none;"
+        ></textarea>
+        <button onclick="jSend()" style="width: 36px; height: 36px; border-radius: 50%; background: var(--accent-blue); color: white; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; padding-left: 3px;">➤</button>
+      </div>
+
+    </div>
+
+    <!-- ============================================================
+         TAB: WAR ROOM
+         Log of problems/bugs/incidents with type filters and search.
+         Each report can optionally have an attached file (see modal below).
+    ============================================================ -->
+    <div id="tab-warroom" class="tab-content">
+
       <div class="card" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem;margin-bottom:1.25rem">
         <div>
           <div style="font-weight:700;font-size:1.15rem;letter-spacing:-0.02em;">🚨 War Room</div>
@@ -280,6 +355,7 @@
         <button class="btn btn-primary admin-only" onclick="openWarRoomModal()">+ New Report</button>
       </div>
 
+      <!-- Report-type filter buttons (bug / deep-dive / build / incident) -->
       <div class="card" style="margin-bottom:1.25rem">
         <div id="wr-filters" style="display:flex; gap:0.5rem; flex-wrap:wrap; margin-bottom:1.25rem;">
           <button class="btn" data-filter="all" style="background:var(--accent); color:#fff;" onclick="setWRFilter('all')">All</button>
@@ -293,24 +369,83 @@
 
       <div id="warroom-list"></div>
     </div>
-    <!-- ========================================== -->
-    <!-- END OF WAR ROOM TAB                        -->
-    <!-- ========================================== -->
 
   </main>
 
 
-  <!-- ========================================== -->
-  <!-- START OF POPUP MODALS SECTION              -->
-  <!-- ========================================== -->
+  <!-- ============================================================
+       MODAL: Add/Edit Terminal Command
+  ============================================================ -->
+  <div class="modal-overlay" id="cmdModal">
+    <div class="modal" style="max-width:640px;">
+      <h2 id="cmd-modal-title">💻 Add Command</h2>
 
-  <!-- ========================================== -->
-  <!-- WAR ROOM REPORT MODAL                      -->
-  <!-- ========================================== -->
+      <div class="form-row">
+        <label>Command Text</label>
+        <input type="text" id="cmd-text" placeholder="e.g., git commit -m 'msg'" style="font-family: var(--font-mono);" />
+      </div>
+
+      <div class="form-row-2">
+        <div class="form-row" style="margin-bottom:0">
+          <label>Category</label>
+          <select id="cmd-category">
+            <option value="Linux">🐧 Linux</option>
+            <option value="Git">🔀 Git</option>
+            <option value="Docker">🐳 Docker</option>
+            <option value="Kubernetes">☸️ Kubernetes</option>
+            <option value="Terraform">🏗️ Terraform</option>
+            <option value="Python">🐍 Python</option>
+            <option value="Cloud CLI">☁️ Cloud CLI</option>
+          </select>
+        </div>
+        <div class="form-row" style="margin-bottom:0">
+          <label>Topic Reference</label>
+          <input type="text" id="cmd-topic" placeholder="e.g., Module 2.1" />
+        </div>
+      </div>
+
+      <div class="form-row">
+        <label>Meaning / What it does</label>
+        <input type="text" id="cmd-meaning" placeholder="Saves changes to local repo" />
+      </div>
+
+      <div class="form-row">
+        <label>Example Usage</label>
+        <input type="text" id="cmd-example" style="font-family: var(--font-mono);" />
+      </div>
+
+      <div class="form-row-2">
+        <div class="form-row" style="margin-bottom:0">
+          <label>Future Notes</label>
+          <input type="text" id="cmd-future" />
+        </div>
+        <div class="form-row" style="margin-bottom:0">
+          <label>Security Notes</label>
+          <input type="text" id="cmd-security" placeholder="Security notes..." />
+        </div>
+      </div>
+
+      <div class="form-row">
+         <label>Helpful Links (Comma separated)</label>
+         <input type="text" id="cmd-links" placeholder="Helpful links..." />
+      </div>
+
+      <div class="modal-footer" style="display:flex; justify-content:flex-end; gap:0.5rem; margin-top:1.5rem">
+        <button class="btn btn-ghost" onclick="closeCmdModal()">Cancel</button>
+        <button class="btn-save" onclick="saveCommand()">Save</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================
+       MODAL: New War Room Report
+       Supports optional file attachment (PDF/MD/TXT) for a
+       deep-dive write-up alongside the short solution textarea.
+  ============================================================ -->
   <div class="modal-overlay" id="warRoomModal">
     <div class="modal" style="max-width:640px;">
       <h2 id="wr-modal-title">🚨 New War Room Report</h2>
-      
+
       <div class="form-row-2">
         <div class="form-row" style="margin-bottom:0">
           <label>Date</label>
@@ -326,7 +461,7 @@
           </select>
         </div>
       </div>
-      
+
       <div class="form-row" style="margin-top:1.25rem;">
         <label>Title</label>
         <input type="text" id="wr-title" placeholder="e.g., Docker Build Failure Exit Code 137" required />
@@ -342,23 +477,24 @@
         <textarea id="wr-solution" rows="5" placeholder="How did you solve it? (Markdown supported)" required></textarea>
       </div>
 
+      <!-- Optional attachment: a longer-form AI-assisted report/post-mortem document -->
       <div class="form-row" style="margin-top: 1rem;">
         <label style="font-size:0.75rem; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:0.05em;">Attach Detailed AI Report (PDF, MD, TXT)</label>
         <input type="file" id="wr-file" style="background: var(--surface2); padding: 0.5rem; border: 1px solid var(--border); border-radius: 8px; color: var(--text); width: 100%; box-sizing: border-box;" />
         <div style="font-size:0.7rem; color:var(--muted); margin-top:0.25rem;">Optional: Upload a deep-dive architecture document or post-mortem.</div>
       </div>
-      
+
       <div class="modal-footer" style="display:flex; justify-content:flex-end; gap:0.5rem; margin-top:1.5rem">
         <button class="btn btn-ghost" onclick="closeWarRoomModal()">Cancel</button>
         <button class="btn btn-save" style="background: var(--accent-blue); color: white; border: none; padding: 0.5rem 1rem; border-radius: 6px; font-weight: 600;" onclick="saveWRReport()">Save Report</button>
       </div>
     </div>
   </div>
-  
 
-  <!-- ========================================== -->
-  <!-- ADMIN LOGOUT MODAL                         -->
-  <!-- ========================================== -->
+
+  <!-- ============================================================
+       MODAL: Logout confirmation
+  ============================================================ -->
   <div class="modal-overlay" id="logout-modal">
       <div class="modal" style="max-width: 360px; text-align: center;">
           <h2 style="margin-bottom: 0.5rem;">Log out?</h2>
@@ -370,9 +506,9 @@
   </div>
 
 
-  <!-- ========================================== -->
-  <!-- ADMIN LOGIN MODAL                          -->
-  <!-- ========================================== -->
+  <!-- ============================================================
+       MODAL: Admin login (email + password against Supabase auth)
+  ============================================================ -->
   <div class="modal-overlay" id="login-modal">
       <div class="modal" style="max-width: 400px; text-align: center;">
           <h2>🔓 Admin Login</h2>
@@ -382,6 +518,7 @@
           </div>
           <div class="form-row" style="text-align: left; margin-bottom: 1.5rem;">
               <label>Password</label>
+              <!-- Enter key submits the login form -->
               <input type="password" id="login-pwd" onkeydown="if(event.key==='Enter') adminLogin()" />
           </div>
           <button class="btn btn-primary" onclick="adminLogin()" style="width:100%; margin-bottom: 0.75rem;">Login</button>
@@ -391,16 +528,17 @@
   </div>
 
 
-  <!-- ========================================== -->
-  <!-- SESSION LOG SAVE MODAL                     -->
-  <!-- ========================================== -->
+  <!-- ============================================================
+       MODAL: Save Completed Session (used from Dashboard/Topics)
+       Captures date/time, which topic was covered, full notes,
+       a short summary, and key concepts learned.
+  ============================================================ -->
   <div class="modal-overlay" id="sessionModal">
     <div class="modal" style="max-width: 640px;">
       <h2 id="session-modal-title" style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 1.5rem; font-size: 1.25rem;">
         💾 Save Completed Session
       </h2>
-      
-      <!-- Row 1: Date & Time -->
+
       <div class="form-row-2">
         <div class="form-row" style="margin-bottom: 0;">
           <label style="font-size:0.75rem; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:0.05em;">Date</label>
@@ -411,8 +549,7 @@
           <input type="time" id="session-time" />
         </div>
       </div>
-      
-      <!-- Row 2: Topic ID & Topic Name -->
+
       <div class="form-row-2" style="margin-top: 1rem;">
         <div class="form-row" style="margin-bottom: 0;">
           <label style="font-size:0.75rem; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:0.05em;">Topic ID</label>
@@ -423,26 +560,22 @@
           <input type="text" id="session-topic-name" placeholder="e.g., Your first shell script" />
         </div>
       </div>
-      
-      <!-- Row 3: Full Teaching Notes -->
+
       <div class="form-row" style="margin-top: 1rem;">
         <label style="font-size:0.75rem; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:0.05em;">Full Teaching Notes</label>
         <textarea id="session-notes" style="min-height:140px;" placeholder="Write complete structural notes, code blocks, analogies, or instructions covered..."></textarea>
       </div>
-      
-      <!-- Row 4: Summary -->
+
       <div class="form-row">
         <label style="font-size:0.75rem; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:0.05em;">Summary (2 to 3 lines max)</label>
         <textarea id="session-summary" style="min-height:60px;" placeholder="Short summary of metrics or topics achieved..."></textarea>
       </div>
 
-      <!-- Row 5: Key Concepts -->
       <div class="form-row">
         <label style="font-size:0.75rem; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:0.05em;">Key Concepts (Comma Separated)</label>
         <input type="text" id="session-concepts" placeholder="e.g., pwd, ls, cd, absolute path" />
       </div>
-      
-      <!-- Footer Buttons -->
+
       <div class="modal-footer" style="margin-top: 1.5rem; display: flex; justify-content: flex-end; gap: 0.75rem;">
         <button class="btn btn-ghost" onclick="closeSessionModal()">Cancel</button>
         <button class="btn-save" onclick="saveSession()">Save Session</button>
@@ -451,9 +584,9 @@
   </div>
 
 
-  <!-- ========================================== -->
-  <!-- PORTFOLIO PROJECT MODAL                    -->
-  <!-- ========================================== -->
+  <!-- ============================================================
+       MODAL: Add/Edit Portfolio Project
+  ============================================================ -->
   <div class="modal-overlay" id="projectModal">
     <div class="modal">
       <h2 id="project-modal-title">Add Project</h2>
@@ -470,9 +603,10 @@
   </div>
 
 
-  <!-- ========================================== -->
-  <!-- DELETE CONFIRMATION MODAL                  -->
-  <!-- ========================================== -->
+  <!-- ============================================================
+       MODAL: Delete Project confirmation
+       Clicking outside the modal (on the overlay) also closes it.
+  ============================================================ -->
   <div class="modal-overlay" id="delete-confirm-modal" onclick="if(event.target === this) this.classList.remove('open')">
       <div class="modal" style="max-width: 360px; text-align: center;">
           <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">⚠️</div>
@@ -481,18 +615,18 @@
               This action cannot be undone. Are you sure you want to scrap this build?
           </div>
           <div style="display: flex; gap: 0.75rem;">
-              
               <button class="btn btn-ghost" onclick="document.getElementById('delete-confirm-modal').classList.remove('open');" style="flex:1; background: #d1d5db; color: #111827; border: none; font-weight: 600;">Cancel</button>
-              
               <button class="btn" onclick="executeDeleteProject()" style="flex:1; background: #ef4444; color: white; border: none; font-weight: 700;">Delete</button>
           </div>
       </div>
   </div>
 
 
-  <!-- ========================================== -->
-  <!-- DOCUMENT DOWNLOAD MODAL                    -->
-  <!-- ========================================== -->
+  <!-- ============================================================
+       MODAL: Download Report (email-gated download)
+       Used for sharing a War Room report externally — collects an
+       email before triggering processDownload().
+  ============================================================ -->
   <div class="modal-overlay" id="download-modal" onclick="if(event.target === this) this.classList.remove('open')">
       <div class="modal" style="max-width: 400px; text-align: center;">
           <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">📥</div>
@@ -511,9 +645,11 @@
   </div>
 
 
-  <!-- ========================================== -->
-  <!-- DOCUMENT VIEWER MODAL                      -->
-  <!-- ========================================== -->
+  <!-- ============================================================
+       MODAL: Document Viewer
+       Displays an attached War Room file (e.g. a PDF/MD report)
+       inside an iframe without leaving the page.
+  ============================================================ -->
   <div class="modal-overlay" id="viewer-modal" onclick="if(event.target === this) this.classList.remove('open')">
       <div class="modal" style="max-width: 800px; height: 85vh; display: flex; flex-direction: column; padding: 1.5rem;">
           <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
@@ -525,23 +661,26 @@
   </div>
 
 
-  <!-- ========================================== -->
-  <!-- MINDSET MOMENTS MODAL                      -->
-  <!-- ========================================== -->
-<div class="modal-overlay" id="mindsetModal" onclick="if(event.target === this) closeMindsetModal()">
+  <!-- ============================================================
+       MODAL: Add Mindset Moment
+       Note: uses Tailwind-style utility classes here (grid, p-2, etc.)
+       mixed with the app's own .form-row classes elsewhere — these
+       only take effect if Tailwind is loaded; otherwise they no-op.
+  ============================================================ -->
+  <div class="modal-overlay" id="mindsetModal" onclick="if(event.target === this) closeMindsetModal()">
     <div class="modal" style="max-width: 640px;">
       <h2>🧠 Add Mindset Moment</h2>
 
       <div class="grid grid-cols-2 gap-4 mb-4">
-       <div>
-       <label class="block text-xs font-bold text-gray-500 uppercase mb-2">Date</label>
-       <input type="date" id="moment-date" class="w-full p-2 border border-gray-200 rounded-md bg-gray-50 text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500" />
-     </div>
-     <div>
-       <label class="block text-xs font-bold text-gray-500 uppercase mb-2">Time</label>
-      <input type="time" id="moment-time" class="w-full p-2 border border-gray-200 rounded-md bg-gray-50 text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500" />
-       </div>
-     </div>
+        <div>
+          <label class="block text-xs font-bold text-gray-500 uppercase mb-2">Date</label>
+          <input type="date" id="moment-date" class="w-full p-2 border border-gray-200 rounded-md bg-gray-50 text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500" />
+        </div>
+        <div>
+          <label class="block text-xs font-bold text-gray-500 uppercase mb-2">Time</label>
+          <input type="time" id="moment-time" class="w-full p-2 border border-gray-200 rounded-md bg-gray-50 text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500" />
+        </div>
+      </div>
 
       <div class="form-row-2" style="margin-bottom: 1rem;">
         <div class="form-row" style="margin-bottom: 0;">
@@ -595,17 +734,10 @@
       </div>
     </div>
   </div>
-  <!-- ========================================== -->
-  <!-- END OF POPUP MODALS SECTION                -->
-  <!-- ========================================== -->
 
-
-  <!-- ========================================== -->
-  <!-- GLOBAL TOASTS & JAVASCRIPT IMPORTS         -->
-  <!-- ========================================== -->
-
-   <div id="toast"></div>
-   <div id="undo-toast" class="undo-toast">
+  <!-- Toast notifications (generic + undo-with-timer variant) -->
+  <div id="toast"></div>
+  <div id="undo-toast" class="undo-toast">
     <span id="undo-text">Item deleted.</span>
     <div class="undo-actions">
       <span id="undo-timer">60s</span>
@@ -613,6 +745,12 @@
     </div>
   </div>
 
+  <!-- ============================================================
+       SCRIPTS
+       core.js sets up shared state/helpers (Supabase client, tab
+       switching, theme, auth) and must load before the per-tab
+       component scripts that depend on it.
+  ============================================================ -->
   <script src="core.js"></script>
   <script src="Components/dashboard/dashboard.js"></script>
   <script src="Components/session-log/log.js"></script>
@@ -623,9 +761,5 @@
   <script src="Components/terminal-cmds/cmds.js"></script>
   <script src="Components/war-room/warroom.js"></script>
   <script src="Components/jarvis/jarvis.js"></script>
-  <!-- ========================================== -->
-  <!-- END OF DOCUMENT                            -->
-  <!-- ========================================== -->
-
-</body>   
+</body>
 </html>

@@ -13,14 +13,13 @@ async function loadCommands() {
       return;
     }
     allCommands = data || [];
-    renderFilters(); // 👈 New: Renders buttons with dynamic counts!
+    renderFilters(); 
     renderCommands();
   } catch(e) {
     console.error("Commands Load Error:", e);
   }
 }
 
-// ── NEW: DYNAMIC FILTER ENGINE ──
 function renderFilters() {
   const container = document.getElementById('cmd-filters');
   if (!container) return;
@@ -75,7 +74,7 @@ function renderFilters() {
 
 function setCmdFilter(filter) {
   currentCmdFilter = filter;
-  renderFilters(); // Re-render to highlight the active button
+  renderFilters(); 
   renderCommands();
 }
 
@@ -121,7 +120,6 @@ function renderCommands() {
   }
 
   list.innerHTML = filtered.map((c) => {
-    // Database Catch-Alls
     const meaningText = c.meaning || c.description || c.plain_english || 'No description provided.';
     const exampleText = c.example || c.example_usage || '';
     const linkedText = c.linked_commands || c.linked_cmds || c.links || c.related_commands || c.tags || '';
@@ -135,18 +133,16 @@ function renderCommands() {
     const hasSecurity = securityText && String(securityText).trim().length > 0 && String(securityText).toLowerCase() !== 'null';
     const hasExample = exampleText && String(exampleText).trim().length > 0 && String(exampleText).toLowerCase() !== 'null';
 
-    // Exact Badge Colors from mockup
     let badgeBg = 'var(--surface2)';
     let badgeColor = 'var(--muted)';
     if(category === 'GIT') { 
-      badgeBg = '#d1fae5'; // Mint
-      badgeColor = '#6d28d9'; // Purple
+      badgeBg = '#d1fae5'; 
+      badgeColor = '#6d28d9'; 
     } else if(category === 'LINUX') { 
-      badgeBg = '#f3e8ff'; // Light Purple
-      badgeColor = '#9333ea'; // Purple
+      badgeBg = '#f3e8ff'; 
+      badgeColor = '#9333ea'; 
     }
 
-    // Linked Pills logic
     let linkedPills = '';
     if (linkedText && String(linkedText).toLowerCase() !== 'null') {
       let linksArray = [];
@@ -218,16 +214,27 @@ function renderCommands() {
 // ── MODAL LOGIC ──
 function openCmdModal() {
   editingCmdId = null;
-  document.getElementById('cmd-text').value = '';
-  document.getElementById('cmd-category').value = 'Linux';
-  document.getElementById('cmd-meaning').value = '';
-  document.getElementById('cmd-example').value = '';
-  document.getElementById('cmd-topic').value = '';
-  document.getElementById('cmd-future').value = '';
-  document.getElementById('cmd-links').value = '';
-  document.getElementById('cmd-security').value = '';
-  document.getElementById('cmd-modal-title').textContent = '💻 Add Command';
-  document.getElementById('cmdModal').classList.add('open');
+  
+  const safeSetValue = (id, value) => {
+    const el = document.getElementById(id);
+    if (el) el.value = value;
+    else console.warn(`Element with ID '${id}' not found on the page.`);
+  };
+
+  safeSetValue('cmd-text', '');
+  safeSetValue('cmd-category', 'Linux');
+  safeSetValue('cmd-meaning', '');
+  safeSetValue('cmd-example', '');
+  safeSetValue('cmd-topic', '');
+  safeSetValue('cmd-future', '');
+  safeSetValue('cmd-links', '');
+  safeSetValue('cmd-security', '');
+
+  const titleEl = document.getElementById('cmd-modal-title');
+  if (titleEl) titleEl.textContent = '💻 Add Command';
+
+  const modalEl = document.getElementById('cmdModal');
+  if (modalEl) modalEl.classList.add('open');
 }
 
 function closeCmdModal() {
@@ -246,7 +253,6 @@ function editCommand(id) {
   document.getElementById('cmd-topic').value = c.topic_learned || '';
   document.getElementById('cmd-future').value = c.future_topics || '';
   
-  // Handle Array to String for editing
   let links = c.linked_commands || c.linked_cmds || c.links || '';
   if(Array.isArray(links)) links = links.join(', ');
   document.getElementById('cmd-links').value = links;
@@ -291,22 +297,17 @@ async function saveCommand() {
 
 // ── DELETE COMMAND (WITH 60s UNDO) ──
 function deleteCommand(id) {
-    // 1. Find the exact command data
     const cmdToRestore = allCommands.find(x => String(x.id) === String(id));
     if (!cmdToRestore) return;
     
-    // 2. Instantly hide it from the UI
     allCommands = allCommands.filter(x => String(x.id) !== String(id));
     renderCommands(allCommands); 
     
-    // 3. Trigger the Universal Engine (Ensure 'terminal_cmds' matches your Supabase table name)
-    triggerUniversalDelete('terminal_cmds', id, `Command "${cmdToRestore.command}"`, () => {
-        // THIS RUNS IF YOU CLICK UNDO:
+    // 👇 FIXED: Table name is 'commands'
+    triggerUniversalDelete('commands', id, `Command "${cmdToRestore.command_text}"`, () => {
         allCommands.push(cmdToRestore); 
-        
-        // Sort them alphabetically by command name
-        allCommands.sort((a, b) => (a.command || '').localeCompare(b.command || ''));
-        
-        renderCommands(allCommands); // Re-render the screen
+        // 👇 FIXED: Sort variable is command_text
+        allCommands.sort((a, b) => (a.command_text || '').localeCompare(b.command_text || ''));
+        renderCommands(allCommands); 
     });
 }
