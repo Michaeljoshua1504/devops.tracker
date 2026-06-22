@@ -92,41 +92,11 @@ function searchSessions() {
 }
 
 // 🛡️ UPDATED: No longer crashes looking for 'saveModal'
-function openEditSessionModal(id) {
-  const s = allSessions.find(x => String(x.id) === String(id));
-  if (!s) return;
-  
-  editingSessionId = id; // Set global memory
-
-  // Safely fill the form boxes 
-  setSafeVal('m-date', s.date || '');
-  setSafeVal('m-time', s.time || '');
-  setSafeVal('m-topicid', s.topic_id || '');
-  setSafeVal('m-topicname', s.topic_name || '');
-  setSafeVal('m-fullnotes', s.full_notes || '');
-  setSafeVal('m-summary', s.summary || '');
-  setSafeVal('m-concepts', s.concepts || '');
-  
-  window.scrollTo({ top: 0, behavior: 'smooth' });
-  toast('Editing Session: ' + (s.topic_id || ''), 'info');
-}
-
-function toggleSession(cardElement, sid) {       
-  const body = document.getElementById(sid);       
-  const arrow = document.getElementById('arrow-' + sid);       
-  const isExpanding = !cardElement.classList.contains('expanded');
-
-  cardElement.classList.toggle('expanded');       
-  if(body) body.style.display = isExpanding ? 'block' : 'none';       
-  if(arrow) arrow.textContent = isExpanding ? '▲' : '▼';       
-}
-
-// 🛡️ UPDATED: Bulletproof Save Function
 async function saveSession() {
   if(!sb) return;
 
   // Uses safe helper to avoid "Cannot read properties of null"
- const payload = {
+  const payload = {
     date: getSafeVal('session-date'),
     time: getSafeVal('session-time'),
     topic_id: getSafeVal('session-topic-id').trim(),
@@ -150,6 +120,13 @@ async function saveSession() {
     const { error } = await sb.from('sessions').insert([payload]);
     if(error) { toast('Error: ' + error.message, 'error'); return; }
     toast('Session Saved! 🎉', 'success');
+  }
+
+  // --- HIDE THE BOX ---
+  if (typeof closeSaveModal === "function") {
+    closeSaveModal(); 
+  } else if (typeof closeModal === "function") {
+    closeModal();
   }
 
   // Clear memory
