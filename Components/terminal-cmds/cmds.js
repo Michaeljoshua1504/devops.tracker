@@ -40,9 +40,10 @@ function renderFilters() {
   const counts = { All: allCommands.length, Duplicates: 0 };
   filters.forEach(f => { if(f.id !== 'All' && f.id !== 'Duplicates') counts[f.id] = 0; });
 
-  // Count categories automatically
+  // 🛡️ Safe counting: Uses .includes() to ignore emojis/spaces in dirty DB data
   allCommands.forEach(c => {
-    const match = filters.find(f => f.id.toLowerCase() === (c.category || '').toLowerCase());
+    const cat = (c.category || '').toLowerCase();
+    const match = filters.find(f => cat.includes(f.id.toLowerCase()));
     if (match && match.id !== 'All' && match.id !== 'Duplicates') {
       counts[match.id]++;
     }
@@ -72,11 +73,12 @@ function renderFilters() {
   }).join('');
 }
 
-function setCmdFilter(filter) {
+// 🛡️ Global Scope Lock: Ensures dynamic buttons can always find this function
+window.setCmdFilter = function(filter) {
   currentCmdFilter = filter;
   renderFilters(); 
   renderCommands();
-}
+};
 
 function renderCommands() {
   const list = document.getElementById('cmds-list');
@@ -100,22 +102,30 @@ function renderCommands() {
         if(groups[cmd].length > 1) filtered = filtered.concat(groups[cmd]);
       });
     } else {
-      filtered = filtered.filter(c => (c.category || '').toLowerCase() === currentCmdFilter.toLowerCase());
+      // 🛡️ Safe matching: prevents breaks if categories have weird formats
+      filtered = filtered.filter(c => (c.category || '').toLowerCase().includes(currentCmdFilter.toLowerCase()));
     }
   }
 
   if (term) {
-    filtered = filtered.filter(c => 
-      (c.command_text || '').toLowerCase().includes(term) ||
-      (c.meaning || c.description || '').toLowerCase().includes(term) ||
-      (c.example || c.example_usage || '').toLowerCase().includes(term) ||
-      (c.linked_commands || c.linked_cmds || c.links || '').toLowerCase().includes(term) ||
-      (c.security_note || c.security || '').toLowerCase().includes(term)
-    );
+    // 🛡️ Bulletproof Search: Safely compiles all data (including arrays) into one clean string to prevent crashes
+    filtered = filtered.filter(c => {
+      const linksData = Array.isArray(c.linked_commands) ? c.linked_commands.join(' ') : (c.linked_commands || c.linked_cmds || c.links || '');
+      const searchString = `
+        ${c.command_text || ''}
+        ${c.meaning || c.description || ''}
+        ${c.example || c.example_usage || ''}
+        ${linksData}
+        ${c.security_note || c.security || ''}
+        ${c.category || ''}
+      `.toLowerCase();
+      
+      return searchString.includes(term);
+    });
   }
 
   if(!filtered || filtered.length === 0) {
-    list.innerHTML = '<div style="color:var(--muted);font-size:0.9rem;padding:1rem;">No commands found. Add your first command!</div>';
+    list.innerHTML = '<div style="color:var(--muted);font-size:0.9rem;padding:1rem;">No commands found matching this filter.</div>';
     return;
   }
 
@@ -135,10 +145,10 @@ function renderCommands() {
 
     let badgeBg = 'var(--surface2)';
     let badgeColor = 'var(--muted)';
-    if(category === 'GIT') { 
+    if(category.includes('GIT')) { 
       badgeBg = '#d1fae5'; 
       badgeColor = '#6d28d9'; 
-    } else if(category === 'LINUX') { 
+    } else if(category.includes('LINUX')) { 
       badgeBg = '#f3e8ff'; 
       badgeColor = '#9333ea'; 
     }
@@ -265,6 +275,11 @@ function editCommand(id) {
 
 async function saveCommand() {
   if(!sb) return;
+
+  let rawLinked = document.getElementById('cmd-links').value.trim();
+  rawLinked = rawLinked.replace(/[\[\]"]/g, ''); 
+  const linkedArray = rawLinked.split(',').map(s => s.trim()).filter(Boolean);
+
   const payload = {
     command_text: document.getElementById('cmd-text').value.trim(),
     category: document.getElementById('cmd-category').value,
@@ -272,7 +287,7 @@ async function saveCommand() {
     example: document.getElementById('cmd-example').value.trim(),
     topic_learned: document.getElementById('cmd-topic').value.trim(),
     future_topics: document.getElementById('cmd-future').value.trim(),
-    linked_commands: document.getElementById('cmd-links').value.trim(),
+    linked_commands: linkedArray, 
     security_note: document.getElementById('cmd-security').value.trim()
   };
   
@@ -301,13 +316,11 @@ function deleteCommand(id) {
     if (!cmdToRestore) return;
     
     allCommands = allCommands.filter(x => String(x.id) !== String(id));
-    renderCommands(allCommands); 
+    renderCommands(); 
     
-    // 👇 FIXED: Table name is 'commands'
     triggerUniversalDelete('commands', id, `Command "${cmdToRestore.command_text}"`, () => {
         allCommands.push(cmdToRestore); 
-        // 👇 FIXED: Sort variable is command_text
         allCommands.sort((a, b) => (a.command_text || '').localeCompare(b.command_text || ''));
-        renderCommands(allCommands); 
+        renderCommands(); 
     });
 }

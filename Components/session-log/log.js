@@ -60,7 +60,7 @@ function renderSessions(data) {
           </div>       
         </div>       
         <div class="session-summary">${escapeHTML(s.summary || '')}</div>       
-        <div class="session-body" id="${sid}">       
+        <div class="session-body" id="${sid}" style="display: none;">      
           ${s.full_notes ? `<div style="font-size:0.9rem;color:var(--text);line-height:1.6;white-space:pre-wrap;margin-top:1rem;padding:1rem;background:var(--bg);border-radius:10px;border:1px solid var(--border)">${escapeHTML(s.full_notes)}</div>` : ''}       
           ${concepts ? `<div class="session-concepts">${concepts}</div>` : ''}       
           <div style="margin-top:1rem; display:flex; justify-content:flex-end; gap:0.5rem;">     
@@ -91,11 +91,10 @@ function searchSessions() {
   renderSessions(filtered);
 }
 
-// 🛡️ UPDATED: No longer crashes looking for 'saveModal'
+// 🛡️ UPDATED: Now uses Supabase directly to advance the roadmap!
 async function saveSession() {
   if(!sb) return;
 
-  // Uses safe helper to avoid "Cannot read properties of null"
   const payload = {
     date: getSafeVal('session-date'),
     time: getSafeVal('session-time'),
@@ -106,7 +105,6 @@ async function saveSession() {
     concepts: getSafeVal('session-concepts').trim()
   };
 
-  // If the IDs are wrong, payload.topic_id will be empty, and this will catch it!
   if(!payload.topic_id || !payload.summary) {
     toast('Missing Topic ID or Summary (Or your HTML IDs do not match the JS!)', 'error');
     return;
@@ -122,11 +120,45 @@ async function saveSession() {
     toast('Session Saved! 🎉', 'success');
   }
 
+  // --- NEW: ADVANCE THE ROADMAP (DB DRIVEN) ---
+  try {
+    // 1. Mark current topic as 'done'
+    await sb.from('topic_status')
+      .update({ status: 'done' })
+      .eq('topic_id', payload.topic_id);
+
+    // 2. Fetch all topics from DB and sort them logically (e.g., 1.9 before 1.10)
+    const { data: allTopics } = await sb.from('topic_status').select('topic_id');
+    
+    if (allTopics && allTopics.length > 0) {
+      const sortedIds = allTopics.map(t => t.topic_id).sort((a, b) => {
+        return a.localeCompare(b, undefined, { numeric: true, sensitivity: 'base' });
+      });
+
+      // Find where we currently are in the database list
+      const currentIndex = sortedIds.indexOf(payload.topic_id);
+      
+      // If there's a next topic in the database, mark it as 'next'
+      if (currentIndex !== -1 && currentIndex + 1 < sortedIds.length) {
+        const nextTopicId = sortedIds[currentIndex + 1];
+        await sb.from('topic_status')
+          .update({ status: 'next' })
+          .eq('topic_id', nextTopicId);
+      }
+    }
+  } catch (err) {
+    console.error("Error advancing roadmap:", err);
+  }
+  // --------------------------------
+
   // --- HIDE THE BOX ---
-  if (typeof closeSaveModal === "function") {
-    closeSaveModal(); 
-  } else if (typeof closeModal === "function") {
-    closeModal();
+  if (typeof closeSessionModal === "function") {
+    closeSessionModal(); 
+  } else {
+    const modalBox = document.getElementById('sessionModal');
+    if (modalBox) {
+        modalBox.classList.remove('open');
+    }
   }
 
   // Clear memory
@@ -144,6 +176,7 @@ async function saveSession() {
       await syncUI();
   } else {
       await loadSessions();
+      if (typeof loadTopics === 'function') await loadTopics(); 
   }
 }
 
@@ -178,24 +211,63 @@ function deleteSession(id, topicId) {
                 const { data: remainingLogs, error: countErr } = await sb.from('sessions').select('id').eq('topic_id', topicId);     
                 if (!countErr && (!remainingLogs || remainingLogs.length === 0)) {     
                   
+                  // Revert the deleted topic back to 'next'
                   await sb.from('topic_status').update({     
                     status: 'next', session_note: null, full_notes: null     
                   }).eq('topic_id', topicId);
             
-                  const parts = topicId.split('.');     
-                  if(parts.length === 2) {     
-                    const nextId = parts[0] + '.' + (parseInt(parts[1], 10) + 1);     
-                    const { data: nextTopic } = await sb.from('topic_status').select('status').eq('topic_id', nextId).single();     
-                    if(nextTopic && nextTopic.status === 'next') {     
-                      await sb.from('topic_status').update({ status: 'todo' }).eq('topic_id', nextId);     
-                    }     
-                  }     
+                  // --- NEW: REVERT ROADMAP (DB DRIVEN) ---
+                  const { data: allTopics } = await sb.from('topic_status').select('topic_id');
+                  if (allTopics && allTopics.length > 0) {
+                    const sortedIds = allTopics.map(t => t.topic_id).sort((a, b) => {
+                      return a.localeCompare(b, undefined, { numeric: true, sensitivity: 'base' });
+                    });
+                    
+                    const currentIndex = sortedIds.indexOf(topicId);
+                    
+                    if (currentIndex !== -1 && currentIndex + 1 < sortedIds.length) {
+                      const nextTopicId = sortedIds[currentIndex + 1];
+                      
+                      const { data: nextTopicData } = await sb.from('topic_status')
+                        .select('status')
+                        .eq('topic_id', nextTopicId)
+                        .single();
+                        
+                      if (nextTopicData && nextTopicData.status === 'next') {     
+                        await sb.from('topic_status')
+                          .update({ status: 'todo' })
+                          .eq('topic_id', nextTopicId);     
+                      }     
+                    }
+                  }
+                  // --------------------------------------------------------
                 }     
             }
 
             if (typeof syncUI === 'function') {
                 await syncUI(); 
+            } else if (typeof loadTopics === 'function') {
+                await loadTopics(); // Auto-refresh topics on delete
             }
         }
     );
 }
+
+// ── UI INTERACTION ENGINE ──
+window.toggleSession = function(element, sid) {
+    const body = document.getElementById(sid);
+    const arrow = document.getElementById('arrow-' + sid);
+
+    if (!body) {
+        console.error("🚨 Dev Error: Could not find the session body with ID:", sid);
+        return;
+    }
+
+    if (body.style.display === 'none') {
+        body.style.display = 'block';
+        if (arrow) arrow.textContent = '▲';
+    } else {
+        body.style.display = 'none';
+        if (arrow) arrow.textContent = '▼';
+    }
+};

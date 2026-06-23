@@ -57,6 +57,7 @@
       <button onclick="showTab('notes',this)">Daily Log</button>
       <button onclick="showTab('cmds',this)">Terminal Cmds 💻</button>
       <button onclick="showTab('warroom',this)">🚨 War Room</button>
+      <button onclick="showTab('activitylog',this)">📜 Activity Log</button>
     </nav>
   </div>
 
@@ -370,6 +371,39 @@
       <div id="warroom-list"></div>
     </div>
 
+    <!-- ============================================================
+         TAB: ACTIVITY LOG
+         The audit trail. Every create/update/delete on every table
+         is written here automatically by Postgres triggers (see
+         activity_log_setup.sql) — this tab just reads and displays it.
+    ============================================================ -->
+    <div id="tab-activitylog" class="tab-content">
+
+      <div class="card" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem;margin-bottom:1.25rem">
+        <div>
+          <div style="font-weight:700;font-size:1.15rem;letter-spacing:-0.02em;">📜 Activity Log</div>
+          <div style="color:var(--muted);font-size:0.85rem;margin-top:0.3rem;">Every change, in every tab, automatically recorded — click an entry to see the before/after.</div>
+        </div>
+      </div>
+
+      <!-- Tab filter buttons; same active/inactive pattern as Terminal Cmds and War Room -->
+      <div class="card" style="margin-bottom:1.25rem">
+        <div id="activity-log-filters" style="display:flex; gap:0.5rem; flex-wrap:wrap; margin-bottom:1.25rem;">
+          <button class="btn btn-primary" data-filter="all" onclick="filterActivityLog('all')">All</button>
+          <button class="btn btn-ghost" data-filter="log" onclick="filterActivityLog('log')">Session Log</button>
+          <button class="btn btn-ghost" data-filter="topics" onclick="filterActivityLog('topics')">Topics</button>
+          <button class="btn btn-ghost" data-filter="mindset" onclick="filterActivityLog('mindset')">Mindset</button>
+          <button class="btn btn-ghost" data-filter="notes" onclick="filterActivityLog('notes')">Daily Log</button>
+          <button class="btn btn-ghost" data-filter="cmds" onclick="filterActivityLog('cmds')">Terminal Cmds</button>
+          <button class="btn btn-ghost" data-filter="projects" onclick="filterActivityLog('projects')">Portfolio</button>
+        </div>
+        <input type="text" id="activity-log-search" placeholder="Search activity log..." oninput="searchActivityLog()" style="margin-bottom:0" />
+      </div>
+
+      <div id="activity-log-list"></div>
+    </div>
+
+
   </main>
 
 
@@ -421,7 +455,7 @@
         </div>
         <div class="form-row" style="margin-bottom:0">
           <label>Security Notes</label>
-          <input type="text" id="cmd-security" placeholder="Security notes..." />
+          <textarea id="cmd-security" rows="3" placeholder="Security notes..."></textarea>
         </div>
       </div>
 
@@ -671,14 +705,14 @@
     <div class="modal" style="max-width: 640px;">
       <h2>🧠 Add Mindset Moment</h2>
 
-      <div class="grid grid-cols-2 gap-4 mb-4">
-        <div>
-          <label class="block text-xs font-bold text-gray-500 uppercase mb-2">Date</label>
-          <input type="date" id="moment-date" class="w-full p-2 border border-gray-200 rounded-md bg-gray-50 text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500" />
+      <div class="form-row-2" style="margin-bottom: 1rem;">
+        <div class="form-row" style="margin-bottom: 0;">
+          <label>Date</label>
+          <input type="date" id="moment-date" />
         </div>
-        <div>
-          <label class="block text-xs font-bold text-gray-500 uppercase mb-2">Time</label>
-          <input type="time" id="moment-time" class="w-full p-2 border border-gray-200 rounded-md bg-gray-50 text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500" />
+        <div class="form-row" style="margin-bottom: 0;">
+          <label>Time</label>
+          <input type="time" id="moment-time" />
         </div>
       </div>
 
@@ -760,6 +794,7 @@
   <script src="Components/daily-log/notes.js"></script>
   <script src="Components/terminal-cmds/cmds.js"></script>
   <script src="Components/war-room/warroom.js"></script>
+  <script src="Components/activity-log/activity-log.js"></script>
   <script src="Components/jarvis/jarvis.js"></script>
 </body>
 </html>

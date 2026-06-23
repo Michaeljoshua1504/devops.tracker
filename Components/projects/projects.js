@@ -133,31 +133,35 @@ function closeProjectModal() {
     if(modal) modal.classList.remove('open');  
 }
 
+//SAVE PROJECT
+//------------------------------------------
 async function saveProject() {  
     if(!sb) { toast('Not connected', 'error'); return; }  
     
-    // Safely pulls from whichever inputs exist in your HTML
+    // We map your exact HTML IDs into the payload
     const payload = {  
-        topic_id: safeGetValue('proj-topic', 'proj-phase'),  
-        project_name: safeGetValue('proj-name', 'proj-title'),  
-        theory_concept: safeGetValue('proj-theory', 'proj-desc'),  
-        code_snippet: safeGetValue('proj-code', 'proj-tech'),  
-        github_url: safeGetValue('proj-url', 'proj-repo')  
+        topic_id: getSafeVal('proj-phase').trim(),       // from <input id="proj-phase">
+        project_name: getSafeVal('proj-title').trim(),   // from <input id="proj-title">
+        theory_concept: getSafeVal('proj-desc').trim(),  // from <textarea id="proj-desc">
+        code_snippet: getSafeVal('proj-tech').trim(),    // from <input id="proj-tech">
+        github_url: getSafeVal('proj-repo').trim()       // from <input id="proj-repo">
     };  
       
+    // Validation check
     if(!payload.topic_id || !payload.project_name || !payload.theory_concept) {  
-        toast('Please fill in Topic ID, Name, and Concept', 'error'); return;  
+        toast('Please fill in Phase, Title, and Description', 'error'); 
+        return;  
     }  
       
     let error;  
-    if(editingProjectId) {  
-        // UPDATE Existing
+    if(typeof editingProjectId !== 'undefined' && editingProjectId) {  
+        // UPDATE Existing Project
         const res = await sb.from('mini_projects')
             .update({...payload, extra_data: { edited_at: new Date().toISOString() }})
             .eq('id', editingProjectId);  
         error = res.error;  
     } else {  
-        // INSERT New
+        // INSERT New Project
         const res = await sb.from('mini_projects').insert([payload]);  
         error = res.error;  
     }  
@@ -165,8 +169,26 @@ async function saveProject() {
     if(error) { toast('Error saving project: ' + error.message, 'error'); return; }  
       
     toast('Project Deployed! 🚀', 'success');  
-    closeProjectModal();  
-    await syncUI();  
+    
+    // --- CLOSE THE MODAL EXACTLY HOW YOUR HTML DOES IT ---
+    document.getElementById('projectModal').classList.remove('open');
+    
+    // --- CLEAR TEXT BOXES ---
+    setSafeVal('proj-title', '');
+    setSafeVal('proj-phase', '');
+    setSafeVal('proj-desc', '');
+    setSafeVal('proj-tech', '');
+    setSafeVal('proj-repo', '');
+    
+    // --- CLEAR MEMORY ---
+    if (typeof editingProjectId !== 'undefined') {
+        editingProjectId = null;
+    }
+
+    // Refresh UI to show the new project instantly
+    if (typeof syncUI === 'function') {
+        await syncUI();
+    }
 }
 
 // ── DELETE PROJECT (WITH 60s UNDO) ──

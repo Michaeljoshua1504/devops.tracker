@@ -101,6 +101,7 @@ async function syncUI() {
   // Un-extracted modules
   try { if (typeof loadCommands === 'function') await loadCommands(); } catch(e) { console.error('Commands Error:', e); }
   try { if (typeof loadWarRoom === 'function') await loadWarRoom(); } catch(e) { console.error('War Room Error:', e); }
+  try { if (typeof loadActivityLog === 'function') await loadActivityLog(); } catch(e) { console.error('Activity Log Error:', e); }
 
   // 2. Force dynamic lists to redraw
   if (typeof renderMindset === 'function' && allMindset.length) renderMindset(allMindset);
@@ -183,15 +184,6 @@ function applyVisitorUI() {
     if (saveBtn) saveBtn.style.display = 'none';
     
     syncUI();
-}
-
-function applyAdminUI() {
-    document.body.classList.add('admin-mode');
-    
-    const saveBtn = document.getElementById('save-session-btn');
-    if (saveBtn) saveBtn.style.display = 'block'; 
-    
-    syncUI(); 
 }
 
 function applyAdminUI() {

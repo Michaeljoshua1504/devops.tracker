@@ -148,17 +148,14 @@ header {
 
 nav {       
   display: flex; 
+  flex-wrap: wrap; 
+  justify-content: center; 
+  gap: 2px; 
   background: rgba(120, 120, 128, 0.12);       
   border-radius: 9px; 
-  padding: 2px; 
-  overflow-x: auto;       
+  padding: 4px;      
   max-width: 100%; 
-  -webkit-overflow-scrolling: touch;      
-}       
-
-nav::-webkit-scrollbar { 
-  display: none; 
-}      
+}
 
 nav button {       
   background: none; 
@@ -308,6 +305,7 @@ main {
 .badge-done { background: rgba(48, 209, 88, 0.15); color: var(--green); }       
 .badge-next { background: rgba(10, 132, 255, 0.15); color: var(--accent-blue); }       
 .badge-todo { background: rgba(142, 142, 147, 0.15); color: var(--muted); }
+.badge-delete { background: rgba(255, 69, 58, 0.15); color: var(--red); }
 
 /* Terminal Commands Badge Styles */
 .badge-git {
