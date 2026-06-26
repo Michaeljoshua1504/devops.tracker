@@ -19,8 +19,16 @@ async function loadMindset() {
     
     if(dashMindset) dashMindset.textContent = allMindset.length;
     if(strongEl) strongEl.textContent = strongCount;       
-    
-    renderMindset(data);    
+
+    // Apply current sort preference (default: created_at desc)
+    const sorted = (typeof initialSort === 'function')
+      ? initialSort('mindset', allMindset)
+      : allMindset;
+    if (typeof updateSortButtons === 'function') {
+      const { field, dir } = (typeof sortState !== 'undefined') ? sortState['mindset'] : { field: 'created_at', dir: 'desc' };
+      updateSortButtons('mindset', field, dir);
+    }
+    renderMindset(sorted);    
   } catch(e) {    
     console.error("Mindset Load Error:", e);    
   }       
@@ -73,21 +81,23 @@ function filterMindset(f) {
     filtered = allMindset;    
   }    
     
-  renderMindset(filtered);       
+  const { field, dir } = (typeof sortState !== 'undefined') ? sortState['mindset'] : { field: 'created_at', dir: 'desc' };
+  const toRender = (typeof applySortToData === 'function') ? applySortToData(filtered, field, dir) : filtered;
+  renderMindset(toRender);       
 }
 
 function searchMindset() {
   const term = document.getElementById('mindset-search').value.toLowerCase().trim();
-  if (!term) { renderMindset(allMindset); return; }
-  
-  const filtered = allMindset.filter(m => {
-    return (m.question || '').toLowerCase().includes(term) ||
-           (m.situation || '').toLowerCase().includes(term) ||
-           (m.concept || m.tag || '').toLowerCase().includes(term) ||
-           (m.topic || m.linked_topic_name || '').toLowerCase().includes(term) ||
-           (m.response || m.insight || '').toLowerCase().includes(term);
-  });
-  renderMindset(filtered);
+  const base = term
+    ? allMindset.filter(m =>
+        (m.question || '').toLowerCase().includes(term) ||
+        (m.situation || '').toLowerCase().includes(term) ||
+        (m.concept || m.tag || '').toLowerCase().includes(term) ||
+        (m.topic || m.linked_topic_name || '').toLowerCase().includes(term) ||
+        (m.response || m.insight || '').toLowerCase().includes(term))
+    : allMindset;
+  const { field, dir } = (typeof sortState !== 'undefined') ? sortState['mindset'] : { field: 'created_at', dir: 'desc' };
+  renderMindset((typeof applySortToData === 'function') ? applySortToData(base, field, dir) : base);
 }
 
 function renderMindset(data) {       
