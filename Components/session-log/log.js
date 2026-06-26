@@ -25,15 +25,19 @@ async function loadSessions() {
   }
   
   allSessions = data || [];
-  
-  // Sort sessions numerically by topic ID (e.g., 1.1, 1.2, 1.10)
-  allSessions.sort((a, b) => {       
-    const idA = a.topic_id || '';       
-    const idB = b.topic_id || '';       
-    return idA.localeCompare(idB, undefined, { numeric: true, sensitivity: 'base' });       
-  });
-  
-  renderSessions(allSessions);
+
+  // Apply the user's current sort preference (or default: date desc)
+  const sorted = (typeof initialSort === 'function')
+    ? initialSort('log', allSessions)
+    : allSessions;
+
+  // Sync sort button highlight on load
+  if (typeof updateSortButtons === 'function') {
+    const { field, dir } = (typeof sortState !== 'undefined') ? sortState['log'] : { field: 'date', dir: 'desc' };
+    updateSortButtons('log', field, dir);
+  }
+
+  renderSessions(sorted);
 }
 
 function renderSessions(data) {
@@ -74,21 +78,18 @@ function renderSessions(data) {
 
 function searchSessions() {
   const term = document.getElementById('session-search').value.toLowerCase().trim();
-  if (!term) { 
-    renderSessions(allSessions); 
-    return; 
-  }
-  
-  const filtered = allSessions.filter(s => {
-    return (s.topic_id || '').toLowerCase().includes(term) ||
-           (s.topic_name || '').toLowerCase().includes(term) ||
-           (s.date || '').toLowerCase().includes(term) ||
-           (s.summary || '').toLowerCase().includes(term) ||
-           (s.concepts || '').toLowerCase().includes(term) ||
-           (s.full_notes || '').toLowerCase().includes(term);
-  });
-  
-  renderSessions(filtered);
+  const base = term
+    ? allSessions.filter(s =>
+        (s.topic_id || '').toLowerCase().includes(term) ||
+        (s.topic_name || '').toLowerCase().includes(term) ||
+        (s.date || '').toLowerCase().includes(term) ||
+        (s.summary || '').toLowerCase().includes(term) ||
+        (s.concepts || '').toLowerCase().includes(term) ||
+        (s.full_notes || '').toLowerCase().includes(term))
+    : allSessions;
+
+  const { field, dir } = (typeof sortState !== 'undefined') ? sortState['log'] : { field: 'date', dir: 'desc' };
+  renderSessions((typeof applySortToData === 'function') ? applySortToData(base, field, dir) : base);
 }
 
 // 🛡️ UPDATED: Now uses Supabase directly to advance the roadmap!
