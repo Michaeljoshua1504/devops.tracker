@@ -20,7 +20,16 @@ async function loadNotes() {
 
     allNotes = data || [];
     document.getElementById('note-date').value = new Date().toISOString().split('T')[0];
-    renderNotes(allNotes);
+
+    // Apply current sort preference (default: date desc)
+    const sorted = (typeof initialSort === 'function')
+      ? initialSort('notes', allNotes)
+      : allNotes;
+    if (typeof updateSortButtons === 'function') {
+      const { field, dir } = (typeof sortState !== 'undefined') ? sortState['notes'] : { field: 'date', dir: 'desc' };
+      updateSortButtons('notes', field, dir);
+    }
+    renderNotes(sorted);
   } catch (e) {
     console.error("Notes Crash Protected:", e);
   }
@@ -28,14 +37,15 @@ async function loadNotes() {
 
 function searchNotes() {
   const term = document.getElementById('note-search').value.toLowerCase().trim();
-  renderNotes(
-    allNotes.filter(n =>
-      (n.title || '').toLowerCase().includes(term) ||
-      (n.note_text || n.entry || '').toLowerCase().includes(term) ||
-      (n.date || '').toLowerCase().includes(term) ||
-      (n.linked_topic || '').toLowerCase().includes(term) // Added Topic to Search
-    )
-  );
+  const base = term
+    ? allNotes.filter(n =>
+        (n.title || '').toLowerCase().includes(term) ||
+        (n.note_text || n.entry || '').toLowerCase().includes(term) ||
+        (n.date || '').toLowerCase().includes(term) ||
+        (n.linked_topic || '').toLowerCase().includes(term))
+    : allNotes;
+  const { field, dir } = (typeof sortState !== 'undefined') ? sortState['notes'] : { field: 'date', dir: 'desc' };
+  renderNotes((typeof applySortToData === 'function') ? applySortToData(base, field, dir) : base);
 }
 
 // ── RENDER NOTES LIST ──
