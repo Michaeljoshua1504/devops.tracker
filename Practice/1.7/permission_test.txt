@@ -1,0 +1,44 @@
+# permission_test.txt
+# Topic 1.7 — Linux File Permissions
+# Test file used to practice chmod, chown, and permission auditing.
+
+=== PERMISSION CHEAT SHEET ===
+
+Format:  [type][owner][group][others]
+Example: -rwxr-xr--
+
+  r = read    (4)
+  w = write   (2)
+  x = execute (1)
+  - = no permission (0)
+
+=== COMMON PERMISSION COMBOS ===
+
+  chmod 644  →  rw-r--r--  →  owner read+write, everyone else read-only   (normal files)
+  chmod 755  →  rwxr-xr-x  →  owner full, everyone else read+execute       (scripts)
+  chmod 600  →  rw-------  →  owner only, completely private               (SSH keys, secrets)
+  chmod 777  →  rwxrwxrwx  →  world-writable — NEVER use in production     (security risk)
+  chmod 400  →  r--------  →  read-only, locked down                       (config files)
+
+=== PRACTICE EXERCISE ===
+
+Run these commands on this file and watch what happens:
+
+  ls -l permission_test.txt          # See current permissions
+  chmod 777 permission_test.txt      # Make it world-writable (danger mode)
+  ls -l permission_test.txt          # Notice the change
+  chmod 644 permission_test.txt      # Restore to safe permissions
+  ls -l permission_test.txt          # Back to normal
+
+=== REAL-WORLD DEVOPS EXAMPLES ===
+
+  ~/.ssh/id_rsa          →  600  private key — owner eyes only
+  /etc/nginx/nginx.conf  →  644  config — world-readable, not writable
+  deploy.sh              →  755  script — everyone can run it
+  secrets.env            →  600  env vars — owner only
+
+=== KEY TAKEAWAY ===
+
+Permissions are your first line of defence.
+A misconfigured permission is one of the most common real-world security vulnerabilities.
+DevOps engineers audit permissions constantly — on servers, CI/CD pipelines, and SSH keys.
