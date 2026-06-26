@@ -7,7 +7,7 @@ let projectToDeleteId = null;
 async function loadProjects() {  
     if(!sb) return;  
     try {  
-        const { data, error } = await sb.from('mini_projects').select('*').order('topic_id');  
+        const { data, error } = await sb.from('mini_projects').select('*');
         if(error) {  
             document.getElementById('projects-list').innerHTML = `<div style="color:var(--red)">Error loading projects: ${error.message}</div>`;  
             return;  
@@ -17,8 +17,16 @@ async function loadProjects() {
         // Safely update dashboard stat if the DOM element exists
         const dashProj = document.getElementById('dash-projects');
         if(dashProj) dashProj.textContent = allProjects.length;  
-        
-        renderProjects(allProjects);  
+
+        // Apply current sort preference (default: created_at desc)
+        const sorted = (typeof initialSort === 'function')
+          ? initialSort('projects', allProjects)
+          : allProjects;
+        if (typeof updateSortButtons === 'function') {
+          const { field, dir } = (typeof sortState !== 'undefined') ? sortState['projects'] : { field: 'created_at', dir: 'desc' };
+          updateSortButtons('projects', field, dir);
+        }
+        renderProjects(sorted);  
     } catch(e) {  
         console.error("Projects Load Error:", e);  
     }  
