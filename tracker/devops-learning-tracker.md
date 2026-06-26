@@ -456,6 +456,7 @@ For a Bug/Issue Report, include:
 - The fix applied
 - How the fix was verified
 - What to watch for in future to prevent recurrence
+- AI lens: how AI connects to this problem or solution (required — never skip this, even in Problem Mode)
 
 Claude must produce TWO things for every War Room entry — in this exact order:
 
