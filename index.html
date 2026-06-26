@@ -131,8 +131,14 @@
           id="session-search"
           placeholder="Search by topic, date, concepts, notes..."
           oninput="searchSessions()"
-          style="margin-bottom:0"
+          style="margin-bottom:0.75rem"
         />
+        <div style="display:flex;align-items:center;gap:0.5rem;flex-wrap:wrap">
+          <span style="font-size:0.75rem;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:0.05em">Sort:</span>
+          <button class="btn btn-ghost" data-sort-tab="log" data-sort-field="date" data-sort-label="Date" onclick="applySort('log','date',renderSessions,allSessions)" style="font-size:0.78rem;padding:0.3rem 0.7rem;background:var(--accent-blue);color:#fff">Date ↓</button>
+          <button class="btn btn-ghost" data-sort-tab="log" data-sort-field="topic_id" data-sort-label="Topic ID" onclick="applySort('log','topic_id',renderSessions,allSessions)" style="font-size:0.78rem;padding:0.3rem 0.7rem">Topic ID</button>
+          <button class="btn btn-ghost" data-sort-tab="log" data-sort-field="topic_name" data-sort-label="Name" onclick="applySort('log','topic_name',renderSessions,allSessions)" style="font-size:0.78rem;padding:0.3rem 0.7rem">Name</button>
+        </div>
       </div>
       <div id="sessions-list"></div>
     </div>
@@ -164,6 +170,14 @@
         </div>
         <button class="btn btn-primary admin-only" onclick="openProjectModal()">🚀 Add Project</button>
       </div>
+      <div class="card" style="margin-bottom:1.25rem">
+        <div style="display:flex;align-items:center;gap:0.5rem;flex-wrap:wrap">
+          <span style="font-size:0.75rem;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:0.05em">Sort:</span>
+          <button class="btn btn-ghost" data-sort-tab="projects" data-sort-field="created_at" data-sort-label="Date" onclick="applySort('projects','created_at',renderProjects,allProjects)" style="font-size:0.78rem;padding:0.3rem 0.7rem;background:var(--accent-blue);color:#fff">Date ↓</button>
+          <button class="btn btn-ghost" data-sort-tab="projects" data-sort-field="topic_id" data-sort-label="Topic ID" onclick="applySort('projects','topic_id',renderProjects,allProjects)" style="font-size:0.78rem;padding:0.3rem 0.7rem">Topic ID</button>
+          <button class="btn btn-ghost" data-sort-tab="projects" data-sort-field="project_name" data-sort-label="Name" onclick="applySort('projects','project_name',renderProjects,allProjects)" style="font-size:0.78rem;padding:0.3rem 0.7rem">Name</button>
+        </div>
+      </div>
       <div id="projects-list"></div>
     </div>
 
@@ -193,6 +207,12 @@
           <button class="btn btn-ghost" onclick="filterMindset('strong')">⭐ Strong</button>
           <button class="btn btn-ghost" onclick="filterMindset('good')">👍 Good</button>
           <button class="btn btn-ghost" onclick="filterMindset('duplicates')">🔍 Duplicates</button>
+        </div>
+        <div style="display:flex;align-items:center;gap:0.5rem;flex-wrap:wrap;margin-bottom:0.75rem">
+          <span style="font-size:0.75rem;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:0.05em">Sort:</span>
+          <button class="btn btn-ghost" data-sort-tab="mindset" data-sort-field="created_at" data-sort-label="Date" onclick="applySort('mindset','created_at',renderMindset,allMindset)" style="font-size:0.78rem;padding:0.3rem 0.7rem;background:var(--accent-blue);color:#fff">Date ↓</button>
+          <button class="btn btn-ghost" data-sort-tab="mindset" data-sort-field="date" data-sort-label="Entry Date" onclick="applySort('mindset','date',renderMindset,allMindset)" style="font-size:0.78rem;padding:0.3rem 0.7rem">Entry Date</button>
+          <button class="btn btn-ghost" data-sort-tab="mindset" data-sort-field="moment_type" data-sort-label="Type" onclick="applySort('mindset','moment_type',renderMindset,allMindset)" style="font-size:0.78rem;padding:0.3rem 0.7rem">Type</button>
         </div>
         <input type="text" id="mindset-search" placeholder="Search mindset moments..." oninput="searchMindset()" style="margin-bottom:0" />
       </div>
@@ -244,7 +264,13 @@
       </div>
 
       <div class="card" style="margin-bottom:1.25rem">
-        <input type="text" id="note-search" placeholder="Search journal entries..." oninput="searchNotes()" style="margin-bottom:0" />
+        <input type="text" id="note-search" placeholder="Search journal entries..." oninput="searchNotes()" style="margin-bottom:0.75rem" />
+        <div style="display:flex;align-items:center;gap:0.5rem;flex-wrap:wrap">
+          <span style="font-size:0.75rem;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:0.05em">Sort:</span>
+          <button class="btn btn-ghost" data-sort-tab="notes" data-sort-field="date" data-sort-label="Date" onclick="applySort('notes','date',renderNotes,allNotes)" style="font-size:0.78rem;padding:0.3rem 0.7rem;background:var(--accent-blue);color:#fff">Date ↓</button>
+          <button class="btn btn-ghost" data-sort-tab="notes" data-sort-field="created_at" data-sort-label="Created" onclick="applySort('notes','created_at',renderNotes,allNotes)" style="font-size:0.78rem;padding:0.3rem 0.7rem">Created</button>
+          <button class="btn btn-ghost" data-sort-tab="notes" data-sort-field="title" data-sort-label="Title" onclick="applySort('notes','title',renderNotes,allNotes)" style="font-size:0.78rem;padding:0.3rem 0.7rem">Title</button>
+        </div>
       </div>
 
       <div id="notes-list"></div>
@@ -278,6 +304,12 @@
           <button class="btn btn-ghost" data-filter="Python" onclick="setCmdFilter('Python')">🐍 Python</button>
           <button class="btn btn-ghost" data-filter="Cloud CLI" onclick="setCmdFilter('Cloud CLI')">☁️ Cloud CLI</button>
           <button class="btn btn-ghost" data-filter="Duplicates" onclick="setCmdFilter('Duplicates')">🔍 Duplicates</button>
+        </div>
+        <div style="display:flex;align-items:center;gap:0.5rem;flex-wrap:wrap;margin-bottom:0.75rem">
+          <span style="font-size:0.75rem;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:0.05em">Sort:</span>
+          <button class="btn btn-ghost" data-sort-tab="cmds" data-sort-field="command_text" data-sort-label="A–Z" onclick="applySort('cmds','command_text',renderCommands,allCommands)" style="font-size:0.78rem;padding:0.3rem 0.7rem;background:var(--accent-blue);color:#fff">A–Z ↑</button>
+          <button class="btn btn-ghost" data-sort-tab="cmds" data-sort-field="created_at" data-sort-label="Date Added" onclick="applySort('cmds','created_at',renderCommands,allCommands)" style="font-size:0.78rem;padding:0.3rem 0.7rem">Date Added</button>
+          <button class="btn btn-ghost" data-sort-tab="cmds" data-sort-field="category" data-sort-label="Category" onclick="applySort('cmds','category',renderCommands,allCommands)" style="font-size:0.78rem;padding:0.3rem 0.7rem">Category</button>
         </div>
         <input type="text" id="cmd-search" placeholder="Search commands..." oninput="renderCommands()" style="margin-bottom:0" />
       </div>
@@ -364,6 +396,12 @@
           <button class="btn btn-ghost" data-filter="deep-dive" onclick="setWRFilter('deep-dive')">📚 Deep Dive</button>
           <button class="btn btn-ghost" data-filter="build" onclick="setWRFilter('build')">🔨 Build</button>
           <button class="btn btn-ghost" data-filter="incident" onclick="setWRFilter('incident')">🔥 Incident</button>
+        </div>
+        <div style="display:flex;align-items:center;gap:0.5rem;flex-wrap:wrap;margin-bottom:0.75rem">
+          <span style="font-size:0.75rem;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:0.05em">Sort:</span>
+          <button class="btn btn-ghost" data-sort-tab="warroom" data-sort-field="date" data-sort-label="Date" onclick="applySort('warroom','date',renderWarRoomSorted,allWarRoomReports)" style="font-size:0.78rem;padding:0.3rem 0.7rem;background:var(--accent-blue);color:#fff">Date ↓</button>
+          <button class="btn btn-ghost" data-sort-tab="warroom" data-sort-field="created_at" data-sort-label="Created" onclick="applySort('warroom','created_at',renderWarRoomSorted,allWarRoomReports)" style="font-size:0.78rem;padding:0.3rem 0.7rem">Created</button>
+          <button class="btn btn-ghost" data-sort-tab="warroom" data-sort-field="title" data-sort-label="Title" onclick="applySort('warroom','title',renderWarRoomSorted,allWarRoomReports)" style="font-size:0.78rem;padding:0.3rem 0.7rem">Title</button>
         </div>
         <input type="text" id="wr-search" placeholder="Search reports by title, error code, or solution..." oninput="renderWarRoom()" style="margin-bottom:0" />
       </div>
