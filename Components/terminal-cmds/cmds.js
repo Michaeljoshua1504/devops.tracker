@@ -13,7 +13,12 @@ async function loadCommands() {
       return;
     }
     allCommands = data || [];
-    renderFilters(); 
+    renderFilters();
+    // Sync sort button highlight on first load
+    if (typeof updateSortButtons === 'function' && typeof sortState !== 'undefined') {
+      const { field, dir } = sortState['cmds'];
+      updateSortButtons('cmds', field, dir);
+    }
     renderCommands();
   } catch(e) {
     console.error("Commands Load Error:", e);
@@ -127,6 +132,12 @@ function renderCommands() {
   if(!filtered || filtered.length === 0) {
     list.innerHTML = '<div style="color:var(--muted);font-size:0.9rem;padding:1rem;">No commands found matching this filter.</div>';
     return;
+  }
+
+  // Apply current sort preference
+  if (typeof applySortToData === 'function' && typeof sortState !== 'undefined') {
+    const { field, dir } = sortState['cmds'];
+    filtered = applySortToData(filtered, field, dir);
   }
 
   list.innerHTML = filtered.map((c) => {
