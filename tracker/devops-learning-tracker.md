@@ -533,6 +533,8 @@ Claude produces the full detailed .md file covering everything listed above (con
 - 24 Jun 2026: Mindset Moment TYPE field corrected — must be a single specific value, either `Question` or `Situation`, never written as "Question or Situation" together. The output format template has been updated to reflect this.
 - 24 Jun 2026: Mini-Project Folder Creation Rule added to Core Principles — Claude must always include the full terminal steps to create the correct devops-portfolio folder as part of the mini-project instructions, never omitting them or providing them separately after the fact. Sequence is always: create folder → copy file → cd into folder → verify → git push.
 - 25 Jun 2026: devops-portfolio confirmed at /Users/adminrags/Documents/Projects/Devops/devops-portfolio on Mac mini — not at ~/devops-portfolio. All future mini-project folder creation commands must use this full path.
+- 26 Jun 2026: Problem Mode Session Log rule locked in — for Problem Mode sessions, the SESSION LOG tab is skipped entirely. The War Room report is the complete record for all problem/debugging/build sessions. The SESSION LOG tab is only for curriculum topic sessions.
+- 26 Jun 2026: Tracker auto-fetch/push system live — Claude fetches the tracker from GitHub at the start of every session using the GitHub Contents API and pushes updates back automatically. No manual upload/download steps required. GitHub PAT stored in Claude Project instructions file.
 
 ---
 
