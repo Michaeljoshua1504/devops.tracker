@@ -536,6 +536,7 @@ Claude produces the full detailed .md file covering everything listed above (con
 - 25 Jun 2026: devops-portfolio confirmed at /Users/adminrags/Documents/Projects/Devops/devops-portfolio on Mac mini — not at ~/devops-portfolio. All future mini-project folder creation commands must use this full path.
 - 26 Jun 2026: Problem Mode Session Log rule locked in — for Problem Mode sessions, the SESSION LOG tab is skipped entirely. The War Room report is the complete record for all problem/debugging/build sessions. The SESSION LOG tab is only for curriculum topic sessions.
 - 26 Jun 2026: Tracker auto-fetch/push system live — Claude fetches the tracker from GitHub at the start of every session using the GitHub Contents API and pushes updates back automatically. No manual upload/download steps required. GitHub PAT stored in Claude Project instructions file.
+- 26 Jun 2026: Site code fetch rule locked in — when fixing bugs or updating the tracker site (index.html, style.css, core.js, Components folder), Claude must always fetch the relevant file(s) directly from the devops.tracker GitHub repo using the GitHub Contents API. Mikey must never paste site code directly into the chat. This protects the token from exposure and keeps the fetch flow consistent. Repo: Michaeljoshua1504/devops.tracker. Same token used for tracker file fetch/push.
 
 ---
 
