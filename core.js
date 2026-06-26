@@ -261,3 +261,94 @@ function executeUndo() {
     if (restoreCallback) restoreCallback();
     toast('Action undone!', 'success');
 }
+// =========================================================================
+// GLOBAL SORT ENGINE
+// =========================================================================
+// One utility used by all tabs. Each tab stores its own sort state.
+// Handles: date strings (YYYY-MM-DD), ISO timestamps, topic IDs (1.1, 1.10),
+//          and plain alphabetical text.
+
+const sortState = {
+  log:      { field: 'date',         dir: 'desc' },
+  projects: { field: 'created_at',   dir: 'desc' },
+  mindset:  { field: 'created_at',   dir: 'desc' },
+  notes:    { field: 'date',         dir: 'desc' },
+  cmds:     { field: 'command_text', dir: 'asc'  },
+  warroom:  { field: 'date',         dir: 'desc' }
+};
+
+/**
+ * Sort an array of objects by a field + direction.
+ * Handles dates, timestamps, topic IDs (numeric semver), and strings.
+ */
+function applySortToData(data, field, dir) {
+  if (!data || !data.length) return data;
+  const asc = dir === 'asc';
+
+  return [...data].sort((a, b) => {
+    let valA = a[field] ?? '';
+    let valB = b[field] ?? '';
+
+    // Topic ID: numeric semver sort (1.9 before 1.10)
+    if (field === 'topic_id') {
+      return (asc ? 1 : -1) *
+        String(valA).localeCompare(String(valB), undefined, { numeric: true, sensitivity: 'base' });
+    }
+
+    // Date or timestamp: parse to ms
+    const msA = valA ? Date.parse(valA) : 0;
+    const msB = valB ? Date.parse(valB) : 0;
+    if (!isNaN(msA) && !isNaN(msB) && (msA || msB)) {
+      return asc ? msA - msB : msB - msA;
+    }
+
+    // Plain string / alphabetical
+    return (asc ? 1 : -1) *
+      String(valA).toLowerCase().localeCompare(String(valB).toLowerCase());
+  });
+}
+
+/**
+ * Called by sort buttons in each tab.
+ * tab   — key in sortState (e.g. 'log')
+ * field — the data field to sort by
+ * renderFn — the tab's render function, e.g. renderSessions
+ * dataArr  — the full unsearched data array for that tab (e.g. allSessions)
+ */
+function applySort(tab, field, renderFn, dataArr) {
+  const state = sortState[tab];
+
+  // Toggle direction if same field clicked again
+  if (state.field === field) {
+    state.dir = state.dir === 'asc' ? 'desc' : 'asc';
+  } else {
+    state.field = field;
+    state.dir   = 'desc'; // default new field to newest-first
+  }
+
+  updateSortButtons(tab, state.field, state.dir);
+  renderFn(applySortToData(dataArr, state.field, state.dir));
+}
+
+/**
+ * Highlight the active sort button and update its arrow.
+ */
+function updateSortButtons(tab, activeField, dir) {
+  const arrow = dir === 'asc' ? ' ↑' : ' ↓';
+  document.querySelectorAll(`[data-sort-tab="${tab}"]`).forEach(btn => {
+    const isActive = btn.getAttribute('data-sort-field') === activeField;
+    btn.style.background = isActive ? 'var(--accent-blue)' : '';
+    btn.style.color      = isActive ? '#fff' : '';
+    // Update label: strip old arrow, add new one if active
+    btn.textContent = btn.getAttribute('data-sort-label') + (isActive ? arrow : '');
+  });
+}
+
+/**
+ * Call this after data loads to apply the saved sort state immediately.
+ * Prevents the list from appearing unsorted on first load.
+ */
+function initialSort(tab, dataArr) {
+  const { field, dir } = sortState[tab];
+  return applySortToData(dataArr, field, dir);
+}
