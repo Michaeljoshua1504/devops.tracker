@@ -17,6 +17,11 @@ async function loadWarRoom() {
     }
     
     allWarRoomReports = data || [];
+    // Sync sort button highlight on first load
+    if (typeof updateSortButtons === 'function' && typeof sortState !== 'undefined') {
+      const { field, dir } = sortState['warroom'];
+      updateSortButtons('warroom', field, dir);
+    }
     renderWarRoom();
   } catch(e) {
     console.error("War Room Load Error:", e);
@@ -68,6 +73,12 @@ function renderWarRoom() {
   if(!filtered || filtered.length === 0) {
     list.innerHTML = '<div style="color:var(--muted);font-size:0.9rem;padding:1rem;">No reports found. The battlefield is quiet.</div>';
     return;
+  }
+
+  // Apply current sort preference
+  if (typeof applySortToData === 'function' && typeof sortState !== 'undefined') {
+    const { field, dir } = sortState['warroom'];
+    filtered = applySortToData(filtered, field, dir);
   }
 
   list.innerHTML = filtered.map((r, i) => {
@@ -290,4 +301,14 @@ async function processDownload() {
     document.getElementById('download-modal').classList.remove('open');
     toast('Downloading report...', 'success');
     window.open(activeDownloadUrl, '_blank');
+}
+/**
+ * Bridge called by sort buttons in index.html.
+ * Updates sortState via applySort, then re-runs renderWarRoom
+ * which already reads sortState['warroom'] internally.
+ */
+function renderWarRoomSorted(data) {
+  // data is passed by applySort but renderWarRoom reads allWarRoomReports directly,
+  // so we just trigger a re-render — the sort is already applied inside renderWarRoom.
+  renderWarRoom();
 }
