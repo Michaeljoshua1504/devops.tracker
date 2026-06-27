@@ -168,6 +168,34 @@ In both **Problem Mode** and **Topic Mode**, whenever Mikey asks Claude to chang
 
 ---
 
+## Goal-Based Fix Loop Rule
+
+When Mikey gives Claude a **goal** to fix or implement (rather than a specific one-shot change), Claude operates in a loop until that goal is fully reached:
+
+1. **Diagnose** — understand the root cause before writing any code
+2. **Fix** — implement the change
+3. **Self-test** — verify the fix logically (simulate the flow, check for edge cases, confirm no regressions)
+4. **If the goal is not yet reached** — loop back to step 1 with the new information and fix again
+5. **Only report back to Mikey when the goal is confirmed reached** — not after each individual attempt
+
+**What counts as a goal:**
+- "Fix the sort persistence — it's still not working"
+- "Make the date show on mindset cards"
+- "Get the push working across all tabs"
+
+**What is NOT a goal (these still follow Explain Before Implementing):**
+- "Change the label on this button"
+- "Add a count to the title"
+- Any specific one-shot change where the expected outcome is obvious
+
+**During the loop:**
+- Claude does not ask for permission between loop iterations
+- Claude does not narrate each individual attempt unless it hits a dead end and genuinely needs Mikey's input (e.g. needs to know what the browser console says)
+- Claude self-tests after each fix before deciding whether to loop again
+- If Claude loops more than 3 times without reaching the goal, it stops and reports the situation honestly to Mikey rather than continuing blindly
+
+---
+
 ## Handoff Checkpoint Rule (Problem Mode Only — Auto, Silent, No Command Needed)
 
 During any Problem Mode session, Claude must silently update the **Handoff Note** section of this tracker file at each of these checkpoints — without being asked, without narrating it, just do it:
@@ -177,6 +205,12 @@ During any Problem Mode session, Claude must silently update the **Handoff Note*
 3. **Code pushed to GitHub** — update FILES TOUCHED with what was pushed
 4. **New problem discovered mid-session** — update CONTEXT and NEXT STEP immediately
 5. **Problem fully resolved** — set STATUS to `clear` and reset all fields to `—`
+
+**Topic Mode checkpoints (also auto, also silent):**
+
+6. **Mini-project started** — set STATUS to `active`, CONTEXT to what is being built, NEXT STEP to the immediate next action
+7. **Error hit during mini-project or exercise** — update ROOT CAUSE with the error, TRIED with what was attempted, NEXT STEP with what to try next
+8. **Mini-project successfully pushed** — set STATUS to `clear` and reset all fields to `—`
 
 **How to update the Handoff Note:**
 - Fetch the current tracker file from GitHub (same as session start)
@@ -625,4 +659,7 @@ Claude produces the full detailed .md file covering everything listed above (con
 - 27 Jun 2026: Persistent sort added to tracker site — sort preferences for all tabs are saved to localStorage so they survive page reloads and browser restarts.
 - 27 Jun 2026: Handoff Note system added — a new `Handoff Note` section in the tracker file is automatically updated by Claude at key Problem Mode checkpoints (bug identified, fix attempted, code pushed, new problem found, problem resolved). Account #2 reads this on session start to pick up exactly where account #1 left off. No manual command needed — Claude updates silently in the background.
 
-*Last updated: 27 Jun 2026 — Handoff Note system added. Explain Before Implementing Rule added. Persistent sort implemented. Tab header counts added. Next topic: 2.1 — How the internet works. Total completed: 7 of 67.*
+- 27 Jun 2026: Goal-Based Fix Loop Rule added — when Mikey gives a goal (not a one-shot change), Claude loops: diagnose → fix → self-test → loop again until goal is reached, reporting back only when done. Max 3 loops before stopping to report.
+- 27 Jun 2026: Handoff Checkpoint Rule extended to Topic Mode — Claude also silently updates the Handoff Note when a mini-project starts, when an error hits during the mini-project, and when the mini-project is successfully pushed.
+
+*Last updated: 27 Jun 2026 — Goal-Based Fix Loop Rule added. Handoff Checkpoint extended to Topic Mode. Handoff Note system live. Next topic: 2.1 — How the internet works. Total completed: 7 of 67.*
