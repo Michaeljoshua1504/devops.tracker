@@ -168,6 +168,40 @@ In both **Problem Mode** and **Topic Mode**, whenever Mikey asks Claude to chang
 
 ---
 
+## Handoff Checkpoint Rule (Problem Mode Only — Auto, Silent, No Command Needed)
+
+During any Problem Mode session, Claude must silently update the **Handoff Note** section of this tracker file at each of these checkpoints — without being asked, without narrating it, just do it:
+
+1. **Bug/problem identified** — when the root cause or symptom is clearly understood
+2. **Fix attempted** — whether it passed or failed, update with what was tried and the outcome
+3. **Code pushed to GitHub** — update FILES TOUCHED with what was pushed
+4. **New problem discovered mid-session** — update CONTEXT and NEXT STEP immediately
+5. **Problem fully resolved** — set STATUS to `clear` and reset all fields to `—`
+
+**How to update the Handoff Note:**
+- Fetch the current tracker file from GitHub (same as session start)
+- Update only the Handoff Note section fields — do not touch anything else
+- Push the updated tracker file back to GitHub immediately
+- Do this silently — no narration, no "I'm updating the handoff note" — just do it in the background
+
+**What account #2 does on session start:**
+- Fetch the tracker file as normal
+- Check the Handoff Note STATUS field first
+- If STATUS is `active`: announce to Mikey — "We were mid-session on [CONTEXT]. Last known state: [ROOT CAUSE]. Next step was: [NEXT STEP]. Picking up from there." — then proceed
+- If STATUS is `clear`: proceed with normal session start (curriculum or problem mode as usual)
+
+**Handoff Note field definitions:**
+- `STATUS`: either `active` (mid-problem) or `clear` (nothing in progress)
+- `LAST UPDATED`: timestamp of last update in format `DD Mon YYYY HH:MM`
+- `MODE`: `Problem Mode` or `Topic Mode`
+- `CONTEXT`: one sentence — what problem/task we are working on
+- `ROOT CAUSE`: what we know about why the problem exists (or `investigating` if not yet known)
+- `TRIED`: comma-separated list of approaches already attempted this session
+- `NEXT STEP`: the single most immediate next action to take
+- `FILES TOUCHED`: comma-separated list of files already modified/pushed this session
+
+---
+
 ## Master Topic List (67 Topics Total)
 
 ### Phase 1 — Foundations (How Computers Think)
@@ -290,6 +324,25 @@ In both **Problem Mode** and **Topic Mode**, whenever Mikey asks Claude to chang
 | 8.11 | AI-powered alert summariser — building the real thing | ⬜ Not started | |
 | 8.12 | Disaster recovery and chaos engineering — what happens when a cloud region dies | ⬜ Not started | |
 | 8.13 | Incident response and post-mortems — blameless culture, how outages become improvements | ⬜ Not started | |
+
+---
+
+## Handoff Note (Auto-Updated — Do Not Edit Manually)
+
+> This section is automatically maintained by Claude during Problem Mode sessions.
+> It is updated silently at key checkpoints so that if the usage limit hits mid-session,
+> account #2 can pick up exactly where account #1 left off.
+
+```
+STATUS: clear
+LAST UPDATED: —
+MODE: —
+CONTEXT: —
+ROOT CAUSE: —
+TRIED: —
+NEXT STEP: —
+FILES TOUCHED: —
+```
 
 ---
 
@@ -570,5 +623,6 @@ Claude produces the full detailed .md file covering everything listed above (con
 
 - 27 Jun 2026: Explain Before Implementing Rule added — Claude must explain every planned change in plain English and wait for Mikey's confirmation ("yes" or "correct") before writing or pushing any code. Applies in both Problem Mode and Topic Mode. Loop repeats until confirmed.
 - 27 Jun 2026: Persistent sort added to tracker site — sort preferences for all tabs are saved to localStorage so they survive page reloads and browser restarts.
+- 27 Jun 2026: Handoff Note system added — a new `Handoff Note` section in the tracker file is automatically updated by Claude at key Problem Mode checkpoints (bug identified, fix attempted, code pushed, new problem found, problem resolved). Account #2 reads this on session start to pick up exactly where account #1 left off. No manual command needed — Claude updates silently in the background.
 
-*Last updated: 27 Jun 2026 — Explain Before Implementing Rule added. Persistent sort implemented. Tab header counts added to Portfolio, Mindset, Daily Log, Terminal Cmds, War Room. Next topic: 2.1 — How the internet works. Total completed: 7 of 67.*
+*Last updated: 27 Jun 2026 — Handoff Note system added. Explain Before Implementing Rule added. Persistent sort implemented. Tab header counts added. Next topic: 2.1 — How the internet works. Total completed: 7 of 67.*
