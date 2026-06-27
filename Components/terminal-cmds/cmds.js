@@ -7,7 +7,7 @@ let editingCmdId = null;
 async function loadCommands() {
   if(!sb) return;
   try {
-    const { data, error } = await sb.from('commands').select('*').order('command_text', {ascending: true});
+    const { data, error } = await sb.from('commands').select('*');
     if (error) {
       console.error("Commands load error:", error);
       return;
