@@ -486,20 +486,19 @@
         <input type="text" id="cmd-example" style="font-family: var(--font-mono);" />
       </div>
 
-      <div class="form-row-2">
-        <div class="form-row" style="margin-bottom:0">
-          <label>Future Notes</label>
-          <input type="text" id="cmd-future" />
-        </div>
-        <div class="form-row" style="margin-bottom:0">
-          <label>Security Notes</label>
-          <textarea id="cmd-security" rows="3" placeholder="Security notes..."></textarea>
-        </div>
+      <div class="form-row">
+        <label>Future Notes</label>
+        <input type="text" id="cmd-future" placeholder="Which future topics will this command appear in? e.g., Topic 4.2, Topic 6.3" />
       </div>
 
       <div class="form-row">
-         <label>Helpful Links (Comma separated)</label>
-         <input type="text" id="cmd-links" placeholder="Helpful links..." />
+        <label>Security Notes</label>
+        <textarea id="cmd-security" rows="5" placeholder="Any security warnings, risks, or best practices for this command..." style="resize:vertical; min-height:100px;"></textarea>
+      </div>
+
+      <div class="form-row">
+         <label>Linked Commands (Comma separated)</label>
+         <input type="text" id="cmd-links" placeholder="e.g., ls, cd, chmod +x" />
       </div>
 
       <div class="modal-footer" style="display:flex; justify-content:flex-end; gap:0.5rem; margin-top:1.5rem">
