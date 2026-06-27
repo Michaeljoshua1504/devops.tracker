@@ -134,10 +134,24 @@ function renderMindset(data) {
          ? '<span class="badge-me">🧠 Me</span>'   
          : '<span class="badge-ai">🤖 AI</span>';
 
+    // ── DATE DISPLAY ──
+    // Use the stored `date` field if available, otherwise fall back to created_at
+    let displayDate = '';
+    if (m.date) {
+      displayDate = m.date;
+    } else if (m.created_at) {
+      displayDate = m.created_at.split('T')[0];
+    }
+    const dateBadge = displayDate
+      ? `<span class="concept-tag" style="background:transparent; border-color:var(--border); color:var(--muted); font-size:0.78rem;">📅 ${escapeHTML(displayDate)}</span>`
+      : '';
+    // ──────────────────
+
     return `<div class="mindset-item" onclick="toggleMindset('${mid}')">       
-      <div style="margin-bottom: 8px; display: flex; gap: 8px;">  
+      <div style="margin-bottom: 8px; display: flex; gap: 8px; flex-wrap: wrap; align-items: center;">  
          ${typeBadge}  
-         ${sourceBadge}  
+         ${sourceBadge}
+         ${dateBadge}
       </div>  
       <div class="mindset-q">${escapeHTML(m.question || m.situation || 'Untitled')}</div>       
       <div class="mindset-meta">       
