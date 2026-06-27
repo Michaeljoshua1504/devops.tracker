@@ -268,14 +268,32 @@ function executeUndo() {
 // Handles: date strings (YYYY-MM-DD), ISO timestamps, topic IDs (1.1, 1.10),
 //          and plain alphabetical text.
 
-const sortState = {
-  log:      { field: 'date',         dir: 'desc' },
-  projects: { field: 'created_at',   dir: 'desc' },
-  mindset:  { field: 'created_at',   dir: 'desc' },
-  notes:    { field: 'date',         dir: 'desc' },
-  cmds:     { field: 'command_text', dir: 'asc'  },
-  warroom:  { field: 'date',         dir: 'desc' }
-};
+const sortState = (() => {
+  // Defaults — used on first visit or if localStorage has no saved sort
+  const defaults = {
+    log:      { field: 'date',         dir: 'desc' },
+    projects: { field: 'created_at',   dir: 'desc' },
+    mindset:  { field: 'created_at',   dir: 'desc' },
+    notes:    { field: 'date',         dir: 'desc' },
+    cmds:     { field: 'command_text', dir: 'asc'  },
+    warroom:  { field: 'date',         dir: 'desc' }
+  };
+
+  // Try to load any previously saved sort preferences from localStorage
+  try {
+    const saved = JSON.parse(localStorage.getItem('tracker_sort_state') || '{}');
+    // Merge saved prefs over defaults — only valid tabs, only valid keys
+    Object.keys(defaults).forEach(tab => {
+      if (saved[tab] && saved[tab].field && saved[tab].dir) {
+        defaults[tab] = { field: saved[tab].field, dir: saved[tab].dir };
+      }
+    });
+  } catch(e) {
+    console.warn('Could not restore sort preferences:', e);
+  }
+
+  return defaults;
+})();
 
 /**
  * Sort an array of objects by a field + direction.
@@ -324,6 +342,13 @@ function applySort(tab, field, renderFn, dataArr) {
   } else {
     state.field = field;
     state.dir   = 'desc'; // default new field to newest-first
+  }
+
+  // Persist the updated sort preference to localStorage
+  try {
+    localStorage.setItem('tracker_sort_state', JSON.stringify(sortState));
+  } catch(e) {
+    console.warn('Could not save sort preference:', e);
   }
 
   updateSortButtons(tab, state.field, state.dir);
