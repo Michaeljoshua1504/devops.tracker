@@ -18,7 +18,11 @@ async function loadMindset() {
     const strongEl = document.getElementById('strong-count');
     
     if(dashMindset) dashMindset.textContent = allMindset.length;
-    if(strongEl) strongEl.textContent = strongCount;       
+    if(strongEl) strongEl.textContent = strongCount;
+
+    // Update tab header count
+    const mindsetTitle = document.getElementById('mindset-tab-title');
+    if(mindsetTitle) mindsetTitle.textContent = `Mindset Moments (${allMindset.length})`;       
 
     // Apply current sort preference (default: created_at desc)
     const sorted = (typeof initialSort === 'function')
