@@ -17,6 +17,11 @@ async function loadWarRoom() {
     }
     
     allWarRoomReports = data || [];
+
+    // Update tab header count
+    const warTitle = document.getElementById('warroom-tab-title');
+    if(warTitle) warTitle.textContent = `🚨 War Room (${allWarRoomReports.length})`;
+
     // Sync sort button highlight on first load
     if (typeof updateSortButtons === 'function' && typeof sortState !== 'undefined') {
       const { field, dir } = sortState['warroom'];
