@@ -21,6 +21,10 @@ async function loadNotes() {
     allNotes = data || [];
     document.getElementById('note-date').value = new Date().toISOString().split('T')[0];
 
+    // Update tab header count
+    const notesTitle = document.getElementById('notes-tab-title');
+    if(notesTitle) notesTitle.textContent = `Daily Log (${allNotes.length})`;
+
     // Apply current sort preference (default: date desc)
     const sorted = (typeof initialSort === 'function')
       ? initialSort('notes', allNotes)
