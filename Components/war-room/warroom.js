@@ -8,7 +8,7 @@ async function loadWarRoom() {
   if(!sb) return;
   try {
     // Grabbing your reports from Supabase
-    const { data, error } = await sb.from('war_room_reports').select('*').order('date', {ascending: false});
+    const { data, error } = await sb.from('war_room_reports').select('*');
     
     if (error) {
       const list = document.getElementById('warroom-list');
