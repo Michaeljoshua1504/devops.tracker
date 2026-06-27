@@ -6,10 +6,7 @@ let editingNoteId = null; // 👇 ADDED THIS!
 async function loadNotes() {
   if (!sb) return;
   try {
-    const { data, error } = await sb
-      .from('notes')
-      .select('*')
-      .order('created_at', { ascending: false });
+    const { data, error } = await sb.from('notes').select('*');
 
     if (error) {
       console.error("Notes DB Error:", error);
