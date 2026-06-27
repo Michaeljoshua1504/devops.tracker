@@ -13,6 +13,11 @@ async function loadCommands() {
       return;
     }
     allCommands = data || [];
+
+    // Update tab header count
+    const cmdsTitle = document.getElementById('cmds-tab-title');
+    if(cmdsTitle) cmdsTitle.textContent = `Terminal Commands Runbook 💻 (${allCommands.length})`;
+
     renderFilters();
     // Sync sort button highlight on first load
     if (typeof updateSortButtons === 'function' && typeof sortState !== 'undefined') {
