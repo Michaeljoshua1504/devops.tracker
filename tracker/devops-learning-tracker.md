@@ -156,6 +156,18 @@ Claude must base every Session Log, Mindset Moment, Daily Log, Terminal Cmd, and
 
 ---
 
+## Explain Before Implementing Rule (Never Skip This)
+
+In both **Problem Mode** and **Topic Mode**, whenever Mikey asks Claude to change, fix, add, or build anything — Claude must first explain what it is going to change and why, then **stop and wait** for Mikey to confirm before writing or pushing any code.
+
+- Claude explains the change in plain English: what file(s) will be touched, what specifically will be different, and why that solves the problem.
+- If Claude has misunderstood, Mikey will correct it. Claude must then re-explain based on the correction and wait again.
+- This loop repeats — explain → wait → correct if needed → explain again — until Mikey explicitly says **"yes"** or **"correct"** or equivalent confirmation.
+- Only after that confirmation does Claude proceed to implement.
+- This rule applies to every change, no matter how small. A one-line fix still gets explained first.
+
+---
+
 ## Master Topic List (67 Topics Total)
 
 ### Phase 1 — Foundations (How Computers Think)
@@ -556,4 +568,7 @@ Claude produces the full detailed .md file covering everything listed above (con
 
 ---
 
-*Last updated: 25 Jun 2026 — Topic 1.7 complete. Phase 1 (Foundations) fully complete. permissions_audit.sh pushed to devops-portfolio. devops-portfolio confirmed at /Users/adminrags/Documents/Projects/Devops/devops-portfolio. Next topic: 2.1 — How the internet works. Total completed: 7 of 67.*
+- 27 Jun 2026: Explain Before Implementing Rule added — Claude must explain every planned change in plain English and wait for Mikey's confirmation ("yes" or "correct") before writing or pushing any code. Applies in both Problem Mode and Topic Mode. Loop repeats until confirmed.
+- 27 Jun 2026: Persistent sort added to tracker site — sort preferences for all tabs are saved to localStorage so they survive page reloads and browser restarts.
+
+*Last updated: 27 Jun 2026 — Explain Before Implementing Rule added. Persistent sort implemented. Tab header counts added to Portfolio, Mindset, Daily Log, Terminal Cmds, War Room. Next topic: 2.1 — How the internet works. Total completed: 7 of 67.*
