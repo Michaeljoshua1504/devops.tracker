@@ -103,12 +103,22 @@ async function syncUI() {
   try { if (typeof loadWarRoom === 'function') await loadWarRoom(); } catch(e) { console.error('War Room Error:', e); }
   try { if (typeof loadActivityLog === 'function') await loadActivityLog(); } catch(e) { console.error('Activity Log Error:', e); }
 
-  // 2. Force dynamic lists to redraw
-  if (typeof renderMindset === 'function' && allMindset.length) renderMindset(allMindset);
-  if (typeof renderNotes === 'function' && allNotes.length) renderNotes(allNotes);
-  if (typeof renderSessions === 'function' && allSessions.length) renderSessions(allSessions);
-  if (typeof renderProjects === 'function' && allProjects.length) renderProjects(allProjects);
+  // 2. Force dynamic lists to redraw — always use sortState so saved sort is respected
+  if (typeof renderMindset === 'function' && allMindset.length)
+    renderMindset(applySortToData(allMindset, sortState.mindset.field, sortState.mindset.dir));
+  if (typeof renderNotes === 'function' && allNotes.length)
+    renderNotes(applySortToData(allNotes, sortState.notes.field, sortState.notes.dir));
+  if (typeof renderSessions === 'function' && allSessions.length)
+    renderSessions(applySortToData(allSessions, sortState.log.field, sortState.log.dir));
+  if (typeof renderProjects === 'function' && allProjects.length)
+    renderProjects(applySortToData(allProjects, sortState.projects.field, sortState.projects.dir));
   if (typeof renderCommands === 'function') renderCommands();
+  // Also sync all sort button highlights after redraw
+  ['log','projects','mindset','notes','cmds','warroom'].forEach(tab => {
+    if (typeof updateSortButtons === 'function' && sortState[tab]) {
+      updateSortButtons(tab, sortState[tab].field, sortState[tab].dir);
+    }
+  });
 }
 
 // ── TABS ROUTING ──       
