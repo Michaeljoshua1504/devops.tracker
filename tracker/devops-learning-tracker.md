@@ -368,14 +368,14 @@ During any Problem Mode session, Claude must silently update the **Handoff Note*
 > account #2 can pick up exactly where account #1 left off.
 
 ```
-STATUS: clear
-LAST UPDATED: —
-MODE: —
-CONTEXT: —
-ROOT CAUSE: —
-TRIED: —
-NEXT STEP: —
-FILES TOUCHED: —
+STATUS: active
+LAST UPDATED: 27 Jun 2026 17:20
+MODE: Problem Mode
+CONTEXT: Fixing persistent sort bug on tracker site — sort preference visually flips back to default about 1 second after reload
+ROOT CAUSE: Found — core.js had a "force redraw" block (around line 109) that ran after syncUI() loaded fresh data from Supabase, and it called renderSessions(allSessions) (and equivalents for other tabs) with the raw, unsorted array. This silently overwrote the correctly sorted render that loadSessions had just produced a moment earlier, causing the 1-second flash back to default order.
+TRIED: stripped hardcoded active-button styles from HTML, bumped cache-busting query param on script tags (v3 then v4) to rule out stale CDN cache, removed hardcoded .order() clauses from Supabase queries so sortState fully owns ordering, added console.log tracing to confirm localStorage save/restore (confirmed working) and to trace duplicate renderSessions calls, rewrote the force-redraw block in core.js to pass data through applySortToData (using saved sortState) before rendering and to call updateSortButtons afterward
+NEXT STEP: Waiting on Mikey to hard refresh the site, set a sort on any tab, reload, and confirm whether the sort now holds permanently with no flash-back. If still broken, need fresh [RenderSessions]/[Sort] console output to keep diagnosing.
+FILES TOUCHED: index.html, core.js, Components/log.js (likely sibling tab files too — mindset.js, projects.js, etc. — wherever the equivalent render function lives)
 ```
 
 ---
