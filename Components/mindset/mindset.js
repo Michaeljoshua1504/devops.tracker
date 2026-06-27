@@ -5,7 +5,7 @@ let editingMindsetId = null;
 async function loadMindset() {       
   if(!sb) return;       
   try {    
-    const { data, error } = await sb.from('mindset_moments').select('*').order('created_at', {ascending:false});       
+    const { data, error } = await sb.from('mindset_moments').select('*');       
     if(error || !data){    
       document.getElementById('mindset-list').innerHTML='<div style="color:var(--red);font-size:0.9rem">Error loading snapshots</div>';    
       return;    
