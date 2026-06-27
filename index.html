@@ -165,7 +165,7 @@
     <div id="tab-projects" class="tab-content">
       <div class="card" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem;margin-bottom:1.25rem">
         <div>
-          <div style="font-weight:700;font-size:1.1rem">Mini Project Portfolio</div>
+          <div style="font-weight:700;font-size:1.1rem" id="projects-tab-title">Mini Project Portfolio</div>
           <div style="color:var(--muted);font-size:0.85rem;margin-top:0.2rem">One project per topic</div>
         </div>
         <button class="btn btn-primary admin-only" onclick="openProjectModal()">🚀 Add Project</button>
@@ -189,7 +189,7 @@
     <div id="tab-mindset" class="tab-content">
       <div class="card" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem;margin-bottom:1.25rem">
         <div>
-          <div style="font-weight:700;font-size:1.1rem">Mindset Moments</div>
+          <div style="font-weight:700;font-size:1.1rem" id="mindset-tab-title">Mindset Moments</div>
           <div style="color:var(--muted);font-size:0.85rem;margin-top:0.2rem">Questions and situations that reveal how you think</div>
         </div>
         <div style="display:flex;align-items:center;gap:1rem">
@@ -226,6 +226,13 @@
     ============================================================ -->
     <div id="tab-notes" class="tab-content">
 
+
+      <div class="card" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem;margin-bottom:1.25rem">
+        <div>
+          <div style="font-weight:700;font-size:1.15rem;letter-spacing:-0.02em;" id="notes-tab-title">Daily Log</div>
+          <div style="color:var(--muted);font-size:0.85rem;margin-top:0.3rem;">Your personal diary — what happened, what clicked, what felt hard</div>
+        </div>
+      </div>
       <!-- New/Edit journal entry form. Title text changes via JS when editing. -->
       <div class="card admin-only" style="margin-bottom:1.25rem">
         <div style="font-weight:700; font-size:0.85rem; color:var(--muted); text-transform:uppercase; margin-bottom:1rem; letter-spacing:0.05em;" id="note-form-title">New Journal Entry</div>
@@ -286,7 +293,7 @@
 
       <div class="card" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem;margin-bottom:1.25rem">
         <div>
-          <div style="font-weight:700;font-size:1.15rem;letter-spacing:-0.02em;">Terminal Commands Runbook 💻</div>
+          <div style="font-weight:700;font-size:1.15rem;letter-spacing:-0.02em;" id="cmds-tab-title">Terminal Commands Runbook 💻</div>
           <div style="color:var(--muted);font-size:0.85rem;margin-top:0.3rem;">Every command you've learned — searchable, categorized, copyable</div>
         </div>
         <button class="btn btn-primary admin-only" onclick="openCmdModal()">+ Add Command</button>
@@ -382,7 +389,7 @@
 
       <div class="card" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem;margin-bottom:1.25rem">
         <div>
-          <div style="font-weight:700;font-size:1.15rem;letter-spacing:-0.02em;">🚨 War Room</div>
+          <div style="font-weight:700;font-size:1.15rem;letter-spacing:-0.02em;" id="warroom-tab-title">🚨 War Room</div>
           <div style="color:var(--muted);font-size:0.85rem;margin-top:0.3rem;">Every problem you fought — documented, searchable, permanent.</div>
         </div>
         <button class="btn btn-primary admin-only" onclick="openWarRoomModal()">+ New Report</button>
