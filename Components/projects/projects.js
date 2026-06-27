@@ -16,7 +16,11 @@ async function loadProjects() {
         
         // Safely update dashboard stat if the DOM element exists
         const dashProj = document.getElementById('dash-projects');
-        if(dashProj) dashProj.textContent = allProjects.length;  
+        if(dashProj) dashProj.textContent = allProjects.length;
+
+        // Update tab header count
+        const projTitle = document.getElementById('projects-tab-title');
+        if(projTitle) projTitle.textContent = `Mini Project Portfolio (${allProjects.length})`;  
 
         // Apply current sort preference (default: created_at desc)
         const sorted = (typeof initialSort === 'function')
