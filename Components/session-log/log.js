@@ -41,8 +41,6 @@ async function loadSessions() {
 }
 
 function renderSessions(data) {
-  // DEBUG: log what data we're rendering and where the call came from
-  console.log('[RenderSessions] called with', data ? data.length : 0, 'items, first topic_id:', data && data[0] ? data[0].topic_id : 'none', new Error().stack.split('\n')[1].trim());
   const list = document.getElementById('sessions-list');
   if(!list) return;
   
