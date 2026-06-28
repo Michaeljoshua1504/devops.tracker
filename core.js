@@ -292,20 +292,16 @@ const sortState = (() => {
   // Try to load any previously saved sort preferences from localStorage
   try {
     const raw = localStorage.getItem('tracker_sort_state');
-    console.log('[Sort] localStorage raw:', raw);
     const saved = JSON.parse(raw || '{}');
     // Merge saved prefs over defaults — only valid tabs, only valid keys
     Object.keys(defaults).forEach(tab => {
       if (saved[tab] && saved[tab].field && saved[tab].dir) {
         defaults[tab] = { field: saved[tab].field, dir: saved[tab].dir };
-        console.log('[Sort] Restored', tab, '→', saved[tab].field, saved[tab].dir);
       }
     });
   } catch(e) {
-    console.warn('[Sort] Could not restore sort preferences:', e);
   }
 
-  console.log('[Sort] Final sortState:', JSON.stringify(defaults));
   return defaults;
 })();
 
@@ -362,9 +358,7 @@ function applySort(tab, field, renderFn, dataArr) {
   try {
     const toSave = JSON.stringify(sortState);
     localStorage.setItem('tracker_sort_state', toSave);
-    console.log('[Sort] Saved', tab, field, '→', JSON.parse(toSave)[tab]);
   } catch(e) {
-    console.warn('[Sort] Could not save sort preference:', e);
   }
 
   updateSortButtons(tab, state.field, state.dir);
