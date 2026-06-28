@@ -615,7 +615,7 @@ Claude produces the full detailed .md file covering everything listed above (con
 ---
 
 ## Notes and Corrections
-- 27 Jun 2026: Persistent sort bug fully resolved — confirmed by Mikey after the core.js force-redraw fix. Sort now holds permanently across reloads on all tabs.
+- 27 Jun 2026: Persistent sort bug fully resolved — confirmed by Mikey. Root cause: syncUI() force-redraw block in core.js was calling renderSessions(allSessions) raw after every load, overwriting the correctly sorted render. Fixed by passing all data through sortState in the force-redraw block. Sort now holds permanently across reloads on all tabs.
 
 
 - Approach updated 26 May 2026: added "concept first, tool independent" and full AI + DevOps definition
