@@ -113,6 +113,7 @@ async function syncUI() {
   if (typeof renderProjects === 'function' && allProjects.length)
     renderProjects(applySortToData(allProjects, sortState.projects.field, sortState.projects.dir));
   if (typeof renderCommands === 'function') renderCommands();
+  if (typeof renderWarRoom === 'function' && allWarRoomReports && allWarRoomReports.length) renderWarRoom();
   // Also sync all sort button highlights after redraw
   ['log','projects','mindset','notes','cmds','warroom'].forEach(tab => {
     if (typeof updateSortButtons === 'function' && sortState[tab]) {
