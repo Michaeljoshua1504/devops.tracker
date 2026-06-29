@@ -165,7 +165,7 @@ function renderMindset(data) {
         ${dupBadge}    
       </div>       
       <div id="${mid}" style="display:none;margin-top:0.75rem;padding-top:0.75rem;border-top:1px solid var(--border);font-size:0.9rem;color:var(--muted);line-height:1.6">       
-        <strong>${mSource === 'Me' ? 'Outcome / Action Taken:' : 'What Claude Explained:'}</strong><br>  
+        <strong style="color: ${mSource === 'Me' ? 'var(--green)' : 'var(--blue)'}">${mSource === 'Me' ? 'Outcome / Action Taken:' : 'What Claude Explained:'}</strong><br>  
         ${escapeHTML(m.insight || m.response || '')}    
         <div style="margin-top:1rem; display:flex; justify-content:flex-end; gap:0.5rem;">    
           ${isAdmin ? `<button class="btn btn-ghost" style="font-size:0.78rem; padding:0.35rem 0.75rem;" onclick="event.stopPropagation(); editMindsetMoment('${m.id}')">✏️ Edit</button>` : ''}
@@ -181,15 +181,25 @@ function toggleMindset(mid) {
   if(el) el.style.display = el.style.display === 'none' ? 'block' : 'none';       
 }
 
-// ── DYNAMIC PLACEHOLDER FOR INSIGHT/OUTCOME FIELD ──
-function updateResponsePlaceholder() {
-  const source = document.querySelector('input[name="insight_source"]:checked');
-  const responseField = document.getElementById('mind-response');
-  if (!source || !responseField) return;
-  if (source.value === 'Me') {
-    responseField.placeholder = 'What was the outcome? What did Claude verify, correct, update, or do after?';
-  } else {
-    responseField.placeholder = 'What did Claude explain or teach in response to the question?';
+// ── DYNAMIC FORM LABELS FOR MOMENT TYPE + INSIGHT SOURCE ──
+function updateFormLabels() {
+  const sourceEl = document.querySelector('input[name="insight_source"]:checked');
+  const typeEl = document.querySelector('input[name="moment_type"]:checked');
+  const questionLabel = document.getElementById('mind-question-label');
+  const responseLabel = document.getElementById('mind-response-label');
+
+  // Update Question/Situation label based on moment type
+  if (questionLabel && typeEl) {
+    questionLabel.textContent = typeEl.value === 'Situation' ? 'Situation' : 'Question';
+  }
+
+  // Update response label based on insight source
+  if (responseLabel && sourceEl) {
+    if (sourceEl.value === 'Me') {
+      responseLabel.textContent = 'Outcome / Action Taken';
+    } else {
+      responseLabel.textContent = 'What Claude Explained';
+    }
   }
 }
 
@@ -219,12 +229,10 @@ function openMindsetModal() {
   // Open the modal
   document.getElementById('mindsetModal').classList.add('open');
 
-  // Set default placeholder based on default selected source (AI)
-  updateResponsePlaceholder();
-
-  // Wire radio buttons to update placeholder dynamically
-  document.querySelectorAll('input[name="insight_source"]').forEach(radio => {
-    radio.addEventListener('change', updateResponsePlaceholder);
+  // Set default labels and wire radio buttons
+  updateFormLabels();
+  document.querySelectorAll('input[name="insight_source"], input[name="moment_type"]').forEach(radio => {
+    radio.addEventListener('change', updateFormLabels);
   });
 }
 
@@ -258,12 +266,12 @@ function editMindsetMoment(id) {
   document.querySelector('#mindsetModal h2').textContent = '✏️ Edit Mindset Moment';
   document.getElementById('mindsetModal').classList.add('open');
 
-  // Update placeholder based on current insight_source value
-  updateResponsePlaceholder();
+  // Update labels based on current values
+  updateFormLabels();
 
-  // Wire radio buttons to update placeholder dynamically
-  document.querySelectorAll('input[name="insight_source"]').forEach(radio => {
-    radio.addEventListener('change', updateResponsePlaceholder);
+  // Wire radio buttons to update labels dynamically
+  document.querySelectorAll('input[name="insight_source"], input[name="moment_type"]').forEach(radio => {
+    radio.addEventListener('change', updateFormLabels);
   });
 }
 
