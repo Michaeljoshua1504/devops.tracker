@@ -568,12 +568,14 @@ Claude must produce TWO things for every War Room entry — in this exact order:
 DATE:
 REPORT TYPE: (Build Report / Bug Issue / Deep Dive / Incident Post-Mortem)
 TITLE:
-ERROR CODE: (if applicable, otherwise leave blank)
+ERROR CODE: what went wrong or what triggered this session — the problem that existed before we touched anything. Never leave blank for Problem Mode sessions. Only blank if it was a pure curriculum topic session with zero problem solving.
 SOLUTION / FIX: (short plain-English summary of what was built or fixed — 2 to 4 sentences max)
 ```
 
 **Part 2 — Detailed Report File:**
 Claude produces the full detailed .md file covering everything listed above (concepts, commands, security lens, AI lens, mindset moments, etc). Mikey attaches this file to the "ATTACH DETAILED AI REPORT" field in the War Room UI form.
+
+**ONE SESSION = ONE REPORT. Always.** No matter how many individual fixes, bugs, or changes happened in the same sitting — they all go into one single War Room report. Never split one session into multiple reports.
 
 ---
 
@@ -675,4 +677,4 @@ Claude produces the full detailed .md file covering everything listed above (con
 - 27 Jun 2026: Goal-Based Fix Loop Rule added — when Mikey gives a goal (not a one-shot change), Claude loops: diagnose → fix → self-test → loop again until goal is reached, reporting back only when done. Max 3 loops before stopping to report.
 - 27 Jun 2026: Handoff Checkpoint Rule extended to Topic Mode — Claude also silently updates the Handoff Note when a mini-project starts, when an error hits during the mini-project, and when the mini-project is successfully pushed.
 
-*Last updated: 29 Jun 2026 — Mindset form UI updated: dynamic label for Question/Situation field based on moment type, dynamic label for response field based on insight source (What Claude Explained / Outcome / Action Taken), colour-coded saved card labels (blue = AI, green = Me). INSIGHT SOURCE and INSIGHT/OUTCOME rules locked in tracker. Topic 2.1 complete. Next: 2.2. Total: 8 of 67.*
+*Last updated: 29 Jun 2026 — War Room rules updated: ERROR CODE must never be blank in Problem Mode; ONE SESSION = ONE REPORT rule locked in. Mindset form UI: dynamic labels, colour-coded cards. INSIGHT SOURCE and INSIGHT/OUTCOME rules locked in. Topic 2.1 complete. Next: 2.2. Total: 8 of 67.*
