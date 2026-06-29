@@ -165,7 +165,7 @@ function renderMindset(data) {
         ${dupBadge}    
       </div>       
       <div id="${mid}" style="display:none;margin-top:0.75rem;padding-top:0.75rem;border-top:1px solid var(--border);font-size:0.9rem;color:var(--muted);line-height:1.6">       
-        <strong style="color: ${mSource === 'Me' ? 'var(--green)' : 'var(--blue)'}">${mSource === 'Me' ? 'Outcome / Action Taken:' : 'What Claude Explained:'}</strong><br>  
+        <strong style="color: ${mSource === 'Me' ? '#34d399' : '#60a5fa'}">${mSource === 'Me' ? 'Outcome / Action Taken:' : 'What Claude Explained:'}</strong><br>  
         ${escapeHTML(m.insight || m.response || '')}    
         <div style="margin-top:1rem; display:flex; justify-content:flex-end; gap:0.5rem;">    
           ${isAdmin ? `<button class="btn btn-ghost" style="font-size:0.78rem; padding:0.35rem 0.75rem;" onclick="event.stopPropagation(); editMindsetMoment('${m.id}')">✏️ Edit</button>` : ''}
