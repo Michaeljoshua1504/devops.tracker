@@ -165,7 +165,7 @@ function renderMindset(data) {
         ${dupBadge}    
       </div>       
       <div id="${mid}" style="display:none;margin-top:0.75rem;padding-top:0.75rem;border-top:1px solid var(--border);font-size:0.9rem;color:var(--muted);line-height:1.6">       
-        <strong>Insight/Action Taken:</strong><br>  
+        <strong>${mSource === 'Me' ? 'Outcome / Action Taken:' : 'What Claude Explained:'}</strong><br>  
         ${escapeHTML(m.insight || m.response || '')}    
         <div style="margin-top:1rem; display:flex; justify-content:flex-end; gap:0.5rem;">    
           ${isAdmin ? `<button class="btn btn-ghost" style="font-size:0.78rem; padding:0.35rem 0.75rem;" onclick="event.stopPropagation(); editMindsetMoment('${m.id}')">✏️ Edit</button>` : ''}
@@ -179,6 +179,18 @@ function renderMindset(data) {
 function toggleMindset(mid) {       
   const el = document.getElementById(mid);       
   if(el) el.style.display = el.style.display === 'none' ? 'block' : 'none';       
+}
+
+// ── DYNAMIC PLACEHOLDER FOR INSIGHT/OUTCOME FIELD ──
+function updateResponsePlaceholder() {
+  const source = document.querySelector('input[name="insight_source"]:checked');
+  const responseField = document.getElementById('mind-response');
+  if (!source || !responseField) return;
+  if (source.value === 'Me') {
+    responseField.placeholder = 'What was the outcome? What did Claude verify, correct, update, or do after?';
+  } else {
+    responseField.placeholder = 'What did Claude explain or teach in response to the question?';
+  }
 }
 
 // ── MODAL LOGIC ──
@@ -206,6 +218,14 @@ function openMindsetModal() {
 
   // Open the modal
   document.getElementById('mindsetModal').classList.add('open');
+
+  // Set default placeholder based on default selected source (AI)
+  updateResponsePlaceholder();
+
+  // Wire radio buttons to update placeholder dynamically
+  document.querySelectorAll('input[name="insight_source"]').forEach(radio => {
+    radio.addEventListener('change', updateResponsePlaceholder);
+  });
 }
 
 function closeMindsetModal() {
@@ -237,6 +257,14 @@ function editMindsetMoment(id) {
   
   document.querySelector('#mindsetModal h2').textContent = '✏️ Edit Mindset Moment';
   document.getElementById('mindsetModal').classList.add('open');
+
+  // Update placeholder based on current insight_source value
+  updateResponsePlaceholder();
+
+  // Wire radio buttons to update placeholder dynamically
+  document.querySelectorAll('input[name="insight_source"]').forEach(radio => {
+    radio.addEventListener('change', updateResponsePlaceholder);
+  });
 }
 
 async function saveMindsetMoment() {
