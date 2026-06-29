@@ -470,6 +470,10 @@ During every session, watch for these signals and flag them as Mindset Moments:
 
 Capture every moment that qualifies. There may be 1 or there may be 5 per session. Do not miss them. One block per moment.
 
+**INSIGHT SOURCE rule:** Ask one question before writing this field — "Did Mikey already know this, or did Claude have to explain it?" If Mikey spotted it, caught it, or figured it out unprompted → `Me`. If Mikey asked a question and Claude explained the answer → `AI`. The rating captures how sharp the question was. The source captures where the knowledge came from. These are two separate things — never conflate them.
+
+**INSIGHT / OUTCOME rule:** When INSIGHT SOURCE is `Me` — write what Claude did in response to Mikey's catch (verified, corrected, updated memory, fixed code, etc). When INSIGHT SOURCE is `AI` — write the actual substance of what Claude explained or taught in response to Mikey's question. The framing must match who generated the insight — never write the same way regardless of source. In the tracker app UI, the field label changes dynamically: `Outcome / Action Taken` when source is Me, `What Claude Explained` when source is AI.
+
 ```
 DATE:
 TIME:
@@ -671,4 +675,4 @@ Claude produces the full detailed .md file covering everything listed above (con
 - 27 Jun 2026: Goal-Based Fix Loop Rule added — when Mikey gives a goal (not a one-shot change), Claude loops: diagnose → fix → self-test → loop again until goal is reached, reporting back only when done. Max 3 loops before stopping to report.
 - 27 Jun 2026: Handoff Checkpoint Rule extended to Topic Mode — Claude also silently updates the Handoff Note when a mini-project starts, when an error hits during the mini-project, and when the mini-project is successfully pushed.
 
-*Last updated: 29 Jun 2026 — Topic 2.1 complete. network_detective.sh pushed to devops-portfolio. Next topic: 2.2 — IP addresses, DNS, ports — how computers find each other. Total completed: 8 of 67.*
+*Last updated: 29 Jun 2026 — INSIGHT SOURCE rule and INSIGHT/OUTCOME rule added to Mindset Moments instructions. mindset.js updated with dynamic placeholder and label based on insight_source. Next topic: 2.2 — IP addresses, DNS, ports. Total completed: 8 of 67.*
