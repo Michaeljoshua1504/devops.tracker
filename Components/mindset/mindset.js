@@ -262,6 +262,12 @@ function editMindsetMoment(id) {
   document.getElementById('mind-concept').value = m.concept || m.tag || '';
   document.getElementById('mind-topic').value = m.topic || m.linked_topic_name || '';
   document.getElementById('mind-response').value = m.insight || m.response || '';
+
+  // Populate date and time — trim time to HH:MM (time input doesn't accept seconds)
+  const dateInput = document.getElementById('moment-date');
+  const timeInput = document.getElementById('moment-time');
+  if (dateInput) dateInput.value = m.date || '';
+  if (timeInput) timeInput.value = m.time ? m.time.slice(0, 5) : '';
   
   document.querySelector('#mindsetModal h2').textContent = '✏️ Edit Mindset Moment';
   document.getElementById('mindsetModal').classList.add('open');
