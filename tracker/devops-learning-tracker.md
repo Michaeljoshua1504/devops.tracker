@@ -575,7 +575,9 @@ SOLUTION / FIX: (short plain-English summary of what was built or fixed — 2 to
 **Part 2 — Detailed Report File:**
 Claude produces the full detailed .md file covering everything listed above (concepts, commands, security lens, AI lens, mindset moments, etc). Mikey attaches this file to the "ATTACH DETAILED AI REPORT" field in the War Room UI form.
 
-**ONE SESSION = ONE REPORT. Always.** No matter how many individual fixes, bugs, or changes happened in the same sitting — they all go into one single War Room report. Never split one session into multiple reports.
+**ONE PROBLEM = ONE REPORT in Problem Mode. Always.** If 2-3 separate problems are solved in the same sitting, that is 2-3 separate War Room reports — one per problem. Each problem has its own ERROR CODE, SOLUTION/FIX, and detailed .md file. Never mix unrelated problems into one report — the War Room is a searchable archive, and mixing problems makes it useless to look up later.
+
+**Topic Mode:** One report per topic session (only one topic per session anyway).
 
 ---
 
@@ -677,4 +679,4 @@ Claude produces the full detailed .md file covering everything listed above (con
 - 27 Jun 2026: Goal-Based Fix Loop Rule added — when Mikey gives a goal (not a one-shot change), Claude loops: diagnose → fix → self-test → loop again until goal is reached, reporting back only when done. Max 3 loops before stopping to report.
 - 27 Jun 2026: Handoff Checkpoint Rule extended to Topic Mode — Claude also silently updates the Handoff Note when a mini-project starts, when an error hits during the mini-project, and when the mini-project is successfully pushed.
 
-*Last updated: 29 Jun 2026 — War Room rules updated: ERROR CODE must never be blank in Problem Mode; ONE SESSION = ONE REPORT rule locked in. Mindset form UI: dynamic labels, colour-coded cards. INSIGHT SOURCE and INSIGHT/OUTCOME rules locked in. Topic 2.1 complete. Next: 2.2. Total: 8 of 67.*
+*Last updated: 29 Jun 2026 — War Room rules corrected: ONE PROBLEM = ONE REPORT in Problem Mode (not one session). ERROR CODE never blank in Problem Mode. Mindset form UI: dynamic labels, colour-coded cards. INSIGHT SOURCE and INSIGHT/OUTCOME rules locked in. Topic 2.1 complete. Next: 2.2. Total: 8 of 67.*
