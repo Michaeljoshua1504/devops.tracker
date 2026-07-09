@@ -257,7 +257,7 @@ During any Problem Mode session, Claude must silently update the **Handoff Note*
 | # | Topic | Status | Session Notes |
 |---|-------|--------|---------------|
 | 2.1 | How the internet works — the problem it was solving | ✅ Done | Packets and routing — the two core decisions the internet is built on. Private vs public IP ranges (192.168.x.x, 10.x.x.x). DNS as the phone book. HTTPS encrypts the pipe but not the endpoints. traceroute hands-on — decoded every hop from Bangalore home router through Airtel backbone to Google's network. Mini-project: network_detective.sh — reports connectivity, local IP, public IP, and full traceroute. Pushed to Phase-2-Networking-and-Cloud-Fundamentals/Topic-2.1-How-the-Internet-Works/. Security lens: HTTPS limitations — server compromise, DNS poisoning, certificate theft, endpoint malware. AI lens: AI companies manage the same network infrastructure at massive scale — AIOps monitors it in Phase 8. |
-| 2.2 | IP addresses, DNS, ports — how computers find each other | ⬜ Not started | |
+| 2.2 | IP addresses, DNS, ports — how computers find each other | ✅ Done | IPv4 vs IPv6, private vs public IPs, NAT, DNS resolution chain (resolver → root → TLD → authoritative), DNS record types (A, AAAA, MX, NS, TXT, CNAME), ports 0–65535, well-known ports, TCP vs UDP. Mini-project: dns_port_detective.sh — queries DNS records and scans common ports on a target domain. Ran against github.com — found ports 22, 80, 443 open; all database ports closed. Security lens: IP spoofing, DNS poisoning, port scanning, principle of least exposure. AI lens: DNS load balancing used by AI API providers at scale. |
 | 2.3 | What is "the cloud" — really | ⬜ Not started | |
 | 2.4 | AWS vs Azure vs GCP — same problems, different names | ⬜ Not started | |
 | 2.5 | Virtual machines — renting a computer in someone else's building | ⬜ Not started | |
@@ -382,18 +382,18 @@ FILES TOUCHED: —
 
 ## Current Status
 
-- **Last completed topic:** 2.1 — How the internet works — the problem it was solving
-- **Next topic:** 2.2 — IP addresses, DNS, ports — how computers find each other
+- **Last completed topic:** 2.2 — IP addresses, DNS, ports — how computers find each other
+- **Next topic:** 2.3 — What is "the cloud" — really
 - **Phase:** 2 — Networking + Cloud Fundamentals
-- **Total topics completed:** 8 of 67
+- **Total topics completed:** 9 of 67
 
 ## Current Skill Snapshot
 
 A quick read for any session to orient fast, without scanning the full topic table.
 
 - **Comfortable with:** Terminal navigation (pwd, ls, cd and variants), file/folder structure, absolute vs relative paths, basic permission errors, navigating the tracker app's own codebase at a surface level. Shell scripting fundamentals — shebang, variables, command substitution $(), echo, chmod +x, nano, running scripts with ./. Process inspection and control — ps aux, ps aux -r, ps aux -m, top, kill, jobs, background processes with &. Reading ps aux output columns. Mac vs Linux syntax differences in ps and wc. File permissions — owner/group/others, rwx, chmod numeric system (600, 755), ls -l permission string decoding, root/sudo, principle of least privilege, find command with -perm flags. Networking fundamentals — packets, routing, hops, private vs public IP ranges, DNS, HTTPS and its limitations, traceroute output reading.
-- **In progress:** Nothing currently in progress — Topic 2.1 fully complete. Starting Topic 2.2 next.
-- **Not yet covered:** IP addresses and DNS deep dive, all of cloud, Python, Git/GitHub fundamentals, Docker, CI/CD, Terraform/Kubernetes, monitoring/MLOps.
+- **In progress:** Nothing currently in progress — Topic 2.2 fully complete. Starting Topic 2.3 next.
+- **Not yet covered:** All of cloud, Python, Git/GitHub fundamentals, Docker, CI/CD, Terraform/Kubernetes, monitoring/MLOps.
 - **Outside the curriculum but real hands-on experience:** Building/debugging the tracker web app itself (HTML/CSS/JS, Supabase) and the Jarvis AI assistant integration — this happened in parallel to the curriculum, not as part of it. Claude should not assume curriculum topics (e.g. Git, CI/CD, APIs) are "done" just because they appeared in this side project; they still need to be formally taught in their proper phase.
 
 ---
@@ -595,6 +595,7 @@ Claude produces the full detailed .md file covering everything listed above (con
 | 8 | 23 Jun 2026 | 1.6 — Processes | Process vs program, PID, parent-child, foreground vs background, process states, ps aux column reading, Mac vs Linux syntax, kill, jobs, &. Built process_monitor.sh. 742 processes confirmed. |
 | 9 | 25 Jun 2026 | 1.7 — Permissions | Owner/group/others, rwx, numeric chmod (600/755), ls -l decoding, root/sudo, principle of least privilege, find with -perm flags. Built permissions_audit.sh. Phase 1 complete. |
 | 10 | 29 Jun 2026 | 2.1 — How the internet works | Packets, routing, hops, private vs public IP ranges, DNS, HTTPS and its limitations, traceroute output decoded hop by hop. Built network_detective.sh — reports connectivity, local IP, public IP, full traceroute. |
+| 11 | 09 Jul 2026 | 2.2 — IP addresses, DNS, ports | IPv4 vs IPv6, address exhaustion, NAT, private IP ranges, DNS resolution chain, DNS record types (A/AAAA/MX/NS/TXT/CNAME), ports, well-known ports table, TCP vs UDP. Built dns_port_detective.sh — ran against github.com, found ports 22/80/443 open, all database ports closed. Fixed nc timeout issue on Mac (added -G 1 flag). |
 
 ---
 
@@ -624,6 +625,8 @@ Claude produces the full detailed .md file covering everything listed above (con
 | 29 Jun 2026 | Asked whether HTTPS still leaves room for attacks even with encryption | Security depth — correctly identified that HTTPS secures the pipe but not the endpoints, and that DNS poisoning and certificate theft are real attack vectors |
 | 29 Jun 2026 | Asked how to make home IP invisible like hops 6 and 7 | Privacy and security instinct — correctly connected router silence to IP hiding, leading to VPN and Tor concepts |
 | 29 Jun 2026 | Caught that the Vercel proxy description was outdated — correctly stated Jarvis now runs on Supabase Edge Functions | Accuracy instinct — always verifying that what's being described matches what's actually running in production |
+| 09 Jul 2026 | Noticed the port scan was hanging for over 2 minutes and flagged it immediately rather than waiting indefinitely | Debugging instinct — recognising when something is wrong vs just slow, and calling it out |
+| 09 Jul 2026 | Asked what GitHub's Azure IP and Microsoft MX records mean — connected the DNS output back to real infrastructure decisions | Systems thinking — reading DNS records as a window into how a company's infrastructure is actually built |
 
 ---
 
@@ -679,4 +682,4 @@ Claude produces the full detailed .md file covering everything listed above (con
 - 27 Jun 2026: Goal-Based Fix Loop Rule added — when Mikey gives a goal (not a one-shot change), Claude loops: diagnose → fix → self-test → loop again until goal is reached, reporting back only when done. Max 3 loops before stopping to report.
 - 27 Jun 2026: Handoff Checkpoint Rule extended to Topic Mode — Claude also silently updates the Handoff Note when a mini-project starts, when an error hits during the mini-project, and when the mini-project is successfully pushed.
 
-*Last updated: 29 Jun 2026 — War Room rules corrected: ONE PROBLEM = ONE REPORT in Problem Mode (not one session). ERROR CODE never blank in Problem Mode. Mindset form UI: dynamic labels, colour-coded cards. INSIGHT SOURCE and INSIGHT/OUTCOME rules locked in. Topic 2.1 complete. Next: 2.2. Total: 8 of 67.*
+*Last updated: 09 Jul 2026 — Topic 2.2 complete. IPv4/IPv6, DNS resolution chain, DNS record types, ports, TCP vs UDP. Built dns_port_detective.sh. Fixed Mac nc timeout with -G 1 flag. Next: 2.3 — What is the cloud. Total: 9 of 67.*
